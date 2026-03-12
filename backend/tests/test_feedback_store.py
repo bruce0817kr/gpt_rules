@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -56,3 +57,23 @@ def test_bad_feedback_requires_reason_code() -> None:
         assert "reason code" in str(exc).lower()
     else:
         raise AssertionError("Expected bad feedback without reason codes to fail validation.")
+
+
+def test_feedback_store_reads_concatenated_json_objects_on_single_line(tmp_path: Path) -> None:
+    store = ChatFeedbackStore(tmp_path / "feedback")
+    interaction_a = {
+        "response_id": "response-1",
+        "request": {"question": "q1", "answer_mode": "standard"},
+    }
+    interaction_b = {
+        "response_id": "response-2",
+        "request": {"question": "q2", "answer_mode": "standard"},
+    }
+
+    store.interactions_path.write_text(
+        json.dumps(interaction_a, ensure_ascii=False) + json.dumps(interaction_b, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    assert store.find_interaction("response-1") == interaction_a
+    assert store.find_interaction("response-2") == interaction_b

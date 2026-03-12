@@ -875,6 +875,31 @@ docker compose up --build
 ### 현재 판단
 - 지금 시점이 “사내 배포 직전 스냅샷”으로 적합하다.
 - 이후 변경이 생기면 이 시점 커밋과 백업 zip을 기준 복구점으로 사용하면 된다.
+## 2026-03-12 17:52:00 +09:00
+
+### 이번 작업 요약
+- 답변 평가(`POST /api/chat-feedback`) 시 `500 Internal Server Error`가 발생하는 운영 이슈를 수정했다.
+- 원인은 `runtime/internal/backend-data/feedback/chat_interactions.jsonl`에 JSON 객체 2개가 한 줄에 붙어 저장된 레코드였다.
+- `backend/app/services/feedback_store.py`의 JSONL 파서를 강화해 한 줄에 이어 붙은 JSON 객체도 읽도록 수정했다.
+- `backend/tests/test_feedback_store.py`에 concatenated JSONL 회귀 테스트를 추가했다.
+
+### 운영 데이터 조치
+- 운영 파일 백업:
+  - `runtime/internal/backend-data/feedback/chat_interactions.backup_20260312_1740.jsonl`
+- 운영 파일 정규화:
+  - `runtime/internal/backend-data/feedback/chat_interactions.jsonl`
+- 정규화 후 `}{` 패턴 재검사 결과 추가 붙음 레코드는 남지 않았다.
+
+### 배포 및 검증
+- 내부 백엔드 재빌드/재기동:
+  - `docker compose -p gpt_rules_internal -f docker-compose.internal.yml up -d --build backend`
+- 컨테이너 단위 테스트:
+  - `docker exec gpt_rules_internal-backend-1 pytest tests/test_feedback_store.py -q`
+  - 결과: `3 passed`
+- 실제 API 검증:
+  - `POST http://127.0.0.1:28000/api/chat-feedback`
+  - 정상 응답 확인, `feedback_id` 발급 및 `superseded_feedback_id` 갱신 확인
+
 ## 2026-03-12 17:05:00 +09:00
 
 ### 이번 작업 요약

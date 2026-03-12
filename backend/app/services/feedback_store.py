@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import threading
 import uuid
 from datetime import datetime, timezone
@@ -8,6 +9,8 @@ from pathlib import Path
 from typing import Any
 
 from app.models.schemas import ChatFeedbackRequest, ChatFeedbackResponse, ChatRequest, ChatResponse
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ChatFeedbackStore:
@@ -88,9 +91,43 @@ class ChatFeedbackStore:
 
         rows: list[dict[str, Any]] = []
         with self._lock:
-            for line in path.read_text(encoding="utf-8").splitlines():
+            for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
                 stripped = line.strip()
                 if not stripped:
                     continue
-                rows.append(json.loads(stripped))
+                rows.extend(self._decode_jsonl_line(path=path, line_number=line_number, line=stripped))
+        return rows
+
+    def _decode_jsonl_line(self, *, path: Path, line_number: int, line: str) -> list[dict[str, Any]]:
+        decoder = json.JSONDecoder()
+        rows: list[dict[str, Any]] = []
+        cursor = 0
+
+        while cursor < len(line):
+            while cursor < len(line) and line[cursor].isspace():
+                cursor += 1
+            if cursor >= len(line):
+                break
+
+            try:
+                payload, cursor = decoder.raw_decode(line, cursor)
+            except json.JSONDecodeError as exc:
+                LOGGER.warning(
+                    "Skipping malformed feedback JSONL payload in %s at line %s: %s",
+                    path,
+                    line_number,
+                    exc,
+                )
+                break
+
+            if isinstance(payload, dict):
+                rows.append(payload)
+                continue
+
+            LOGGER.warning(
+                "Skipping non-object feedback JSONL payload in %s at line %s",
+                path,
+                line_number,
+            )
+
         return rows

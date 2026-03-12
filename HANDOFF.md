@@ -875,3 +875,16 @@ docker compose up --build
 ### 현재 판단
 - 지금 시점이 “사내 배포 직전 스냅샷”으로 적합하다.
 - 이후 변경이 생기면 이 시점 커밋과 백업 zip을 기준 복구점으로 사용하면 된다.
+## 2026-03-12 16:30:00 +09:00
+
+### 이번 작업 요약
+- 원본 로컬 저장소는 대용량 모델 캐시와 운영 산출물이 포함돼 있어 원격 Git 업로드용으로는 부적합하다고 판단했다.
+- private 원격 업로드용 경량 mirror repo를 별도 경로에 생성하기로 결정했다.
+- mirror repo에는 코드, 설정, 문서만 포함하고 `backend/data`, `backend/uploads`, `runtime`, `migration_export`, 대용량 dump/log는 제외한다.
+
+### 문서화
+- `Docs/PRIVATE_REPO_EXPORT_20260312_1630.md`
+
+### 후속 기준
+- 원본 저장소는 복구 기준으로 유지한다.
+- 원격 Git 업로드는 mirror repo 기준으로 진행한다.

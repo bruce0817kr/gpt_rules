@@ -15,3 +15,12 @@ tmp/
 *.zip
 *.log
 tmp_inspect_*.py
+migration_export/
+scripts/logs/
+scripts/qdrant_data_*.tar.gz
+scripts/qdrant_logs.txt
+scripts/searcher_logs.txt
+scripts/volumes.txt
+scripts/qdrant_health.json
+hwp_mcp_stdio_server.log
+.git_mirror/

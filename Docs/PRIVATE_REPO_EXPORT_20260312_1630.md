@@ -12,6 +12,7 @@
 - 경로: `C:\Project\gpt_rules_private_20260312_1630`
 - 브랜치: `main`
 - 목적: private 원격 업로드용
+- 원격 저장소: `https://github.com/bruce0817kr/gpt_rules_private`
 
 ## mirror repo 제외 대상
 - `backend/data/**`

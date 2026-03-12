@@ -875,6 +875,21 @@ docker compose up --build
 ### 현재 판단
 - 지금 시점이 “사내 배포 직전 스냅샷”으로 적합하다.
 - 이후 변경이 생기면 이 시점 커밋과 백업 zip을 기준 복구점으로 사용하면 된다.
+## 2026-03-12 17:05:00 +09:00
+
+### 이번 작업 요약
+- `gh`를 사용해 private 원격 저장소를 생성했다.
+- 경량 mirror repo `C:\Project\gpt_rules_private_20260312_1630`의 `main` 브랜치를 원격 `origin`에 push 했다.
+
+### 원격 저장소
+- `https://github.com/bruce0817kr/gpt_rules_private`
+- visibility: `PRIVATE`
+- default branch: `main`
+
+### 현재 상태
+- mirror repo는 `origin/main`을 추적 중이다.
+- mirror repo working tree는 clean 상태다.
+
 ## 2026-03-12 17:00:00 +09:00
 
 ### 이번 작업 요약

@@ -875,6 +875,20 @@ docker compose up --build
 ### 현재 판단
 - 지금 시점이 “사내 배포 직전 스냅샷”으로 적합하다.
 - 이후 변경이 생기면 이 시점 커밋과 백업 zip을 기준 복구점으로 사용하면 된다.
+## 2026-03-12 18:12:00 +09:00
+
+### 이번 작업 요약
+- 사이드바 하단 겹침이 1차 수정 후에도 남아 있어 2차 보정을 적용했다.
+- `.sidebar.panel::after` 오버레이 보더를 사이드바에만 비활성화했다.
+- 마지막 `sidebar-note-section`의 구분선을 섹션 자체 border가 아니라 내부 pseudo element로 옮겨 하단 패널 경계와 시각적으로 분리했다.
+
+### 배포 및 확인
+- 내부 프론트 재배포:
+  - `docker compose -p gpt_rules_internal -f docker-compose.internal.yml up -d --build frontend`
+- 확인:
+  - `http://218.38.240.188:28088/chat/` 응답 `200`
+  - `http://127.0.0.1:28000/api/health` 응답 `{"status":"ok","documents":77,"llm_configured":true}`
+
 ## 2026-03-12 18:05:00 +09:00
 
 ### 이번 작업 요약

@@ -318,10 +318,6 @@ export function Shell({
             )}
           </section>
 
-          <section className="sidebar-section compact-sidebar-section sidebar-note-section" aria-labelledby="deploy-heading">
-            <h2 id="deploy-heading">배포 메모</h2>
-            <p className="muted-copy">기능 추가 전에는 운영 정책과 문서 최신 여부를 먼저 확인하세요.</p>
-          </section>
         </aside>
 
         <main id="app-main" className="main-column">

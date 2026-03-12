@@ -566,22 +566,6 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.sidebar-note-section {
-  position: relative;
-  margin-top: 6px;
-  padding: 14px 0 2px;
-}
-
-.sidebar-note-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
-}
-
 .scroll-chrome-hidden {
   scrollbar-width: none;
   -ms-overflow-style: none;

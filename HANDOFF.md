@@ -875,6 +875,22 @@ docker compose up --build
 ### 현재 판단
 - 지금 시점이 “사내 배포 직전 스냅샷”으로 적합하다.
 - 이후 변경이 생기면 이 시점 커밋과 백업 zip을 기준 복구점으로 사용하면 된다.
+## 2026-03-12 18:20:00 +09:00
+
+### 이번 작업 요약
+- 사이드바의 `배포 메모` 섹션을 제거했다.
+- 관련 마크업은 `frontend/src/components/Layout/Shell.tsx` 에서 삭제했다.
+- 함께 남던 `sidebar-note-section` 전용 스타일도 `frontend/src/index.css` 에서 정리했다.
+
+### 배포 및 확인
+- 프론트 빌드:
+  - `npm run build`
+- 내부 프론트 재배포:
+  - `docker compose -p gpt_rules_internal -f docker-compose.internal.yml up -d --build frontend`
+- 확인:
+  - `http://218.38.240.188:28088/chat/` 응답 `200`
+  - `http://127.0.0.1:28000/api/health` 응답 `{"status":"ok","documents":77,"llm_configured":true}`
+
 ## 2026-03-12 18:12:00 +09:00
 
 ### 이번 작업 요약

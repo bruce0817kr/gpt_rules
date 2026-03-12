@@ -875,6 +875,18 @@ docker compose up --build
 ### 현재 판단
 - 지금 시점이 “사내 배포 직전 스냅샷”으로 적합하다.
 - 이후 변경이 생기면 이 시점 커밋과 백업 zip을 기준 복구점으로 사용하면 된다.
+## 2026-03-12 16:45:00 +09:00
+
+### 이번 작업 요약
+- `GitHub CLI`를 `winget`으로 설치했다.
+- 설치 경로는 `C:\Program Files\GitHub CLI\gh.exe` 이다.
+- 새 PowerShell 세션에서 `gh`가 바로 잡히도록 사용자 PowerShell 프로필에 PATH 추가 라인을 반영했다.
+
+### 현재 상태
+- `gh --version` 확인 완료
+- `where.exe gh` 확인 완료
+- 인증은 아직 안 되어 있어 `gh auth login`이 다음 단계다.
+
 ## 2026-03-12 16:30:00 +09:00
 
 ### 이번 작업 요약

@@ -1,0 +1,9 @@
+data/huggingface/
+data/*.sqlite3
+data/*.db
+uploads/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/

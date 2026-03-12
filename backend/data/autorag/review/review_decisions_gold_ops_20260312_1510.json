@@ -1,0 +1,37 @@
+{
+  "run_id": "gold_ops_20260312_1510",
+  "generated_at_kst": "2026-03-12T15:10:00+09:00",
+  "decision_basis": "packet_1_spot_review",
+  "decisions": [
+    {
+      "qid": "team_lead_hr_admin_01_d65bed73",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 1 spot review: answer and citations align with leave approval/attendance reporting rules."
+    },
+    {
+      "qid": "team_lead_hr_admin_03_630e37ec",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 1 spot review: answer is consistent with personnel committee review and director final approval flow."
+    },
+    {
+      "qid": "new_employee_procurement_bid_03_25981457",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 1 spot review: checklist answer matches estimated price preparation citations."
+    },
+    {
+      "qid": "finance_officer_standard_01_7c6d867c",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 1 spot review: supporting document types and original-copy retention rule are directly cited."
+    },
+    {
+      "qid": "72e16c6570864b64a5e9741d8f34566b",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Packet 1 spot review: answer content does not match the contract-change attachment question."
+    }
+  ]
+}

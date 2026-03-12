@@ -1,0 +1,79 @@
+{
+  "run_id": "gold_ops_20260312_1530",
+  "generated_at_kst": "2026-03-12T15:30:00+09:00",
+  "decision_basis": "packet_2_conservative_spot_review",
+  "decisions": [
+    {
+      "qid": "five_year_employee_contract_review_03_d92271d8",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 2 conservative review: missing-payment-evidence answer is aligned with supporting document and payment rejection rules."
+    },
+    {
+      "qid": "team_lead_procurement_bid_02_14446d9a",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 2 conservative review: inspection risk and contractor responsibility are directly reflected in the cited contract-law passages."
+    },
+    {
+      "qid": "five_year_employee_hr_admin_03_5ae23cad",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 2 conservative review: disciplinary rule and procedure summary is consistent with personnel committee and notification citations."
+    },
+    {
+      "qid": "five_year_employee_standard_01_2f2855b6",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 2 conservative review: training plan answer matches training-rule citations about plan contents and training course selection."
+    },
+    {
+      "qid": "finance_officer_audit_response_03_8cbb59c1",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 2 conservative review: settlement-deadline miss and refund-risk explanation is acceptable against cited expense rule."
+    },
+    {
+      "qid": "finance_officer_hr_admin_01_d577dec5",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Packet 2 conservative review: answer explicitly states that detailed documents/deadlines are not specified in the cited HR rules."
+    },
+    {
+      "qid": "five_year_employee_audit_response_01_7469eb85",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Packet 2 conservative review: answer mixes corporate-card usage restriction with post-use evidence submission format and does not directly answer the question."
+    },
+    {
+      "qid": "finance_officer_project_management_03_852bde30",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Packet 2 conservative review: answer drifts to pre-execution approval instead of post-execution result-report documents and deadline."
+    },
+    {
+      "qid": "new_employee_contract_review_01_79adb9de",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Packet 2 conservative review: answer is a mismatched contract-change template and does not address missing-document procedure."
+    },
+    {
+      "qid": "new_employee_project_management_01_a18100ca",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Packet 2 conservative review: answer focuses on pre-approval and omits the requested result-report document order."
+    },
+    {
+      "qid": "new_employee_procurement_bid_01_42ff9c44",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Packet 2 conservative review: answer is not grounded in comparison-quotation procedure and cites unrelated materials."
+    },
+    {
+      "qid": "team_lead_standard_02_b036285e",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Packet 2 conservative review: answer mixes unrelated labor and accounting exceptions instead of a coherent contract-risk review."
+    }
+  ]
+}

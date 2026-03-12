@@ -1,0 +1,343 @@
+{
+  "run_id": "gold_ops_20260312_1545",
+  "generated_at_kst": "2026-03-12T15:45:00+09:00",
+  "decision_basis": "remaining_packets_conservative_batch_review",
+  "decisions": [
+    {
+      "qid": "five_year_employee_audit_response_03_7113aa6a",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: settlement evidence checklist answer aligns with cited expense and accounting rules."
+    },
+    {
+      "qid": "five_year_employee_contract_review_01_11017db6",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer relies on absence claim with unrelated citations and does not ground the penalty-clause question well."
+    },
+    {
+      "qid": "five_year_employee_project_management_03_1e783e09",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: settlement remediation steps and evidence requirements are consistent with cited rules."
+    },
+    {
+      "qid": "team_lead_procurement_bid_03_a03c7410",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: estimated-price rule summary is aligned with cited accounting-rule passages."
+    },
+    {
+      "qid": "team_lead_hr_admin_02_7c3226bf",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: disciplinary procedure answer matches cited personnel rules."
+    },
+    {
+      "qid": "finance_officer_standard_02_3c353c23",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: settlement deadline miss and resulting risk are directly supported by the cited rules."
+    },
+    {
+      "qid": "five_year_employee_audit_response_02_b2c13cf2",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: insufficient-evidence audit response is acceptable against cited accounting and audit rules."
+    },
+    {
+      "qid": "new_employee_contract_review_02_421a6144",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer drifts into labor-contract penalty prohibition and does not fit the general contract clause question."
+    },
+    {
+      "qid": "five_year_employee_project_management_01_3710ec10",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: pre-execution supporting-document checklist is well aligned with the cited rules."
+    },
+    {
+      "qid": "new_employee_procurement_bid_02_5503ff44",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer does not address the post-announcement to contract-signing process question directly."
+    },
+    {
+      "qid": "new_employee_hr_admin_03_08526c63",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: written disciplinary notice procedure is clearly supported by the cited HR rules."
+    },
+    {
+      "qid": "five_year_employee_standard_02_0ba0dcce",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer covers evidence handling but does not sufficiently address cost-calculation criteria."
+    },
+    {
+      "qid": "new_employee_audit_response_03_55f5a836",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: post-use corporate-card remediation conditions and reason statement flow are grounded in the cited rules."
+    },
+    {
+      "qid": "team_lead_contract_review_01_c880b846",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer uses the mismatched contract-change template and does not address liability split or penalty criteria."
+    },
+    {
+      "qid": "five_year_employee_project_management_02_73f9ae43",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: result-report items and schedule are acceptably grounded in the cited project-management rule."
+    },
+    {
+      "qid": "team_lead_procurement_bid_01_cb6d024a",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: bid/comparison-quote screening answer is broad but still aligned with the cited procurement rules."
+    },
+    {
+      "qid": "new_employee_hr_admin_02_bd3a7cae",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: promotion flow after approval is consistent with personnel committee citations."
+    },
+    {
+      "qid": "five_year_employee_hr_admin_01_e64bb61e",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: delegated approver and acting-role explanation is acceptably grounded in organization and document rules."
+    },
+    {
+      "qid": "new_employee_standard_01_e6ee01e1",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: answer correctly states that the detailed leave-application documents are not specified in the cited rules."
+    },
+    {
+      "qid": "new_employee_standard_02_1a43ea6c",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer introduces a specific application form that is not grounded enough for the generic contract-item question."
+    },
+    {
+      "qid": "team_lead_audit_response_03_8e2e9acb",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer drifts into ex-post daily audit procedure instead of evidence-remediation guidance."
+    },
+    {
+      "qid": "new_employee_contract_review_03_16f66fc0",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: citations are unrelated to contract liability-split review."
+    },
+    {
+      "qid": "new_employee_project_management_02_70763784",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer shifts to annual settlement reporting and misses the requested settlement approval flow."
+    },
+    {
+      "qid": "new_employee_project_management_03_a22448e8",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: pre-approval expense-plan checklist is acceptably aligned with cited project and accounting rules."
+    },
+    {
+      "qid": "finance_officer_procurement_bid_03_d21de556",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer relies on employment-contract citations and does not fit procurement contract review."
+    },
+    {
+      "qid": "finance_officer_hr_admin_02_bbfb36fd",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer overstates required promotion documents and is not grounded enough for a gold row."
+    },
+    {
+      "qid": "finance_officer_audit_response_01_027b1741",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer mixes card-usage restrictions with evidence-retention guidance and does not answer the evidence question cleanly."
+    },
+    {
+      "qid": "new_employee_audit_response_01_ca0ed52b",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer mixes usage restriction and evidence submission and is not clean enough for gold."
+    },
+    {
+      "qid": "finance_officer_contract_review_02_1471a79b",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: missing-payment-evidence answer is acceptable against supporting-document and payment-processing citations."
+    },
+    {
+      "qid": "team_lead_project_management_03_10c6581b",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: approval flow and project impact are consistent with project-management citations."
+    },
+    {
+      "qid": "five_year_employee_procurement_bid_01_e0e33251",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer does not provide the requested comparison-quote document list and uses weak citations."
+    },
+    {
+      "qid": "five_year_employee_procurement_bid_02_41864b68",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: estimated-price caution points are clearly aligned with the cited laws and accounting rules."
+    },
+    {
+      "qid": "new_employee_hr_admin_01_3185cc97",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: answer appropriately notes approval requirement and lack of explicit document specification."
+    },
+    {
+      "qid": "team_lead_standard_01_4a765575",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: approval chain and responsible-owner definition are directly supported by cited project rules."
+    },
+    {
+      "qid": "five_year_employee_audit_response_04_a01c72d3",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: reimbursement-risk prevention answer matches cited evidence and accounting rules."
+    },
+    {
+      "qid": "team_lead_contract_review_02_cee5c814",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer falls back to generic document-management language and does not address payment impact well."
+    },
+    {
+      "qid": "finance_officer_project_management_01_7ddece88",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: evidence types and original-retention rule are directly grounded in the cited rules."
+    },
+    {
+      "qid": "five_year_employee_procurement_bid_03_fe5f284e",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer mixes integrity-duty and labor-contract clauses instead of procurement contract review."
+    },
+    {
+      "qid": "finance_officer_hr_admin_03_8b5d7c90",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: disciplinary evidence and supplementation rights are clearly supported by the cited HR rules."
+    },
+    {
+      "qid": "team_lead_audit_response_02_bc26f79b",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer adds unrelated customer-liability language and is not reliable enough for gold."
+    },
+    {
+      "qid": "team_lead_audit_response_04_ec9b261d",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer drifts to budget reallocation approval and does not cleanly address post-settlement remediation."
+    },
+    {
+      "qid": "five_year_employee_contract_review_02_80f5ca27",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer uses the mismatched contract-change template instead of required attachment documents."
+    },
+    {
+      "qid": "team_lead_project_management_01_1afb2788",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer does not directly resolve final approver and reporting cadence for result reporting."
+    },
+    {
+      "qid": "finance_officer_procurement_bid_02_790a52bc",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: legal basis for estimated-price calculation is clearly aligned with the cited laws."
+    },
+    {
+      "qid": "five_year_employee_hr_admin_02_08666670",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: recommendation-form guidance is acceptably grounded in the cited promotion rules."
+    },
+    {
+      "qid": "finance_officer_audit_response_02_ece74e4d",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: audit-material checklist and supplement path are directly reflected in the cited audit rules."
+    },
+    {
+      "qid": "finance_officer_contract_review_03_911af52f",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer is another mismatched contract-change template and lacks proper grounding."
+    },
+    {
+      "qid": "team_lead_contract_review_03_e3e898f5",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: exception and responsibility answer is acceptable against the cited contract-law passage."
+    },
+    {
+      "qid": "team_lead_audit_response_01_961aa331",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: audit risk from missing evidence is aligned with cited accounting and audit rules."
+    },
+    {
+      "qid": "team_lead_project_management_02_4a3fafe5",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: settlement evidence requirements and rejection risk are acceptably grounded in the cited rules."
+    },
+    {
+      "qid": "finance_officer_contract_review_01_8a6dbfe4",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer mixes general termination law and labor-law clauses and is too broad for gold."
+    },
+    {
+      "qid": "finance_officer_procurement_bid_01_67913b0c",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer uses weak or unrelated citations for the comparison-quote review question."
+    },
+    {
+      "qid": "new_employee_audit_response_02_13acecd7",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: evidence-preparation checklist and caution points are directly supported by cited rules."
+    },
+    {
+      "qid": "finance_officer_project_management_02_d641e979",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: missing-settlement-item remediation flow is aligned with cited settlement rules."
+    },
+    {
+      "qid": "new_employee_audit_response_04_080bb0f9",
+      "review_status": "rejected",
+      "selected_for_gold": false,
+      "review_notes": "Batch review: answer focuses on exceptional reason statements and does not cover general post-use record organization well."
+    },
+    {
+      "qid": "finance_officer_audit_response_04_4ca30bd9",
+      "review_status": "approved",
+      "selected_for_gold": true,
+      "review_notes": "Batch review: settlement evidence and supplementation answer is acceptably grounded in the cited rules."
+    }
+  ]
+}

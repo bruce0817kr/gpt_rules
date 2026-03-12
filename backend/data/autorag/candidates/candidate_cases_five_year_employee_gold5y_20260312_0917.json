@@ -1,0 +1,255 @@
+{
+  "run_id": "gold5y_20260312_0917",
+  "generated_at_utc": "2026-03-12T00:18:13.149852+00:00",
+  "persona": {
+    "id": "five_year_employee",
+    "label": "경력 5년차 직원",
+    "description": "재단에서 5년 정도 근무한 실무 담당자다. 내부 결재선과 기본 규정은 알고 있지만, 인사, 계약, 감사, 구매, 사업비 집행처럼 실수 위험이 큰 규정은 원문을 다시 확인하려고 한다.",
+    "team_context": "사업 수행과 행정 실무를 함께 맡고 있으며, 사소한 문의보다 실제 결재나 집행 전에 필요한 질문을 던진다.",
+    "question_style": [
+      "짧지만 업무 맥락이 드러나는 질문",
+      "실제 승인, 증빙, 계약, 입찰, 결과보고 전에 묻는 질문",
+      "규정 위반이나 누락을 피하려는 톤"
+    ],
+    "blind_spots": [
+      "개정된 규정 세부 문구",
+      "예외 요건과 증빙 문서",
+      "부서 간 책임 분기점"
+    ]
+  },
+  "cases": [
+    {
+      "id": "five_year_employee_standard_01_2f2855b6",
+      "question": "교육훈련 규칙에 따라 직원 교육 계획 수립 시 반드시 포함해야 할 항목은 무엇인가요",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "교육비 집행 및 결과 보고를 위해 필요한 사전 준비 사항이다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_standard_02_0ba0dcce",
+      "question": "사업비 집행 시 원가 계산 및 증빙 서류는 어떤 기준을 따라야 하나요",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "정확한 사업비 집행과 감사 대응을 위해 중요한 문서 요구 사항이다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_hr_admin_01_e64bb61e",
+      "question": "휴가 중 업무 대행자는 어떻게 지정하고, 이 과정에서 필요한 결재는 무엇인가요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "대행자 지정 시의 결재 누락 방지를 위해 중요하다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_hr_admin_02_08666670",
+      "question": "승진 권고를 위한 추천서 작성 시 어떤 기준과 양식을 따라야 하나요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "승진 절차에서의 문서적 오류를 피하기 위함이다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_hr_admin_03_5ae23cad",
+      "question": "근무 태도 징계 시 참고해야 할 규정과 절차는 무엇인지 확인할 수 있을까요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "징계 절차의 법적 준수 여부를 확인하기 위해 필요하다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_contract_review_01_11017db6",
+      "question": "계약서에 명시된 위약금 조항의 적용 범위와 절차는 어떻게 되나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "위약금 조항은 계약 이행에 중요한 영향을 미치므로 사전에 명확히 할 필요가 있다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_contract_review_02_80f5ca27",
+      "question": "계약 변경 사항을 승인받기 위해 반드시 첨부해야 하는 서류는 무엇인가요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "서류 누락으로 인해 계약 변경이 지체되지 않도록 확인해야 한다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_contract_review_03_d92271d8",
+      "question": "대금 지급을 위한 증빙이 누락될 경우 어떤 절차를 따라야 하나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "증빙 서류 누락은 대금 지급에 직접적인 영향을 미치므로 사전 확인이 중요하다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_project_management_01_3710ec10",
+      "question": "사업비 집행 전 반드시 확인해야 할 증빙 서류 목록은 무엇인가요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "정확한 증빙 없이 사업비를 집행할 경우 문제가 발생할 수 있기 때문입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_project_management_02_73f9ae43",
+      "question": "결과보고 시 포함해야 할 주요 항목과 제출 기한은 어떻게 되나요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "결과보고가 누락되면 프로젝트 평가에 부정적인 영향을 미칠 수 있습니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_project_management_03_1e783e09",
+      "question": "정산 과정에서 보완해야 할 서류나 절차가 있다면 어떤 것들이 있나요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "notice"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "정산 시 서류가 부족하면 재정적 문제로 이어질 수 있기 때문에 미리 확인이 필요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_procurement_bid_01_e0e33251",
+      "question": "입찰에 필요한 비교견적 제출 시 요구되는 서류 목록은 무엇인가요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "명확한 서류 목록 확인을 통해 입찰 과정의 투명성을 확보할 수 있다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_procurement_bid_02_41864b68",
+      "question": "예정가격 설정 기준에 따라 가격 책정 시 유의해야 할 사항은 무엇인가요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "예정가격 설정에 따른 법적 요구 사항을 확인하여 위반을 방지할 수 있다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_procurement_bid_03_fe5f284e",
+      "question": "계약 체결 전 검토해야 할 주요 조항과 해당 조항의 위험 요소는 무엇인가요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "계약 위험 요소를 사전에 파악하여 문제 발생을 예방할 수 있다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_audit_response_01_7469eb85",
+      "question": "법인카드 사용 후 증빙 서류는 어떤 형식으로 제출해야 하며, 누락 시 어떤 위험이 있을까요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "증빙 서류 제출 방식과 누락 시 위험을 사전에 확인하는 것이 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_audit_response_02_b2c13cf2",
+      "question": "감사 시 지출 증빙이 부족한 경우에는 어떤 절차를 통해 보완해야 하나요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "부족한 증빙에 대한 보완 절차를 이해하는 것은 감사 대응에 필수적입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_audit_response_03_7113aa6a",
+      "question": "사업비 정산 시 필수로 제출해야 하는 증빙 서류 목록은 무엇인지 확인할 수 있을까요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "정산 시 필요한 서류 목록을 사전에 확인하여 위험을 줄이는 것이 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "five_year_employee_audit_response_04_a01c72d3",
+      "question": "환수 위험을 피하기 위해 지원금 지출 시 어떤 증빙을 확보해야 하나요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "five_year_employee",
+      "persona_label": "경력 5년차 직원",
+      "candidate_note": "지원금 지출에 대해 요구되는 증빙을 명확히 아는 것이 필수적입니다.",
+      "source": "persona_agent"
+    }
+  ]
+}

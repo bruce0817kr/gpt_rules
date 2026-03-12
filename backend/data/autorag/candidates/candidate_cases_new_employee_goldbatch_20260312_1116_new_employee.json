@@ -1,0 +1,256 @@
+{
+  "run_id": "goldbatch_20260312_1116_new_employee",
+  "generated_at_utc": "2026-03-12T02:14:21.462779+00:00",
+  "persona": {
+    "id": "new_employee",
+    "label": "입사 6개월 직원",
+    "description": "입사한 지 6개월 정도 된 실무자다. 결재선과 내부 용어에 익숙하지 않아 질문이 다소 직설적이고, 실제 집행 전에 무엇을 준비해야 하는지부터 확인하려고 한다.",
+    "team_context": "행정 지원과 기초 사업운영 업무를 맡고 있으며, 휴가, 증빙, 계약, 구매처럼 실수를 바로 낼 수 있는 절차를 자주 묻는다.",
+    "question_style": [
+      "규정 용어보다 실제 업무 표현을 먼저 쓰는 질문",
+      "준비물, 제출서류, 승인 순서를 묻는 질문",
+      "실수하지 않기 위해 체크리스트를 요구하는 톤"
+    ],
+    "blind_spots": [
+      "결재권자와 대행자 구분",
+      "증빙 원본/사본 기준",
+      "예외 절차와 사후보고 요건"
+    ]
+  },
+  "cases": [
+    {
+      "id": "new_employee_standard_01_e6ee01e1",
+      "question": "휴가 신청 시 필요한 서류와 결재 절차를 정확히 알려줘",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "실무에서 휴가 처리에 실수가 없도록 준비하기 위해 중요하다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_standard_02_1a43ea6c",
+      "question": "계약 체결 시 확인해야 할 필수 항목과 증빙 자료는 무엇인지 궁금해",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "계약의 법적 효력을 확보하기 위한 준비가 필요하다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_hr_admin_01_3185cc97",
+      "question": "휴가를 신청할 때 필요한 서류와 어떤 결재를 받아야 하는지 확인하고 싶어요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "휴가 신청 전에 필수 서류를 확인하는 것이 중요함.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_hr_admin_02_bd3a7cae",
+      "question": "복무규칙에 따라 결재 후 진행해야 할 승진 절차가 어떤 것인지 알고 싶어요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "승진 절차를 명확히 이해하고 준비하는 것이 중요함.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_hr_admin_03_08526c63",
+      "question": "징계 절차에서 서면 통지를 어떻게 준비해야 하는지, 그 구체적인 절차가 궁금해요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "징계와 관련된 서면 통지를 제대로 준비하는 것이 중요함.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_contract_review_01_79adb9de",
+      "question": "계약 변경 시 서류 누락이 발생했을 때 어떤 절차를 따라야 하나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "서류 누락은 큰 문제를 일으킬 수 있어, 정확한 절차 확인이 필수적입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_contract_review_02_421a6144",
+      "question": "위약금 관련 조항은 어떤 상황에서 적용되는지 구체적으로 알고 싶어요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "위약금 조항을 이해하지 못하면 손해를 볼 수 있으므로 정확한 확인이 필요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_contract_review_03_16f66fc0",
+      "question": "계약의 책임 분기 조항을 검토할 때 어떤 점에 특히 주의해야 하나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "책임 분기 조항은 분쟁의 원인이 될 수 있어 중요하게 체크해야 합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_project_management_01_a18100ca",
+      "question": "사업비 집행 후 결과보고를 위해 준비해야 할 서류와 순서를 자세히 알고 싶어요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "결과보고는 사업비 집행의 필수 과정이기 때문에 정확한 준비가 필요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_project_management_02_70763784",
+      "question": "사업비 정산 절차에서 주의해야 할 항목과 결재 흐름이 어떻게 되는지 궁금해요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "정산 오류를 방지하기 위해 정확한 절차 확인이 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_project_management_03_a22448e8",
+      "question": "승인 받기 전에 사업비 사용 계획을 검토할 때 필요한 체크리스트가 있을까요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "사전 검토는 승인 과정에서 실수를 줄이기 위한 필수 단계입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_procurement_bid_01_42ff9c44",
+      "question": "비교견적을 받을 때 준비해야 할 서류와 절차는 무엇인지 자세히 알고 싶어요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "비교견적은 비용 절감을 위해 필수적인 절차이기 때문에 정확한 준비가 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_procurement_bid_02_5503ff44",
+      "question": "입찰 공고 후 계약 체결까지 과정에서 확인해야 할 주요 사항이 무엇인지 알고 싶어요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "계약 체결 과정에서의 실수는 큰 문제를 발생시킬 수 있으므로 세심한 검토가 필요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_procurement_bid_03_25981457",
+      "question": "예정가격이 설정되기 전에 어떤 자료를 준비해야 하는지 체크리스트를 알려주세요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "예정가격 설정이 적절해야 이후의 모든 절차에 영향을 미치기 때문에 사전 준비가 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_audit_response_01_ca0ed52b",
+      "question": "법인카드 사용 후에 어떤 증빙 자료를 반드시 제출해야 하는지 확인해 주세요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "증빙 자료가 부족하면 감사에서 문제가 될 수 있기 때문에 중요하다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_audit_response_02_13acecd7",
+      "question": "감사 대응을 위해 지출 증빙 서류를 준비할 때 특히 주의해야 할 점이 무엇인지 알고 싶어요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "지출 증빙이 부족하면 환수 위험이 커지므로 신중해야 한다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_audit_response_03_55f5a836",
+      "question": "법인카드를 사용할 때 어떤 경우에 사후 보완 절차가 필요한지 알고 싶어요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "사후 보완 절차를 미리 이해하지 않으면 절차에서 혼란이 생길 수 있다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "new_employee_audit_response_04_080bb0f9",
+      "question": "법인카드 사용 후 감사 대응을 위해 남겨야 할 기록과 서류 정리 방법에 대해 알고 싶어요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "new_employee",
+      "persona_label": "입사 6개월 직원",
+      "candidate_note": "기록과 서류 관리가 부실하면 감사 시 문제가 될 수 있다.",
+      "source": "persona_agent"
+    }
+  ]
+}

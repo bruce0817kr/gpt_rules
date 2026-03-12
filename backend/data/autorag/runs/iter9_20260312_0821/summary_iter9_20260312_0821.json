@@ -1,0 +1,123 @@
+{
+  "run_id": "iter9_20260312_0821",
+  "generated_at_utc": "2026-03-11T23:24:20.852795+00:00",
+  "retrieval_on_mean": {
+    "retrieval_f1_on": 1.0,
+    "retrieval_recall_on": 1.0,
+    "retrieval_precision_on": 1.0
+  },
+  "retrieval_off_mean": {
+    "retrieval_f1_off": 0.540625,
+    "retrieval_recall_off": 0.540625,
+    "retrieval_precision_off": 0.540625
+  },
+  "generation_mean": {
+    "bleu": 66.496488,
+    "rouge": 0.448615
+  },
+  "weakest_generation_cases": [
+    {
+      "qid": "corp_card_policy",
+      "query": "법인카드 사용 제한과 증빙 보관 기준을 알려줘.",
+      "answer_mode": "audit_response",
+      "categories": "['rule' 'guide' 'notice']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.625,
+      "rouge": 0.1875,
+      "bleu": 18.9095,
+      "answer_preview": "결론: 법인카드 사용은 심야시간(23시~익일 6시) 및 공휴일에 제한되며, 이러한 경우에는 사유서를 작성하고 감사의 열람을 받아야 한다. 또한, 법인카드 사용에 대한 증빙은 반드시 보관해야 하며, 사용 내역에 대한 세부 증거서류를 제출해야 한다.\n\n근거 요약:\n1. 법인카드는 심야시간 및 공휴일에 사용이 제한되며, 불가피한 경우에는 사유서를 작성해야 한다(구간 219).\n2. 법인카드 사용과 관련된 모든 지출은 적절한 증빙서류"
+    },
+    {
+      "qid": "contract_risk_review",
+      "query": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘.",
+      "answer_mode": "contract_review",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 1.0,
+      "rouge": 0.3333,
+      "bleu": 76.308,
+      "answer_preview": "결론: 계약 변경 시 반드시 검토해야 할 조항은 고객의 상호, 성명 또는 주소의 변경, 계약종류(서비스 용량, 이용계약기간, 이용목적, 납부방식 등)의 변경이다. 이와 관련하여 발생할 수 있는 위험 포인트는 변경 신청 절차, 비용 부담, 계약의 유효성 및 분쟁 소지이다.\n\n근거 요약:\n1. **적용 조항**:\n   - 고객 및 사실상 요금납입의 책임을 지기로 한 자의 상호, 성명 또는 주소의 변경 [1][2].\n   - 계약종"
+    },
+    {
+      "qid": "procurement_quote_rule",
+      "query": "구매 시 비교견적이나 입찰이 필요한 기준을 정리해줘.",
+      "answer_mode": "procurement_bid",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.6,
+      "rouge": 0.3704,
+      "bleu": 80.7545,
+      "answer_preview": "결론: 구매 시 비교견적이나 입찰이 필요한 기준은 다음과 같습니다.\n\n| 기준 | 설명 |\n|------|------|\n| 경쟁입찰 원칙 | 각 중앙관서의 장 또는 계약담당공무원은 계약을 체결하려면 일반경쟁에 부쳐야 하며, 계약의 목적, 성질, 규모 등을 고려하여 필요하다고 인정되면 참가자의 자격을 제한하거나 지명하여 경쟁에 부치거나 수의계약을 할 수 있다. [1][5] |\n| 입찰 참가자격 사전심사 | 경쟁입찰에 부치는 경우"
+    }
+  ],
+  "weakest_retrieval_cases": [
+    {
+      "qid": "hr_promotion_years",
+      "query": "직급별 승진 소요년수를 표로 정리해줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.5,
+      "rouge": 0.8113,
+      "bleu": 65.6711,
+      "answer_preview": "결론: 직급별 승진 소요년수는 다음과 같습니다.\n\n| 현재 직급       | 승진 직급       | 소요년수   |\n|----------------|----------------|------------|\n| 사원(7급)      | 주임(6급)      | 2년 이상   |\n| 주임(6급)      | 대리(5급)      | 2년 이상   |\n| 대리(5급)      | 과장(4급)      | 3년 이상   |\n| 과장"
+    },
+    {
+      "qid": "hr_leave_process",
+      "query": "연차휴가 사용 절차와 승인 흐름을 알려줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.0,
+      "rouge": 0.5833,
+      "bleu": 77.4271,
+      "answer_preview": "결론: 연차휴가 사용 절차는 직원이 소정의 절차에 따라 승인을 받아야 하며, 연차휴가에 대한 구체적인 사항은 별도의 규칙으로 정해져 있습니다.\n\n근거 요약:\n1. 직원은 휴가를 얻기 위해 원장의 승인 또는 정당한 사유 없이 직무를 이탈할 수 없으며, 반드시 소정의 절차를 따라야 합니다 [1][2][3].\n2. 연차휴가는 근로기준법에 따라 부여되며, 재직기간별 연차휴가일수와 계획, 허가 등은 별도의 규칙으로 정해져 있습니다 [4"
+    },
+    {
+      "qid": "hr_discipline_notice",
+      "query": "징계 절차에서 사전 통지와 소명 기회가 필요한지 알려줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.8,
+      "rouge": 0.4516,
+      "bleu": 55.3132,
+      "answer_preview": "결론: 징계 절차에서 사전 통지와 소명 기회는 필요합니다.\n\n근거 요약:\n1. 인사위원회는 징계대상자에게 진술의 기회를 부여해야 하며, 회의 개최 사실을 회의개최 7일 전까지 징계 대상자에게 직접 통보해야 합니다. 징계대상자가 출석을 원하지 않을 경우 진술권 포기서를 제출해야 하며, 정당한 사유 없이 제출하지 않으면 불출석 상태에서 징계회의가 진행될 수 있습니다 [2][3][4].\n2. 징계의결 요구와 동시에 징계 혐의자에게 "
+    }
+  ],
+  "biggest_reranker_gain_cases": [
+    {
+      "qid": "hr_leave_process",
+      "query": "연차휴가 사용 절차와 승인 흐름을 알려줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.0,
+      "rouge": 0.5833,
+      "bleu": 77.4271,
+      "answer_preview": "결론: 연차휴가 사용 절차는 직원이 소정의 절차에 따라 승인을 받아야 하며, 연차휴가에 대한 구체적인 사항은 별도의 규칙으로 정해져 있습니다.\n\n근거 요약:\n1. 직원은 휴가를 얻기 위해 원장의 승인 또는 정당한 사유 없이 직무를 이탈할 수 없으며, 반드시 소정의 절차를 따라야 합니다 [1][2][3].\n2. 연차휴가는 근로기준법에 따라 부여되며, 재직기간별 연차휴가일수와 계획, 허가 등은 별도의 규칙으로 정해져 있습니다 [4"
+    },
+    {
+      "qid": "project_expense_flow",
+      "query": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘.",
+      "answer_mode": "project_management",
+      "categories": "['rule' 'guide' 'notice']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.4167,
+      "bleu": 76.633,
+      "answer_preview": "결론: 사업비 집행 전에 확인해야 할 승인 절차는 주관기관의 사업비 교부 확정 및 사업비 사용 승인이며, 결과보고 항목은 단위사업 실행에 따른 진행상황 보고와 단위사업 종료 후 1개월 이내의 결과보고서 작성이다.\n\n근거 요약:\n1. **승인 절차**:\n   - 대체사업비를 사용하고자 할 경우, 주관기관의 사업비 교부 확정 및 교부 전 사업비 사용에 대한 승인을 받아야 하며, 이때 사용목적, 사유, 금액 등을 명시하여 원장의 결"
+    },
+    {
+      "qid": "audit_missing_evidence",
+      "query": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘.",
+      "answer_mode": "audit_response",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.4348,
+      "bleu": 80.9554,
+      "answer_preview": "결론: 지출 증빙이 부족할 경우, 감사 대응에서 발생할 수 있는 위험은 예산 집행의 적정성 및 타당성에 대한 의문이 제기되며, 이로 인해 예산 집행이 보류되거나 환수 등의 제재조치가 취해질 수 있다. 보완 조치로는 부족한 증빙을 신속히 확보하고, 필요한 경우 감사부서에 관련 자료를 요청하여 사후 보완을 진행해야 한다.\n\n근거 요약:\n1. 예산집행부서는 기재사유의 타당성을 확인하고, 사유가 불분명할 경우 예산 집행을 보류할 수 "
+    }
+  ]
+}

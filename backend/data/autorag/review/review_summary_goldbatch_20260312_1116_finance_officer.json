@@ -1,0 +1,643 @@
+{
+  "run_id": "goldbatch_20260312_1116_finance_officer",
+  "generated_at_utc": "2026-03-12T02:24:42.934449+00:00",
+  "candidate_path": "/app/data/autorag/candidates/candidate_cases_finance_officer_goldbatch_20260312_1116_finance_officer.json",
+  "review_queue_path": "/app/data/autorag/review/review_queue_goldbatch_20260312_1116_finance_officer.json",
+  "candidate_run_id": "goldbatch_20260312_1116_finance_officer",
+  "rows": [
+    {
+      "qid": "finance_officer_standard_01_7c6d867c",
+      "query": "정산 신청을 위한 증빙 서류의 종류와 각각의 원본 보관 기준은 어떻게 되나요",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "증빙 서류의 종류와 기준을 명확히 해야 지출 적정성을 확보할 수 있습니다.",
+      "suggested_action": "review_edit",
+      "seed_overlap": {
+        "id": "corp_card_policy",
+        "question": "법인카드 사용 제한과 증빙 보관 기준을 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.1429,
+        "shared_keywords": [
+          "보관",
+          "증빙"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_audit_response_01_027b1741",
+        "question": "법인카드 사용 시 필수적인 증빙 서류의 종류와 각각의 원본 보관 기준은 무엇인가요",
+        "answer_mode": "audit_response",
+        "score": 0.5385,
+        "shared_keywords": [
+          "각각의",
+          "기준은",
+          "보관",
+          "서류의",
+          "원본",
+          "종류와",
+          "증빙"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 70",
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 69"
+      ]
+    },
+    {
+      "qid": "finance_officer_standard_02_3c353c23",
+      "query": "정산 기한이 지나면 어떤 조치를 취해야 하며, 누락 시 발생할 수 있는 문제는 무엇인가요",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "정산 기한과 누락 시 조치를 알고 있어야 환수 위험을 사전에 피할 수 있습니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "audit_missing_evidence",
+        "question": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.05,
+        "shared_keywords": [
+          "어떤"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_project_management_02_d641e979",
+        "question": "정산 기한이 다가왔을 때 미비된 사항이 있으면 어떤 절차를 통해 해결해야 하나요",
+        "answer_mode": "project_management",
+        "score": 0.1667,
+        "shared_keywords": [
+          "기한이",
+          "어떤",
+          "정산"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-12] 여비 규정(2023.12.21.) / 구간 12",
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 221"
+      ]
+    },
+    {
+      "qid": "finance_officer_hr_admin_01_d577dec5",
+      "query": "휴가 신청 시 필요한 서류와 그 제출 기한은 어떻게 되나요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "서류 준비 및 기한 준수가 중요한 업무 프로세스입니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "hr_promotion_years",
+        "question": "직급별 승진 소요년수를 표로 정리해줘",
+        "answer_mode": "hr_admin",
+        "score": 0.05,
+        "shared_keywords": []
+      },
+      "peer_overlap": {
+        "id": "finance_officer_project_management_03_852bde30",
+        "question": "사업비 집행 후 결과보고를 위해 준비해야 할 서류와 그 제출 기한은 어떻게 되나요",
+        "answer_mode": "project_management",
+        "score": 0.2222,
+        "shared_keywords": [
+          "기한은",
+          "서류와"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-4] 인사 관리 규정(2025.10.24.) / 구간 199",
+        "[3-25] 공무직 근로자 관리규칙(2026.1.2.) / 구간 144"
+      ]
+    },
+    {
+      "qid": "finance_officer_hr_admin_02_bbfb36fd",
+      "query": "승진 신청에 필요한 평가 기준과 서류는 무엇인지 알려줄 수 있나요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "승진 절차의 명확한 이해가 요구됩니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "hr_promotion_years",
+        "question": "직급별 승진 소요년수를 표로 정리해줘",
+        "answer_mode": "hr_admin",
+        "score": 0.1611,
+        "shared_keywords": [
+          "승진"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_procurement_bid_02_790a52bc",
+        "question": "예정가격 산정 시 참고해야 할 법적 기준과 가이드라인은 무엇인가요",
+        "answer_mode": "procurement_bid",
+        "score": 0.0909,
+        "shared_keywords": [
+          "기준과"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[3-5] 인사 관리 규칙(2026.1.23.) / 구간 114",
+        "[3-5] 인사 관리 규칙(2026.1.23.) / 구간 113"
+      ]
+    },
+    {
+      "qid": "finance_officer_hr_admin_03_8b5d7c90",
+      "query": "징계 절차에서 필요한 증거 자료와 그 보완 가능성은 어떤 것이 있나요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide",
+        "law"
+      ],
+      "candidate_note": "징계 관련 법적 요건을 충족하는 것이 중요합니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "hr_discipline_notice",
+        "question": "징계 절차에서 사전 통지와 소명 기회가 필요한지 알려줘",
+        "answer_mode": "hr_admin",
+        "score": 0.2038,
+        "shared_keywords": [
+          "절차에서",
+          "징계"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_procurement_bid_03_d21de556",
+        "question": "계약 체결 시 반드시 확인해야 할 계약서의 주요 항목은 어떤 것들이 있나요",
+        "answer_mode": "procurement_bid",
+        "score": 0.0769,
+        "shared_keywords": [
+          "어떤"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[3-5] 인사 관리 규칙(2026.1.23.) / 구간 189",
+        "[3-18] 취업규칙(2026.1.1.) / 구간 192"
+      ]
+    },
+    {
+      "qid": "finance_officer_contract_review_01_8a6dbfe4",
+      "query": "계약 해지 시 위약금 규정에 대해 어떤 점을 반드시 검토해야 하나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "candidate_note": "위약금 관련 체크가 필요해 계약 리스크를 줄일 수 있습니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "contract_risk_review",
+        "question": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘",
+        "answer_mode": "contract_review",
+        "score": 0.2038,
+        "shared_keywords": [
+          "검토해야",
+          "계약"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_contract_review_03_911af52f",
+        "question": "계약 변경 후 책임 분기와 관련된 사항을 어떻게 검토해야 하나요",
+        "answer_mode": "contract_review",
+        "score": 0.2643,
+        "shared_keywords": [
+          "검토해야",
+          "계약",
+          "하나요"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "지방자치단체를 당사자로 하는 계약에 관한 법률 / 구간 5",
+        "근로기준법 / 구간 5"
+      ]
+    },
+    {
+      "qid": "finance_officer_contract_review_02_1471a79b",
+      "query": "대금 지급을 위한 서류 누락 시 어떤 절차를 따라야 하나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "guide",
+        "rule"
+      ],
+      "candidate_note": "서류 누락 문제를 사전에 방지하고 분쟁을 예방하기 위해 중요합니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "audit_missing_evidence",
+        "question": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.0588,
+        "shared_keywords": [
+          "어떤"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_project_management_02_d641e979",
+        "question": "정산 기한이 다가왔을 때 미비된 사항이 있으면 어떤 절차를 통해 해결해야 하나요",
+        "answer_mode": "project_management",
+        "score": 0.2,
+        "shared_keywords": [
+          "어떤",
+          "절차를",
+          "하나요"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[3-10] 위원회 수당 등 지급 규칙(2025.6.19.) / 구간 20",
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 82"
+      ]
+    },
+    {
+      "qid": "finance_officer_contract_review_03_911af52f",
+      "query": "계약 변경 후 책임 분기와 관련된 사항을 어떻게 검토해야 하나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "law",
+        "guide"
+      ],
+      "candidate_note": "책임 분기를 명확히 하여 향후 분쟁을 예방하는 데 필요합니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "contract_risk_review",
+        "question": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘",
+        "answer_mode": "contract_review",
+        "score": 0.3227,
+        "shared_keywords": [
+          "검토해야",
+          "계약",
+          "변경"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_contract_review_01_8a6dbfe4",
+        "question": "계약 해지 시 위약금 규정에 대해 어떤 점을 반드시 검토해야 하나요",
+        "answer_mode": "contract_review",
+        "score": 0.2643,
+        "shared_keywords": [
+          "검토해야",
+          "계약",
+          "하나요"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "건설산업기본법 / 구간 5",
+        "지방자치단체를 당사자로 하는 계약에 관한 법률 / 구간 5"
+      ]
+    },
+    {
+      "qid": "finance_officer_project_management_01_7ddece88",
+      "query": "사업비 정산 시 꼭 제출해야 하는 증빙 서류의 구체적인 종류와 각 서류의 원본 보관 기준이 무엇인가요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "정확한 증빙 서류 제출로 감사 대응에 도움이 필요하기 때문.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "corp_card_policy",
+        "question": "법인카드 사용 제한과 증빙 보관 기준을 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.1333,
+        "shared_keywords": [
+          "보관",
+          "증빙"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_standard_01_7c6d867c",
+        "question": "정산 신청을 위한 증빙 서류의 종류와 각각의 원본 보관 기준은 어떻게 되나요",
+        "answer_mode": "standard",
+        "score": 0.4,
+        "shared_keywords": [
+          "보관",
+          "서류의",
+          "원본",
+          "정산",
+          "종류와",
+          "증빙"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 70",
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 69"
+      ]
+    },
+    {
+      "qid": "finance_officer_project_management_02_d641e979",
+      "query": "정산 기한이 다가왔을 때 미비된 사항이 있으면 어떤 절차를 통해 해결해야 하나요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide",
+        "notice"
+      ],
+      "candidate_note": "기한 준수를 통해 불이익을 피하기 위한 실무적인 질문.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "project_expense_flow",
+        "question": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘",
+        "answer_mode": "project_management",
+        "score": 0.05,
+        "shared_keywords": []
+      },
+      "peer_overlap": {
+        "id": "finance_officer_contract_review_02_1471a79b",
+        "question": "대금 지급을 위한 서류 누락 시 어떤 절차를 따라야 하나요",
+        "answer_mode": "contract_review",
+        "score": 0.2,
+        "shared_keywords": [
+          "어떤",
+          "절차를",
+          "하나요"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-12] 여비 규정(2023.12.21.) / 구간 12",
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 276"
+      ]
+    },
+    {
+      "qid": "finance_officer_project_management_03_852bde30",
+      "query": "사업비 집행 후 결과보고를 위해 준비해야 할 서류와 그 제출 기한은 어떻게 되나요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "제때 결과보고를 제출하여 사업의 진행 상황을 적절히 관리하기 위한 질문.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "project_expense_flow",
+        "question": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘",
+        "answer_mode": "project_management",
+        "score": 0.2167,
+        "shared_keywords": [
+          "사업비",
+          "집행"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_hr_admin_01_d577dec5",
+        "question": "휴가 신청 시 필요한 서류와 그 제출 기한은 어떻게 되나요",
+        "answer_mode": "hr_admin",
+        "score": 0.2222,
+        "shared_keywords": [
+          "기한은",
+          "서류와"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[4-4] 경기테크노파크 업무추진비 집행지침(2023.2.24.) / 구간 10",
+        "[2-11] 사업관리 규정(2003.3.20.) / 구간 65"
+      ]
+    },
+    {
+      "qid": "finance_officer_procurement_bid_01_67913b0c",
+      "query": "입찰을 진행하기 전에 검토해야 할 비교견적의 기준은 무엇인가요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "정확한 비교견적 기준이 없으면 입찰이 부적합할 수 있다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "contract_risk_review",
+        "question": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘",
+        "answer_mode": "contract_review",
+        "score": 0.0909,
+        "shared_keywords": [
+          "검토해야"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_contract_review_03_911af52f",
+        "question": "계약 변경 후 책임 분기와 관련된 사항을 어떻게 검토해야 하나요",
+        "answer_mode": "contract_review",
+        "score": 0.0769,
+        "shared_keywords": [
+          "검토해야"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 301",
+        "[4-10] 편의시설 선정 지침(2024.07.02.) / 구간 8"
+      ]
+    },
+    {
+      "qid": "finance_officer_procurement_bid_02_790a52bc",
+      "query": "예정가격 산정 시 참고해야 할 법적 기준과 가이드라인은 무엇인가요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "law",
+        "guide"
+      ],
+      "candidate_note": "정확한 예정가격 산정은 불필요한 비용 지출을 방지할 수 있다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "procurement_quote_rule",
+        "question": "구매 시 비교견적이나 입찰이 필요한 기준을 정리해줘",
+        "answer_mode": "procurement_bid",
+        "score": 0.05,
+        "shared_keywords": []
+      },
+      "peer_overlap": {
+        "id": "finance_officer_hr_admin_02_bbfb36fd",
+        "question": "승진 신청에 필요한 평가 기준과 서류는 무엇인지 알려줄 수 있나요",
+        "answer_mode": "hr_admin",
+        "score": 0.0909,
+        "shared_keywords": [
+          "기준과"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "국가를 당사자로 하는 계약에 관한 법률 / 구간 110",
+        "국가를 당사자로 하는 계약에 관한 법률 / 구간 109"
+      ]
+    },
+    {
+      "qid": "finance_officer_procurement_bid_03_d21de556",
+      "query": "계약 체결 시 반드시 확인해야 할 계약서의 주요 항목은 어떤 것들이 있나요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "계약서의 주요 항목을 놓치면 법적 문제가 발생할 수 있다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "contract_risk_review",
+        "question": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘",
+        "answer_mode": "contract_review",
+        "score": 0.0909,
+        "shared_keywords": [
+          "계약"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_contract_review_01_8a6dbfe4",
+        "question": "계약 해지 시 위약금 규정에 대해 어떤 점을 반드시 검토해야 하나요",
+        "answer_mode": "contract_review",
+        "score": 0.1538,
+        "shared_keywords": [
+          "계약",
+          "어떤"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[3-25] 공무직 근로자 관리규칙(2026.1.2.) / 구간 615",
+        "[3-25] 공무직 근로자 관리규칙(2026.1.2.) / 구간 583"
+      ]
+    },
+    {
+      "qid": "finance_officer_audit_response_01_027b1741",
+      "query": "법인카드 사용 시 필수적인 증빙 서류의 종류와 각각의 원본 보관 기준은 무엇인가요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "증빙이 부족할 경우 환수 위험을 피하기 위한 필수 정보입니다.",
+      "suggested_action": "review_edit",
+      "seed_overlap": {
+        "id": "corp_card_policy",
+        "question": "법인카드 사용 제한과 증빙 보관 기준을 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.3833,
+        "shared_keywords": [
+          "법인카드",
+          "보관",
+          "사용",
+          "증빙"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_standard_01_7c6d867c",
+        "question": "정산 신청을 위한 증빙 서류의 종류와 각각의 원본 보관 기준은 어떻게 되나요",
+        "answer_mode": "standard",
+        "score": 0.5385,
+        "shared_keywords": [
+          "각각의",
+          "기준은",
+          "보관",
+          "서류의",
+          "원본",
+          "종류와",
+          "증빙"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 219",
+        "[2-10] 재무회계 규정(2022.9.26.) / 구간 363"
+      ]
+    },
+    {
+      "qid": "finance_officer_audit_response_02_ece74e4d",
+      "query": "감사 대응을 위해 필요한 자료는 어떤 것이며, 보완이 가능한 부분은 무엇인지 알고 싶습니다",
+      "answer_mode": "audit_response",
+      "categories": [
+        "guide",
+        "rule"
+      ],
+      "candidate_note": "감사 지적 시 대응력을 높이기 위한 사전 준비가 필수적입니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "audit_missing_evidence",
+        "question": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.2722,
+        "shared_keywords": [
+          "감사",
+          "대응을",
+          "어떤",
+          "위해"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_audit_response_04_4ca30bd9",
+        "question": "사업비 정산 시 어떤 증빙 서류가 필요하며, 추가적인 자료 보완이 가능한가요",
+        "answer_mode": "audit_response",
+        "score": 0.1553,
+        "shared_keywords": [
+          "보완이",
+          "어떤"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-3] 감사 규정(2021.09.28.) / 구간 33",
+        "[3-34] 적극행정지원 규칙(2024.02.21.) / 구간 18"
+      ]
+    },
+    {
+      "qid": "finance_officer_audit_response_03_8cbb59c1",
+      "query": "정산 신청 기한을 놓쳤을 때 필요한 조치와 그에 따른 환수 위험은 무엇인지 알고 싶습니다",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "candidate_note": "정산 기한을 준수하지 않으면 발생할 수 있는 문제를 예방하기 위함입니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "audit_missing_evidence",
+        "question": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.05,
+        "shared_keywords": []
+      },
+      "peer_overlap": {
+        "id": "finance_officer_audit_response_02_ece74e4d",
+        "question": "감사 대응을 위해 필요한 자료는 어떤 것이며, 보완이 가능한 부분은 무엇인지 알고 싶습니다",
+        "answer_mode": "audit_response",
+        "score": 0.15,
+        "shared_keywords": [
+          "싶습니다",
+          "알고"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[2-12] 여비 규정(2023.12.21.) / 구간 12"
+      ]
+    },
+    {
+      "qid": "finance_officer_audit_response_04_4ca30bd9",
+      "query": "사업비 정산 시 어떤 증빙 서류가 필요하며, 추가적인 자료 보완이 가능한가요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "guide",
+        "rule"
+      ],
+      "candidate_note": "정확한 증빙 준비로 감사 리스크를 줄이기 위한 질문입니다.",
+      "suggested_action": "review_new",
+      "seed_overlap": {
+        "id": "corp_card_policy",
+        "question": "법인카드 사용 제한과 증빙 보관 기준을 알려줘",
+        "answer_mode": "audit_response",
+        "score": 0.1167,
+        "shared_keywords": [
+          "증빙"
+        ]
+      },
+      "peer_overlap": {
+        "id": "finance_officer_project_management_01_7ddece88",
+        "question": "사업비 정산 시 꼭 제출해야 하는 증빙 서류의 구체적인 종류와 각 서류의 원본 보관 기준이 무엇인가요",
+        "answer_mode": "project_management",
+        "score": 0.1667,
+        "shared_keywords": [
+          "사업비",
+          "정산",
+          "증빙"
+        ]
+      },
+      "bootstrap_title_hints": [
+        "[4-4] 경기테크노파크 업무추진비 집행지침(2023.2.24.) / 구간 10",
+        "[2-12] 여비 규정(2023.12.21.) / 구간 12"
+      ]
+    }
+  ]
+}

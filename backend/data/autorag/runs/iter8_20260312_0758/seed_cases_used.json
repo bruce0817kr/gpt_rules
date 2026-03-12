@@ -1,0 +1,80 @@
+[
+  {
+    "id": "hr_promotion_years",
+    "question": "직급별 승진 소요년수를 표로 정리해줘.",
+    "answer_mode": "hr_admin",
+    "categories": [
+      "rule",
+      "guide",
+      "law"
+    ]
+  },
+  {
+    "id": "hr_leave_process",
+    "question": "연차휴가 사용 절차와 승인 흐름을 알려줘.",
+    "answer_mode": "hr_admin",
+    "categories": [
+      "rule",
+      "guide"
+    ]
+  },
+  {
+    "id": "hr_discipline_notice",
+    "question": "징계 절차에서 사전 통지와 소명 기회가 필요한지 알려줘.",
+    "answer_mode": "hr_admin",
+    "categories": [
+      "rule",
+      "law"
+    ]
+  },
+  {
+    "id": "contract_risk_review",
+    "question": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘.",
+    "answer_mode": "contract_review",
+    "categories": [
+      "rule",
+      "guide",
+      "law"
+    ]
+  },
+  {
+    "id": "project_expense_flow",
+    "question": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘.",
+    "answer_mode": "project_management",
+    "categories": [
+      "rule",
+      "guide",
+      "notice"
+    ]
+  },
+  {
+    "id": "procurement_quote_rule",
+    "question": "구매 시 비교견적이나 입찰이 필요한 기준을 정리해줘.",
+    "answer_mode": "procurement_bid",
+    "categories": [
+      "rule",
+      "guide",
+      "law"
+    ]
+  },
+  {
+    "id": "audit_missing_evidence",
+    "question": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘.",
+    "answer_mode": "audit_response",
+    "categories": [
+      "rule",
+      "guide",
+      "law"
+    ]
+  },
+  {
+    "id": "corp_card_policy",
+    "question": "법인카드 사용 제한과 증빙 보관 기준을 알려줘.",
+    "answer_mode": "audit_response",
+    "categories": [
+      "rule",
+      "guide",
+      "notice"
+    ]
+  }
+]

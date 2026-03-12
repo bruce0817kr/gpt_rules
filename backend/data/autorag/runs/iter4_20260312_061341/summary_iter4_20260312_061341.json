@@ -1,0 +1,123 @@
+{
+  "run_id": "iter4_20260312_061341",
+  "generated_at_utc": "2026-03-11T21:17:58.153530+00:00",
+  "retrieval_on_mean": {
+    "retrieval_f1_on": 0.857692,
+    "retrieval_recall_on": 0.875,
+    "retrieval_precision_on": 0.846875
+  },
+  "retrieval_off_mean": {
+    "retrieval_f1_off": 0.523317,
+    "retrieval_recall_off": 0.540625,
+    "retrieval_precision_off": 0.5125
+  },
+  "generation_mean": {
+    "bleu": 39.391726,
+    "rouge": 0.37649
+  },
+  "weakest_generation_cases": [
+    {
+      "qid": "audit_missing_evidence",
+      "query": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘.",
+      "answer_mode": "audit_response",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 0.4615,
+      "retrieval_f1_off": 0.4615,
+      "rouge": 0.1667,
+      "bleu": 17.3013,
+      "answer_preview": "결론: 지출 증빙이 부족할 경우, 감사 대응 시 위법·부당한 사용으로 간주될 위험이 있으며, 보완 조치로는 소명자료 제출 및 대조필을 통한 증빙 대체가 필요하다.\n\n근거 요약:\n1. 지출증빙서류에는 일시, 장소, 목적 등이 명시된 사용내역서 또는 이에 준하는 증빙서류가 필요하며, 증빙이 어려운 경우 소명자료로 대체할 수 있다[2-10].\n2. 급여대장 등 지출에 필요한 증빙서류를 첨부하기 어려운 경우, 지출결의서의 적요란에 대"
+    },
+    {
+      "qid": "contract_risk_review",
+      "query": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘.",
+      "answer_mode": "contract_review",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 0.4,
+      "retrieval_f1_off": 0.8,
+      "rouge": 0.2051,
+      "bleu": 12.6135,
+      "answer_preview": "결론: 계약 변경 시 반드시 검토해야 할 조항은 계약의 종류, 고객 정보 변경, 계약 조건 변경, 그리고 관련 서류 제출 절차입니다. 위험 포인트로는 변경에 따른 비용 부담, 계약 체결 및 변경 절차의 준수, 그리고 원장의 결재 필요성이 있습니다.\n\n근거 요약:\n1. 계약의 종류 변경(서비스 용량, 이용계약기간, 이용목적, 납부방식 등) 시, 고객은 사유 발생 즉시 관련 절차에 따라 변경 신청을 해야 하며, 이로 인해 발생하는"
+    },
+    {
+      "qid": "project_expense_flow",
+      "query": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘.",
+      "answer_mode": "project_management",
+      "categories": "['rule' 'guide' 'notice']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.2069,
+      "bleu": 63.6972,
+      "answer_preview": "결론: 사업비 집행 전에 확인해야 할 승인 절차는 주관기관의 사업비 교부 확정 및 사업비 사용 승인이며, 결과보고 항목은 단위사업 실행에 따른 진행상황 보고와 단위사업 종료 후 1개월 이내의 결과보고서 작성이다.\n\n근거 요약:\n1. **승인 절차**:\n   - 대체사업비를 사용하고자 할 경우, 주관기관의 사업비 교부 확정 및 교부 전 사업비 사용에 대한 승인을 받아야 하며, 이때 사용목적, 사유, 금액 등을 명시하여 원장의 결"
+    }
+  ],
+  "weakest_retrieval_cases": [
+    {
+      "qid": "contract_risk_review",
+      "query": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘.",
+      "answer_mode": "contract_review",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 0.4,
+      "retrieval_f1_off": 0.8,
+      "rouge": 0.2051,
+      "bleu": 12.6135,
+      "answer_preview": "결론: 계약 변경 시 반드시 검토해야 할 조항은 계약의 종류, 고객 정보 변경, 계약 조건 변경, 그리고 관련 서류 제출 절차입니다. 위험 포인트로는 변경에 따른 비용 부담, 계약 체결 및 변경 절차의 준수, 그리고 원장의 결재 필요성이 있습니다.\n\n근거 요약:\n1. 계약의 종류 변경(서비스 용량, 이용계약기간, 이용목적, 납부방식 등) 시, 고객은 사유 발생 즉시 관련 절차에 따라 변경 신청을 해야 하며, 이로 인해 발생하는"
+    },
+    {
+      "qid": "audit_missing_evidence",
+      "query": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘.",
+      "answer_mode": "audit_response",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 0.4615,
+      "retrieval_f1_off": 0.4615,
+      "rouge": 0.1667,
+      "bleu": 17.3013,
+      "answer_preview": "결론: 지출 증빙이 부족할 경우, 감사 대응 시 위법·부당한 사용으로 간주될 위험이 있으며, 보완 조치로는 소명자료 제출 및 대조필을 통한 증빙 대체가 필요하다.\n\n근거 요약:\n1. 지출증빙서류에는 일시, 장소, 목적 등이 명시된 사용내역서 또는 이에 준하는 증빙서류가 필요하며, 증빙이 어려운 경우 소명자료로 대체할 수 있다[2-10].\n2. 급여대장 등 지출에 필요한 증빙서류를 첨부하기 어려운 경우, 지출결의서의 적요란에 대"
+    },
+    {
+      "qid": "hr_promotion_years",
+      "query": "직급별 승진 소요년수를 표로 정리해줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.5,
+      "rouge": 0.819,
+      "bleu": 69.2392,
+      "answer_preview": "결론: 직급별 승진 소요년수는 다음과 같습니다.\n\n| 현재 직급       | 승진 직급       | 소요년수   |\n|----------------|----------------|------------|\n| 사원(7급)      | 주임(6급)      | 2년 이상   |\n| 주임(6급)      | 대리(5급)      | 2년 이상   |\n| 대리(5급)      | 과장(4급)      | 3년 이상   |\n| 과장"
+    }
+  ],
+  "biggest_reranker_gain_cases": [
+    {
+      "qid": "hr_leave_process",
+      "query": "연차휴가 사용 절차와 승인 흐름을 알려줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.0,
+      "rouge": 0.4545,
+      "bleu": 38.1225,
+      "answer_preview": "결론: 연차휴가 사용 절차는 직원이 소정의 절차에 따라 승인을 받아야 하며, 연차휴가에 대한 구체적인 사항은 별도의 규칙으로 정해져 있습니다.\n\n근거 요약:\n1. 직원은 휴가를 얻기 위해 소정의 절차에 따라 승인을 받아야 하며, 이는 인사 관리 규정, 공무직 근로자 관리규칙, 취업규칙 모두에 명시되어 있습니다 [1][2][3].\n2. 연차휴가는 재직기간별로 부여되며, 구체적인 사용 계획 및 허가는 별도의 규칙으로 정해져 있습니"
+    },
+    {
+      "qid": "project_expense_flow",
+      "query": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘.",
+      "answer_mode": "project_management",
+      "categories": "['rule' 'guide' 'notice']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.2069,
+      "bleu": 63.6972,
+      "answer_preview": "결론: 사업비 집행 전에 확인해야 할 승인 절차는 주관기관의 사업비 교부 확정 및 사업비 사용 승인이며, 결과보고 항목은 단위사업 실행에 따른 진행상황 보고와 단위사업 종료 후 1개월 이내의 결과보고서 작성이다.\n\n근거 요약:\n1. **승인 절차**:\n   - 대체사업비를 사용하고자 할 경우, 주관기관의 사업비 교부 확정 및 교부 전 사업비 사용에 대한 승인을 받아야 하며, 이때 사용목적, 사유, 금액 등을 명시하여 원장의 결"
+    },
+    {
+      "qid": "hr_promotion_years",
+      "query": "직급별 승진 소요년수를 표로 정리해줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.5,
+      "rouge": 0.819,
+      "bleu": 69.2392,
+      "answer_preview": "결론: 직급별 승진 소요년수는 다음과 같습니다.\n\n| 현재 직급       | 승진 직급       | 소요년수   |\n|----------------|----------------|------------|\n| 사원(7급)      | 주임(6급)      | 2년 이상   |\n| 주임(6급)      | 대리(5급)      | 2년 이상   |\n| 대리(5급)      | 과장(4급)      | 3년 이상   |\n| 과장"
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "run_id": "baseline_20260312_0527",
+  "generated_at_utc": "2026-03-11T20:27:28.189859+00:00",
+  "retrieval_on_mean": {
+    "retrieval_f1_on": 0.971154,
+    "retrieval_recall_on": 1.0,
+    "retrieval_precision_on": 0.953125
+  },
+  "retrieval_off_mean": {
+    "retrieval_f1_off": 0.54517,
+    "retrieval_recall_off": 0.575,
+    "retrieval_precision_off": 0.528125
+  },
+  "generation_mean": {
+    "bleu": 39.031375,
+    "rouge": 0.43274
+  },
+  "weakest_generation_cases": [
+    {
+      "qid": "audit_missing_evidence",
+      "query": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘.",
+      "answer_mode": "audit_response",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.1905,
+      "bleu": 18.7745,
+      "answer_preview": "결론: 지출 증빙이 부족할 경우, 감사 대응 시 위법 및 부당한 사항으로 간주될 위험이 있으며, 이를 보완하기 위해서는 관련 자료를 신속히 확보하고, 예산 집행을 보류하는 조치를 취해야 합니다.\n\n근거 요약:\n1. 지출 증빙이 부족할 경우, 감사담당부서에서 환수 등의 제재조치를 할 수 있으며, 예산 집행부서는 기재사유의 타당성을 확인하고 사유가 불분명할 경우 보완 전까지 예산 집행을 보류해야 합니다 [3].\n2. 감사 결과 경"
+    },
+    {
+      "qid": "contract_risk_review",
+      "query": "계약 변경 시 반드시 검토해야 할 조항과 위험 포인트를 알려줘.",
+      "answer_mode": "contract_review",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 1.0,
+      "rouge": 0.2286,
+      "bleu": 15.9835,
+      "answer_preview": "결론: 계약 변경 시 반드시 검토해야 할 조항은 고객의 상호, 성명 또는 주소 변경, 계약종류(서비스 용량, 이용계약기간, 이용목적, 납부방식 등)의 변경이다. 위험 포인트는 변경 신청 절차와 발생 비용 부담, 계약금액 조정 가능성이다.\n\n근거 요약:\n1. **계약 변경 조항**: 고객의 상호, 성명 또는 주소 변경 및 계약종류의 변경은 반드시 검토해야 하며, 변경 시 관련 절차에 따라 변경 신청을 해야 한다. 이때 발생하는 "
+    },
+    {
+      "qid": "project_expense_flow",
+      "query": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘.",
+      "answer_mode": "project_management",
+      "categories": "['rule' 'guide' 'notice']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.4167,
+      "bleu": 54.8531,
+      "answer_preview": "결론: 사업비 집행 전에 확인해야 할 승인 절차는 주관기관의 사업비 교부에 대한 확정 및 교부 전 사업비 사용 승인이며, 결과보고 항목은 단위사업 종료 후 1개월 이내에 진행상황 보고서 작성 및 제출이다.\n\n근거 요약:\n1. **승인 절차**: 대체사업비를 사용하고자 할 경우, 주관기관의 사업비 교부 확정 및 교부 전 사업비 사용에 대한 승인을 받아야 하며, 이때 사용목적, 사유, 금액 등을 명시하여 원장의 결재를 받아야 한다"
+    }
+  ],
+  "weakest_retrieval_cases": [
+    {
+      "qid": "procurement_quote_rule",
+      "query": "구매 시 비교견적이나 입찰이 필요한 기준을 정리해줘.",
+      "answer_mode": "procurement_bid",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 0.7692,
+      "retrieval_f1_off": 0.6364,
+      "rouge": 0.5517,
+      "bleu": 71.755,
+      "answer_preview": "결론: 구매 시 비교견적이나 입찰이 필요한 기준은 다음과 같다.\n\n| 기준 | 설명 |\n|------|------|\n| 경쟁입찰 원칙 | 각 중앙관서의 장 또는 계약담당공무원은 계약을 체결하려면 일반경쟁에 부쳐야 하며, 계약의 목적, 성질, 규모 등을 고려하여 필요하다고 인정되면 참가자의 자격을 제한하거나 지명하여 경쟁에 부치거나 수의계약을 할 수 있다. [1][6] |\n| 입찰 참가자격 사전심사 | 경쟁입찰에 부치는 경우 계"
+    },
+    {
+      "qid": "hr_promotion_years",
+      "query": "직급별 승진 소요년수를 표로 정리해줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.5,
+      "rouge": 0.5684,
+      "bleu": 35.8338,
+      "answer_preview": "결론: 직급별 승진 소요년수는 다음과 같습니다.\n\n| 현재 직급       | 승진 직급       | 소요년수   |\n|------------------|------------------|------------|\n| 사원(7급)       | 주임(6급)       | 2년 이상   |\n| 주임(6급)       | 대리(5급)       | 2년 이상   |\n| 대리(5급)       | 과장(4급)       | 3년 이"
+    },
+    {
+      "qid": "hr_leave_process",
+      "query": "연차휴가 사용 절차와 승인 흐름을 알려줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.0,
+      "rouge": 0.4828,
+      "bleu": 25.404,
+      "answer_preview": "결론: 연차휴가 사용 절차는 직원이 소정의 승인 절차를 통해 연차휴가를 신청하고, 이를 상급자에게 승인받는 방식으로 진행됩니다.\n\n근거 요약:\n1. 직원은 휴가를 얻기 위해 소정의 절차에 따라 승인을 받아야 하며, 이는 인사 관리 규정, 공무직 근로자 관리규칙, 취업규칙 모두에서 동일하게 명시되어 있습니다 [1][2][3].\n2. 연차휴가에 대한 구체적인 사항은 별도의 규칙으로 정해지며, 재직기간에 따라 연차휴가일수와 계획, "
+    }
+  ],
+  "biggest_reranker_gain_cases": [
+    {
+      "qid": "hr_leave_process",
+      "query": "연차휴가 사용 절차와 승인 흐름을 알려줘.",
+      "answer_mode": "hr_admin",
+      "categories": "['rule' 'guide']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.0,
+      "rouge": 0.4828,
+      "bleu": 25.404,
+      "answer_preview": "결론: 연차휴가 사용 절차는 직원이 소정의 승인 절차를 통해 연차휴가를 신청하고, 이를 상급자에게 승인받는 방식으로 진행됩니다.\n\n근거 요약:\n1. 직원은 휴가를 얻기 위해 소정의 절차에 따라 승인을 받아야 하며, 이는 인사 관리 규정, 공무직 근로자 관리규칙, 취업규칙 모두에서 동일하게 명시되어 있습니다 [1][2][3].\n2. 연차휴가에 대한 구체적인 사항은 별도의 규칙으로 정해지며, 재직기간에 따라 연차휴가일수와 계획, "
+    },
+    {
+      "qid": "project_expense_flow",
+      "query": "사업비 집행 전에 확인해야 할 승인 절차와 결과보고 항목을 알려줘.",
+      "answer_mode": "project_management",
+      "categories": "['rule' 'guide' 'notice']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.4167,
+      "bleu": 54.8531,
+      "answer_preview": "결론: 사업비 집행 전에 확인해야 할 승인 절차는 주관기관의 사업비 교부에 대한 확정 및 교부 전 사업비 사용 승인이며, 결과보고 항목은 단위사업 종료 후 1개월 이내에 진행상황 보고서 작성 및 제출이다.\n\n근거 요약:\n1. **승인 절차**: 대체사업비를 사용하고자 할 경우, 주관기관의 사업비 교부 확정 및 교부 전 사업비 사용에 대한 승인을 받아야 하며, 이때 사용목적, 사유, 금액 등을 명시하여 원장의 결재를 받아야 한다"
+    },
+    {
+      "qid": "audit_missing_evidence",
+      "query": "감사 대응을 위해 지출 증빙이 부족할 때 어떤 위험과 보완 조치가 필요한지 알려줘.",
+      "answer_mode": "audit_response",
+      "categories": "['rule' 'guide' 'law']",
+      "retrieval_f1_on": 1.0,
+      "retrieval_f1_off": 0.4,
+      "rouge": 0.1905,
+      "bleu": 18.7745,
+      "answer_preview": "결론: 지출 증빙이 부족할 경우, 감사 대응 시 위법 및 부당한 사항으로 간주될 위험이 있으며, 이를 보완하기 위해서는 관련 자료를 신속히 확보하고, 예산 집행을 보류하는 조치를 취해야 합니다.\n\n근거 요약:\n1. 지출 증빙이 부족할 경우, 감사담당부서에서 환수 등의 제재조치를 할 수 있으며, 예산 집행부서는 기재사유의 타당성을 확인하고 사유가 불분명할 경우 보완 전까지 예산 집행을 보류해야 합니다 [3].\n2. 감사 결과 경"
+    }
+  ]
+}

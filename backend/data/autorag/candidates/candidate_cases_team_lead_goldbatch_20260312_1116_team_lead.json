@@ -1,0 +1,256 @@
+{
+  "run_id": "goldbatch_20260312_1116_team_lead",
+  "generated_at_utc": "2026-03-12T02:18:00.043170+00:00",
+  "persona": {
+    "id": "team_lead",
+    "label": "실무 팀장",
+    "description": "팀 단위 승인과 일정 책임을 지는 실무 팀장이다. 단순 설명보다 누가 승인하고, 누가 책임지며, 어떤 예외가 있는지를 빠르게 확인하려고 한다.",
+    "team_context": "사업 승인, 계약 검토, 구매 의사결정, 휴가 대행 승인, 감사 대응 보고를 직접 챙긴다.",
+    "question_style": [
+      "승인권자, 책임 범위, 보고 시점을 묻는 질문",
+      "리스크와 예외를 함께 묻는 질문",
+      "문서 누락 시 영향까지 확인하려는 톤"
+    ],
+    "blind_spots": [
+      "사후보고 기준",
+      "예정가격/입찰 예외 요건",
+      "계약 변경 시 고객 책임과 내부 책임의 경계"
+    ]
+  },
+  "cases": [
+    {
+      "id": "team_lead_standard_01_4a765575",
+      "question": "사업비 집행을 위한 세부 승인 절차와 책임자는 누구인지 확인할 수 있을까요",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "정확한 승인 절차와 책임 소재 파악이 필수적이므로",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_standard_02_b036285e",
+      "question": "계약 검토 중에 발생할 수 있는 리스크와 예외 조항에 대해 알고 싶습니다",
+      "answer_mode": "standard",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "리스크 관리와 예외 사항 확인이 계약의 안전성을 높이기 때문",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_hr_admin_01_d65bed73",
+      "question": "휴가 대체 승인 시, 어떤 절차를 통해 승인되며, 누구에게 보고해야 하나요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "휴가 대체 승인 절차를 이해하는 것은 업무 연속성을 유지하는 데 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_hr_admin_02_7c3226bf",
+      "question": "직원 징계 시, 법적 요건과 내부 지침에 따라 어떤 절차를 따라야 하는지 확인할 수 있나요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "징계 절차의 법적 요건을 아는 것은 리스크 관리에 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_hr_admin_03_630e37ec",
+      "question": "승진 심사에서 누가 최종 결정을 내리며, 그 과정에서 어떤 리스크 요소를 고려해야 하나요",
+      "answer_mode": "hr_admin",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "승진 심사의 결정 구조를 파악하여 공정성을 확보하는 것이 필요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_contract_review_01_c880b846",
+      "question": "계약 변경 시 책임 분기와 위약 조항에 대한 명확한 기준을 알고 싶습니다",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "이 질문은 계약 변경에 따른 리스크를 사전에 파악하기 위해 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_contract_review_02_cee5c814",
+      "question": "서류 누락 시 대금 지급에 어떤 영향이 있는지와 이를 방지하기 위한 준수 사항은 무엇인지 확인할 수 있을까요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "서류 누락의 리스크를 미리 인지하고 대처하자는 취지의 질문입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_contract_review_03_e3e898f5",
+      "question": "계약 검토 시 유의해야 할 예외 조항과 그에 따른 책임 소재는 어떻게 되는지 설명해 주세요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "guide",
+        "law"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "예외 조항을 명확히 해두어 리스크를 줄이는 것이 필요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_project_management_01_1afb2788",
+      "question": "사업비 집행 후 결과보고 시 누가 최종 승인권자인지와 보고 주기는 어떻게 되는지 확인할 수 있을까요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "결과보고와 관련된 승인 프로세스를 명확히 하려는 목적입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_project_management_02_4a3fafe5",
+      "question": "사업비 정산 시 필요한 증빙 서류와, 누락 시 발생할 수 있는 리스크는 무엇인지 알아야 할까요",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "notice"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "정산 과정에서의 증빙 중요성을 강조하기 위한 질문입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_project_management_03_10c6581b",
+      "question": "사업비 집행 일정을 계획할 때 고려해야 할 승인 절차와 그것이 프로젝트에 미치는 영향을 알고 싶습니다",
+      "answer_mode": "project_management",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "일정 관리에서 승인 절차의 중요성을 인식하기 위한 질문입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_procurement_bid_01_cb6d024a",
+      "question": "입찰 절차에서 필요한 비교견적 제출 기준과 누가 검토하는지 알고 싶습니다",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "비교견적 제출 기준을 명확히 하고 검토자의 책임을 확인하기 위해 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_procurement_bid_02_14446d9a",
+      "question": "계약 체결 후 검수 과정에서 발생할 수 있는 리스크와 그에 따른 책임은 어떻게 되나요",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "law"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "검수에서의 리스크와 책임을 확인하여 사전 예방 조치를 마련하기 위해 필요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_procurement_bid_03_a03c7410",
+      "question": "예정가격 결정 시 어떤 규정을 따르며, 그에 대한 검토 책임자는 누구인지 궁금합니다",
+      "answer_mode": "procurement_bid",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "예정가격 결정 기준과 검토 책임자를 명확히 하여 계약과정을 방지하는 데 중요한 질문입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_audit_response_01_961aa331",
+      "question": "증빙 서류가 부족할 경우 감사에서 어떤 문제와 리스크가 발생할 수 있는지 알고 싶습니다",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "증빙 부족 시 감사 대응 방안을 명확히 할 필요가 있습니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_audit_response_02_bc26f79b",
+      "question": "법인카드 사용 내역 중 일부가 누락된 경우 어떤 보완 조치를 취해야 하며, 이에 대한 책임은 어떻게 나누어지나요",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "법인카드 사용에 따른 책임 소재를 분명히 하는 것이 중요합니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_audit_response_03_8e2e9acb",
+      "question": "감사에서 환수 위험을 줄이기 위해 사후 보완으로 어떤 절차와 문서가 필요할지 확인하고 싶습니다",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "환수 위험을 미연에 방지하기 위한 절차를 이해하는 것이 필수적입니다.",
+      "source": "persona_agent"
+    },
+    {
+      "id": "team_lead_audit_response_04_ec9b261d",
+      "question": "사업비 정산 후 사후 보완이 필요할 경우, 이를 위한 승인 절차와 책임자가 누구인지 알고 싶습니다",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "team_lead",
+      "persona_label": "실무 팀장",
+      "candidate_note": "정산 관련 절차와 책임자를 확인하여 체계적인 대응이 가능합니다.",
+      "source": "persona_agent"
+    }
+  ]
+}

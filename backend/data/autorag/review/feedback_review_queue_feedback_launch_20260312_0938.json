@@ -1,0 +1,112 @@
+{
+  "run_id": "feedback_launch_20260312_0938",
+  "generated_at_utc": "2026-03-12T00:38:32.976832+00:00",
+  "lookback_days": 3,
+  "interactions_path": "/app/data/feedback/chat_interactions.jsonl",
+  "feedback_path": "/app/data/feedback/chat_feedback.jsonl",
+  "rows": [
+    {
+      "qid": "398a13b1ac9f4af794019ee94b42ea09",
+      "query": "???? ?? ? ??? ??? ???? ???",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "persona_id": "",
+      "persona_label": "",
+      "candidate_note": "grounding_weak,missing_detail",
+      "candidate_source": "user_feedback",
+      "feedback_id": "9467abe7f2b94cb696e1146d30c0ee10",
+      "feedback_label": "bad",
+      "feedback_recorded_at": "2026-03-12T00:37:15.634217+00:00",
+      "feedback_duplicate_count": 1,
+      "feedback_reason_codes": [
+        "grounding_weak",
+        "missing_detail"
+      ],
+      "bootstrap_generation_gt": [
+        "결론: 제공된 문서에서 청원심의회 설치 및 운영에 대한 구체적인 내용이 부족하여 질문에 대한 명확한 답변을 제공할 수 없습니다.\n\n근거 요약: \n- 제공된 문서에는 청원심의회 설치 및 운영에 대한 규칙이 포함되어 있으나, 구체적인 내용이나 절차에 대한 정보가 결여되어 있습니다. 구간 53, 47, 44, 45 등에서 청원 관련 내용이 언급되지만, 구체적인 절차나 요구사항에 대한 명시적인 설명이 없습니다. \n\n주의사항 또는 추가 확인사항: \n- 청원심의회와 관련된 구체적인 절차나 규정이 필요하다면, 추가적인 문서나 자료를 확인해야 할 필요성이 있습니다. 또한, 청원심의회 운영에 대한 구체적인 지침이나 규정이 다른 문서에 있을 수 있으므로, 해당 문서들을 검토하는 것이 중요합니다."
+      ],
+      "bootstrap_retrieval_gt": [
+        [
+          "24c2aa9f0a16472ea81d3e8ec4d4421e::구간 53"
+        ],
+        [
+          "24c2aa9f0a16472ea81d3e8ec4d4421e::구간 47"
+        ],
+        [
+          "24c2aa9f0a16472ea81d3e8ec4d4421e::구간 44"
+        ],
+        [
+          "24c2aa9f0a16472ea81d3e8ec4d4421e::구간 45"
+        ],
+        [
+          "24c2aa9f0a16472ea81d3e8ec4d4421e::구간 50"
+        ]
+      ],
+      "reviewed_generation_gt": [],
+      "reviewed_retrieval_gt": [],
+      "bootstrap_citations": [
+        {
+          "index": 1,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 53",
+          "page_number": null,
+          "snippet": "-",
+          "score": 0.6097
+        },
+        {
+          "index": 2,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 47",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        },
+        {
+          "index": 3,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 44",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        },
+        {
+          "index": 4,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 45",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        },
+        {
+          "index": 5,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 50",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        }
+      ],
+      "review_status": "pending",
+      "review_notes": "user_rating=bad | user_reason_codes=grounding_weak,missing_detail",
+      "selected_for_gold": false
+    }
+  ]
+}

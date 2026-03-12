@@ -1,0 +1,174 @@
+{
+  "run_id": "feedback_launch_20260312_0939",
+  "generated_at_utc": "2026-03-12T00:39:26.725607+00:00",
+  "lookback_days": 3,
+  "interactions_path": "/app/data/feedback/chat_interactions.jsonl",
+  "feedback_path": "/app/data/feedback/chat_feedback.jsonl",
+  "rows": [
+    {
+      "response_id": "72e16c6570864b64a5e9741d8f34566b",
+      "feedback_id": "ec0ee9a57eac402da218c926ef661619",
+      "recorded_at": "2026-03-12T00:39:10.789916+00:00",
+      "rating": "bad",
+      "reason_codes": [
+        "answer_incorrect",
+        "citation_mismatch"
+      ],
+      "generated_at": "2026-03-12T00:39:10.776881+00:00",
+      "question": "계약 변경 승인 서류는 무엇을 첨부해야 하나요",
+      "question_normalized": "계약 변경 승인 서류는 무엇을 첨부해야 하나요",
+      "answer_mode": "contract_review",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "top_k": null,
+      "answer": "결론: 계약 변경 시 반드시 검토해야 할 조항은 고객의 상호, 성명 또는 주소의 변경, 계약종류(서비스 용량, 이용계약기간, 이용목적, 납부방식 등)의 변경이다. 이와 관련하여 발생할 수 있는 위험 포인트는 변경 신청 절차, 비용 부담, 계약의 유효성 및 분쟁 소지이다.\n\n근거 요약:\n1. **적용 조항**:\n   - 고객 및 사실상 요금납입의 책임을 지기로 한 자의 상호, 성명 또는 주소의 변경 [1][2].\n   - 계약종류(서비스 용량, 이용계약기간, 이용목적, 납부방식 등)의 변경 [1][2].\n   - 변경 시 사유 발생 즉시 관련 절차에 따라 변경 신청(서류제출)해야 하며, 변경에 따른 비용은 고객이 부담해야 한다 [2].\n\n2. **책임 범위**:\n   - 계약 변경에 따른 비용은 고객이 부담하며, 법인은 고객에게 변경 신청 절차를 안내해야 한다 [2].\n\n3. **예외**:\n\n4. **누락 위험**:\n   - 계약 변경 시 필요한 서류 제출을 누락할 경우, 변경이 인정되지 않거나 추가 비용이 발생할 수 있다.\n\n5. **분쟁 소지**:\n   - 계약 변경에 대한 합의가 명확하지 않거나, 변경 후 발생하는 비용에 대한 이견이 있을 경우 분쟁이 발생할 수 있다.\n\n주의사항 또는 추가 확인사항:\n- 계약 변경 시 반드시 관련 서류를 준비하고, 변경 신청 절차를 준수해야 한다.\n- 변경 사항에 대한 고객의 동의가 명확히 이루어졌는지 확인할 필요가 있다.\n- 계약 변경으로 인해 발생할 수 있는 추가 비용에 대한 명확한 안내가 필요하다.",
+      "citations": [
+        {
+          "index": 1,
+          "document_id": "00d855d4747048dda6da29b95e300646",
+          "title": "[3-23] 중소기업 E-비즈니스 정보화지원사업 운영규칙(2017.8.24.)",
+          "filename": "[3-23] 중소기업 E-비즈니스 정보화지원사업 운영규칙(2017.8.24.).md",
+          "category": "rule",
+          "location": "구간 28",
+          "page_number": null,
+          "snippet": "제8조 (서비스 변경) 법인은 고객이 이용계약 사항 중 다음 각 호에 해당하는 사항을 변경하고자 하는 때에는 사유 발생 즉시 관련 절차에 따라 변경 신청(서류제출)하도록 안내해야 하며, 변경에 따라 발생되는 비용은 고객이 부담하도록 한다.",
+          "score": 0.523
+        },
+        {
+          "index": 2,
+          "document_id": "00d855d4747048dda6da29b95e300646",
+          "title": "[3-23] 중소기업 E-비즈니스 정보화지원사업 운영규칙(2017.8.24.)",
+          "filename": "[3-23] 중소기업 E-비즈니스 정보화지원사업 운영규칙(2017.8.24.).md",
+          "category": "rule",
+          "location": "구간 29",
+          "page_number": null,
+          "snippet": "- 고객 및 사실상 요금납입의 책임을 지기로 한 자의 상호, 성명 또는 주소의 변경\n - 계약종류(서비스 용량, 이용계약기간, 이용목적, 납부방식 등)의 변경",
+          "score": 0.5051
+        },
+        {
+          "index": 3,
+          "document_id": "cae8e105770b432c9cba14d3f73e7915",
+          "title": "[2-10] 재무회계 규정(2022.9.26.)",
+          "filename": "[2-10] 재무회계 규정(2022.9.26.).md",
+          "category": "rule",
+          "location": "구간 79",
+          "page_number": null,
+          "snippet": "## 계약서",
+          "score": 0.5017
+        },
+        {
+          "index": 4,
+          "document_id": "00d855d4747048dda6da29b95e300646",
+          "title": "[3-23] 중소기업 E-비즈니스 정보화지원사업 운영규칙(2017.8.24.)",
+          "filename": "[3-23] 중소기업 E-비즈니스 정보화지원사업 운영규칙(2017.8.24.).md",
+          "category": "rule",
+          "location": "구간 114",
+          "page_number": null,
+          "snippet": "본 계약서는 적법하게 체결된 증거로써, 계약서 2부를 작성하여 \"법인\"과 \"고객\"이 서명하고, 각각 1부씩 보관한다.",
+          "score": 0.5004
+        },
+        {
+          "index": 5,
+          "document_id": "99f005f4ecc74f57bcb4476f081b4c19",
+          "title": "[3-25] 공무직 근로자 관리규칙(2026.1.2.)",
+          "filename": "[3-25] 공무직 근로자 관리규칙(2026.1.2.).md",
+          "category": "rule",
+          "location": "구간 452",
+          "page_number": null,
+          "snippet": "- 본 계약서상에 명시되어 있지 않은 사항은 관계법령 및 법인의 정관, 규정, 규칙 등에 따른다.\n - 본 계약서 2부를 작성하여 법인과 근로자가 각각 1부씩 보관하며, 근로자는 근로계약서를 교부받았음을 확인한다.",
+          "score": 0.5003
+        }
+      ],
+      "confidence": "low",
+      "template_id": "contract_change_review",
+      "llm_used": false
+    },
+    {
+      "response_id": "398a13b1ac9f4af794019ee94b42ea09",
+      "feedback_id": "9467abe7f2b94cb696e1146d30c0ee10",
+      "recorded_at": "2026-03-12T00:37:15.634217+00:00",
+      "rating": "bad",
+      "reason_codes": [
+        "grounding_weak",
+        "missing_detail"
+      ],
+      "generated_at": "2026-03-12T00:37:15.624185+00:00",
+      "question": "???? ?? ? ??? ??? ???? ???",
+      "question_normalized": "",
+      "answer_mode": "audit_response",
+      "categories": [
+        "rule",
+        "guide"
+      ],
+      "top_k": null,
+      "answer": "결론: 제공된 문서에서 청원심의회 설치 및 운영에 대한 구체적인 내용이 부족하여 질문에 대한 명확한 답변을 제공할 수 없습니다.\n\n근거 요약: \n- 제공된 문서에는 청원심의회 설치 및 운영에 대한 규칙이 포함되어 있으나, 구체적인 내용이나 절차에 대한 정보가 결여되어 있습니다. 구간 53, 47, 44, 45 등에서 청원 관련 내용이 언급되지만, 구체적인 절차나 요구사항에 대한 명시적인 설명이 없습니다. \n\n주의사항 또는 추가 확인사항: \n- 청원심의회와 관련된 구체적인 절차나 규정이 필요하다면, 추가적인 문서나 자료를 확인해야 할 필요성이 있습니다. 또한, 청원심의회 운영에 대한 구체적인 지침이나 규정이 다른 문서에 있을 수 있으므로, 해당 문서들을 검토하는 것이 중요합니다.",
+      "citations": [
+        {
+          "index": 1,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 53",
+          "page_number": null,
+          "snippet": "-",
+          "score": 0.6097
+        },
+        {
+          "index": 2,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 47",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        },
+        {
+          "index": 3,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 44",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        },
+        {
+          "index": 4,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 45",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        },
+        {
+          "index": 5,
+          "document_id": "24c2aa9f0a16472ea81d3e8ec4d4421e",
+          "title": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.)",
+          "filename": "[3-32] 청원심의회 설치 및 운영규칙(2024.01.24.).md",
+          "category": "rule",
+          "location": "구간 50",
+          "page_number": null,
+          "snippet": "○",
+          "score": 0.5876
+        }
+      ],
+      "confidence": "low",
+      "template_id": null,
+      "llm_used": true
+    }
+  ],
+  "summary": {
+    "rated_answers": 2,
+    "good": 0,
+    "bad": 2
+  }
+}

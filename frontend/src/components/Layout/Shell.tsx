@@ -2,14 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent, type PropsWithChildren } 
 
 import { api } from '../../api/client';
 import { buildLawCollections, formatLawVersion, isLawDocument } from '../../utils/lawCollections';
-import type {
-  CategoryDocumentSearchResponse,
-  DocumentCategory,
-  DocumentRecord,
-  HealthResponse,
-  LibrarySearchResponse,
-  LibraryShortcutScope,
-} from '../../types/api';
+import type { DocumentRecord, HealthResponse, LibrarySearchResponse, LibraryShortcutScope } from '../../types/api';
 import { categoryLabels, shortcutLabels } from '../../types/api';
 
 type ViewMode = 'chat' | 'admin';
@@ -41,35 +34,13 @@ export function Shell({
   onOpenDocument,
 }: ShellProps) {
   const [expandedLawKey, setExpandedLawKey] = useState<string | null>(null);
-  const [isLawSectionOpen, setIsLawSectionOpen] = useState(true);
   const [lawQuery, setLawQuery] = useState('');
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [isCategorySectionOpen, setIsCategorySectionOpen] = useState(false);
-  const [categoryQuery, setCategoryQuery] = useState('');
-  const [categorySearchLoading, setCategorySearchLoading] = useState(false);
-  const [categorySearchResults, setCategorySearchResults] = useState<CategoryDocumentSearchResponse | null>(null);
   const [activeShortcutScope, setActiveShortcutScope] = useState<LibraryShortcutScope | null>(null);
   const [shortcutQuery, setShortcutQuery] = useState('');
   const [shortcutResults, setShortcutResults] = useState<LibrarySearchResponse | null>(null);
   const [shortcutLoading, setShortcutLoading] = useState(false);
   const [shortcutError, setShortcutError] = useState<string | null>(null);
 
-  const categoryCounts = documents.reduce<Record<string, number>>((accumulator, document) => {
-    accumulator[document.category] = (accumulator[document.category] ?? 0) + 1;
-    return accumulator;
-  }, {});
-
-  const documentsByCategory = useMemo(
-    () =>
-      documents.reduce<Record<string, DocumentRecord[]>>((accumulator, document) => {
-        if (!accumulator[document.category]) {
-          accumulator[document.category] = [];
-        }
-        accumulator[document.category].push(document);
-        return accumulator;
-      }, {}),
-    [documents],
-  );
   const lawCollections = useMemo(() => buildLawCollections(documents), [documents]);
   const filteredLawCollections = useMemo(() => {
     const normalizedQuery = lawQuery.trim().toLocaleLowerCase();
@@ -87,6 +58,7 @@ export function Shell({
         ),
     );
   }, [lawCollections, lawQuery]);
+
   const lawDocumentCount = useMemo(
     () => documents.filter((document) => isLawDocument(document)).length,
     [documents],
@@ -100,7 +72,7 @@ export function Shell({
 
   const knowledgeStatus = [
     { key: 'ready', label: '상담 가능', value: readyCount, className: 'is-ready' },
-    { key: 'processing', label: '색인 중', value: processingCount, className: 'is-processing' },
+    { key: 'processing', label: '처리 중', value: processingCount, className: 'is-processing' },
     { key: 'error', label: '확인 필요', value: errorCount, className: 'is-error' },
   ];
 
@@ -136,38 +108,16 @@ export function Shell({
     if (!activeShortcutScope) {
       return;
     }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         closeShortcutModal();
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeShortcutScope]);
-
-  useEffect(() => {
-    if (!expandedCategory) {
-      setCategorySearchResults(null);
-      setCategorySearchLoading(false);
-      return;
-    }
-
-    const timeoutId = window.setTimeout(async () => {
-      setCategorySearchLoading(true);
-      try {
-        const response = await api.searchCategoryDocuments({
-          category: expandedCategory as DocumentCategory,
-          query: categoryQuery,
-          limit: 18,
-        });
-        setCategorySearchResults(response);
-      } finally {
-        setCategorySearchLoading(false);
-      }
-    }, 250);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [expandedCategory, categoryQuery]);
 
   return (
     <>
@@ -179,7 +129,7 @@ export function Shell({
           <p className="eyebrow">Foundation Operations Console</p>
           <h1 className="brand-title">재단 규정 서재</h1>
           <p className="brand-copy">
-            직원은 근거 문서를 확인하며 질문하고, 운영자는 같은 화면에서 문서를 관리합니다.
+            직원은 근거 문서를 확인하고 질문하고, 운영자는 같은 화면에서 문서를 관리합니다.
           </p>
 
           <nav aria-label="주요 화면" className="view-nav">
@@ -201,7 +151,7 @@ export function Shell({
 
           <section className="sidebar-section compact-sidebar-section" aria-labelledby="shortcut-heading">
             <div className="section-heading-row">
-              <h2 id="shortcut-heading">정책 선반</h2>
+              <h2 id="shortcut-heading">정책 서랍</h2>
               <span className="pill">빠른 분류</span>
             </div>
             <div className="shortcut-grid">
@@ -226,7 +176,7 @@ export function Shell({
             </article>
             <article className="metric-card">
               <span className="metric-label">LLM 연결</span>
-              <strong className="metric-value">{health?.llm_configured ? '설정됨' : 'API 필요'}</strong>
+              <strong className="metric-value">{health?.llm_configured ? '정상' : 'API 필요'}</strong>
             </article>
           </section>
 
@@ -255,26 +205,10 @@ export function Shell({
 
           <section className="sidebar-section compact-sidebar-section sidebar-scroll-section" aria-labelledby="law-heading">
             <div className="section-heading-row">
-              <button
-                type="button"
-                className="sidebar-toggle"
-                aria-expanded={isLawSectionOpen}
-                aria-controls="law-section-panel"
-                onClick={() => {
-                  setIsLawSectionOpen((current) => !current);
-                  if (isLawSectionOpen) {
-                    setExpandedLawKey(null);
-                    setLawQuery('');
-                  }
-                }}
-              >
-                <span id="law-heading">법령 구성</span>
-                <span className="pill">{isLawSectionOpen ? 'Hide' : 'Show'}</span>
-              </button>
+              <h2 id="law-heading">법령 구성</h2>
+              <span className="pill">법령 {numberFormatter.format(lawCollections.length)}건</span>
             </div>
-            {!isLawSectionOpen ? (
-              <p className="muted-copy small">수집된 법령 묶음과 기타 내부문서 수량을 펼쳐서 확인할 수 있습니다.</p>
-            ) : lawCollections.length === 0 ? (
+            {lawCollections.length === 0 ? (
               <div className="empty-state compact">
                 <strong>아직 적재된 법령이 없습니다.</strong>
                 <p className="muted-copy">문서관리에서 법령명을 입력하면 이 영역에 자동으로 누적됩니다.</p>
@@ -354,98 +288,6 @@ export function Shell({
               </div>
             )}
           </section>
-
-          <section className="sidebar-section compact-sidebar-section sidebar-scroll-section" aria-labelledby="category-heading">
-            <div className="section-heading-row">
-              <button
-                type="button"
-                className="sidebar-toggle"
-                aria-expanded={isCategorySectionOpen}
-                aria-controls="category-section-panel"
-                onClick={() => {
-                  setIsCategorySectionOpen((current) => !current);
-                  if (isCategorySectionOpen) {
-                    setExpandedCategory(null);
-                    setCategoryQuery('');
-                  }
-                }}
-              >
-                <span id="category-heading">카테고리 구성</span>
-                <span className="pill">{isCategorySectionOpen ? 'Hide' : 'Show'}</span>
-              </button>
-            </div>
-            {!isCategorySectionOpen ? (
-              <p className="muted-copy small">필요할 때만 펼쳐서 확인하면 됩니다.</p>
-            ) : documents.length === 0 ? (
-              <p className="muted-copy">아직 등록된 문서가 없습니다.</p>
-            ) : (
-              <ul id="category-section-panel" className="category-list scroll-chrome-hidden">
-                {Object.entries(categoryCounts).map(([category, count]) => (
-                  <li key={category} className="category-list-item">
-                    <button
-                      type="button"
-                      className={`category-item ${expandedCategory === category ? 'is-active' : ''}`}
-                      onClick={() => {
-                        const nextValue = expandedCategory === category ? null : category;
-                        setExpandedCategory(nextValue);
-                        setCategoryQuery('');
-                      }}
-                    >
-                      <span>{categoryLabels[category as keyof typeof categoryLabels]}</span>
-                      <strong>{numberFormatter.format(count)}</strong>
-                    </button>
-                    {expandedCategory === category ? (
-                      <div className="category-documents scroll-chrome-hidden">
-                        <input
-                          className="text-input category-search-input"
-                          value={categoryQuery}
-                          placeholder="제목 / 파일명 / 본문 검색"
-                          onChange={(event) => setCategoryQuery(event.target.value)}
-                        />
-                        {categorySearchLoading ? <span className="muted-copy small">검색 중</span> : null}
-                        {(categoryQuery.trim() ? categorySearchResults?.results ?? [] : documentsByCategory[category]).map((document) =>
-                          'document_id' in document ? (
-                            <article
-                              key={`${document.document_id}-${document.location}`}
-                              className="category-document-card category-document-button"
-                              role="button"
-                              tabIndex={0}
-                              onClick={() => onOpenDocument(document.document_id, document.location, document.snippet)}
-                              onKeyDown={(event) => {
-                                if (event.key === 'Enter' || event.key === ' ') {
-                                  event.preventDefault();
-                                  onOpenDocument(document.document_id, document.location, document.snippet);
-                                }
-                              }}
-                            >
-                              <strong>{document.title}</strong>
-                              <span className="muted-copy small">{document.filename}</span>
-                              <span className="muted-copy small">위치: {document.location}</span>
-                              <span className="muted-copy small">{document.snippet}</span>
-                            </article>
-                          ) : (
-                            <article key={document.id} className="category-document-card">
-                              <strong>{document.title}</strong>
-                              <span className="muted-copy small">{document.filename}</span>
-                            </article>
-                          ),
-                        )}
-                        {(categoryQuery.trim()
-                          ? (categorySearchResults?.results.length ?? 0) === 0 && !categorySearchLoading
-                          : documentsByCategory[category].length === 0) ? (
-                          <div className="empty-state compact">
-                            <strong>검색 결과가 없습니다.</strong>
-                            <p className="muted-copy">다른 단어로 다시 찾아보세요.</p>
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
         </aside>
 
         <main id="app-main" className="main-column">
@@ -494,7 +336,7 @@ export function Shell({
             </form>
 
             <div className="modal-meta-row">
-              <span className="pill">대상 문서 {shortcutResults?.total_documents ?? 0}건</span>
+              <span className="pill">대상문서 {shortcutResults?.total_documents ?? 0}건</span>
               <span className="inline-hint">선택한 범위 안에서 문서 제목과 본문을 함께 찾습니다.</span>
             </div>
 
@@ -534,7 +376,7 @@ export function Shell({
               ) : (
                 <div className="empty-state compact">
                   <strong>{shortcutLoading ? '문서를 찾는 중입니다.' : '표시할 결과가 없습니다.'}</strong>
-                  <p className="muted-copy">단어를 더 구체적으로 입력하거나 다른 범위를 선택해 보세요.</p>
+                  <p className="muted-copy">검색어를 더 구체적으로 입력하거나 다른 범위를 선택해 보세요.</p>
                 </div>
               )}
             </div>

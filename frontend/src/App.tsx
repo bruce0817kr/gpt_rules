@@ -80,6 +80,19 @@ export default function App() {
     return latestAssistant?.citations ?? [];
   }, [messages]);
 
+  const sessionUsage = useMemo(() => {
+    const questionCount = messages.filter((message) => message.role === 'user').length;
+    const responseMessages = messages.filter((message) => message.role === 'assistant' && message.responseId);
+    const responseCount = responseMessages.length;
+    const citationCount = responseMessages.reduce((total, message) => total + message.citations.length, 0);
+
+    return {
+      questionCount,
+      responseCount,
+      citationCount,
+    };
+  }, [messages]);
+
   const submitQuestion = async () => {
     const question = draft.trim();
     if (!question) {
@@ -266,6 +279,7 @@ export default function App() {
       onViewChange={setActiveView}
       health={health}
       documents={documents}
+      sessionUsage={sessionUsage}
       onOpenDocument={(documentId, location, snippet) => {
         void (async () => {
           try {

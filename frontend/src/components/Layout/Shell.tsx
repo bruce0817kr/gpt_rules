@@ -12,6 +12,11 @@ interface ShellProps extends PropsWithChildren {
   onViewChange: (view: ViewMode) => void;
   health: HealthResponse | null;
   documents: DocumentRecord[];
+  sessionUsage: {
+    questionCount: number;
+    responseCount: number;
+    citationCount: number;
+  };
   onOpenDocument: (documentId: string, location?: string, snippet?: string) => void;
 }
 
@@ -30,6 +35,7 @@ export function Shell({
   onViewChange,
   health,
   documents,
+  sessionUsage,
   children,
   onOpenDocument,
 }: ShellProps) {
@@ -178,6 +184,27 @@ export function Shell({
               <span className="metric-label">LLM 연결</span>
               <strong className="metric-value">{health?.llm_configured ? '정상' : 'API 필요'}</strong>
             </article>
+          </section>
+
+          <section className="sidebar-section compact-sidebar-section" aria-labelledby="usage-heading">
+            <div className="section-heading-row">
+              <h2 id="usage-heading">Session Usage</h2>
+              <span className="pill">live</span>
+            </div>
+            <div className="usage-summary-card" aria-label="세션 사용량 집계">
+              <article className="usage-stat">
+                <span className="usage-stat-label">질문</span>
+                <strong className="usage-stat-value">{numberFormatter.format(sessionUsage.questionCount)}</strong>
+              </article>
+              <article className="usage-stat">
+                <span className="usage-stat-label">응답</span>
+                <strong className="usage-stat-value">{numberFormatter.format(sessionUsage.responseCount)}</strong>
+              </article>
+              <article className="usage-stat">
+                <span className="usage-stat-label">근거</span>
+                <strong className="usage-stat-value">{numberFormatter.format(sessionUsage.citationCount)}</strong>
+              </article>
+            </div>
           </section>
 
           <section className="sidebar-section compact-sidebar-section" aria-labelledby="knowledge-heading">

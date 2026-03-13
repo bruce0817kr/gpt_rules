@@ -56,3 +56,9 @@ docker compose up --build
 - Windows 배치 실행: `scripts/run_law_sync.bat`
 - 예약 작업 등록(PowerShell 관리자 권장): `powershell -ExecutionPolicy Bypass -File scripts/register_law_sync_task.ps1`
 - 기본 법령 폴더: `C:\Project\gpt_rules\Docs\MD\law_md`
+## Company Domain Proxy
+
+- `https://ai.gtp.or.kr/chat/` front proxy must pass `/chat/`
+- It must also expose at least one API path: `/chat/api/` or `/api/`
+- The frontend now auto-detects between `/chat/api` and `/api` in the browser
+- If neither API path is forwarded, document list loading and chat answers will both fail

@@ -996,3 +996,36 @@ docker compose up --build
 ### 후속 기준
 - 원본 저장소는 복구 기준으로 유지한다.
 - 원격 Git 업로드는 mirror repo 기준으로 진행한다.
+## 2026-03-12 18:15:00 +09:00
+
+### 이번 작업 요약
+- 회사 도메인 `https://ai.gtp.or.kr/chat/` 연결 시 프론트가 `/chat/api`만 고정 호출해서 앞단 프록시 설정 차이에 취약한 문제를 보완했다.
+- `frontend/src/api/client.ts`에 API base auto-detection을 추가해 브라우저에서 `/chat/api`와 `/api`를 순차 탐색하고, 살아 있는 경로를 고정 사용하도록 변경했다.
+- `Docs/INTERNAL_DOCKER_DEPLOY.md`에 회사 도메인 reverse proxy가 `/chat/`와 함께 `/chat/api/` 또는 `/api/` 중 최소 하나를 반드시 전달해야 한다는 운영 메모를 추가했다.
+
+### 다음 단계
+- `npm run build`로 프론트 빌드 검증
+- 내부 프론트 컨테이너 재빌드 후 `http://127.0.0.1:28088/chat/api/health` 및 실제 UI 경로 재확인
+## 2026-03-13 00:20:00 +09:00
+
+### 이번 작업 요약
+- 문서 구성을 카테고리 중심에서 `법령 구성`을 먼저 보이도록 확장했다.
+- 사이드바에 수집된 법령 묶음, 법령 문서 수, 기타 내부문서 수를 요약하고, 법령명 기준으로 펼쳐서 볼 수 있게 했다.
+- 문서관리 > 문서업로드 영역에도 `현재 수집된 법령` 요약 박스를 추가해 어떤 법령이 이미 적재되어 있는지 간략히 확인할 수 있게 했다.
+
+### 코드 변경
+- `frontend/src/utils/lawCollections.ts`
+  - 법령 문서 판별, 법령 묶음 집계, 버전 포맷 함수 추가
+- `frontend/src/types/api.ts`
+  - `DocumentRecord`에 `source_id`, `source_version`, `source_url`, `content_hash` 추가
+- `frontend/src/components/Layout/Shell.tsx`
+  - 사이드바 `법령 구성` 섹션 추가
+  - 기존 `문서 구성` 명칭을 `카테고리 구성`으로 조정
+- `frontend/src/components/Admin/AdminPanel.tsx`
+  - 업로드 영역에 `현재 수집된 법령` 요약 박스 추가
+  - 문서 목록에서 법령 문서에 버전 정보 노출
+- `frontend/src/index.css`
+  - 법령 요약 카드/목록 스타일 추가
+
+### 검증
+- `frontend/`에서 `npm run build` 통과

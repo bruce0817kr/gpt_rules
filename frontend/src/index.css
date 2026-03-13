@@ -496,6 +496,17 @@ button {
   margin: 0;
 }
 
+.law-section-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.law-section-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .sidebar-toggle {
   width: 100%;
   display: flex;
@@ -1223,6 +1234,49 @@ select.text-input {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
+.law-summary-box {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(102, 74, 39, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.law-summary-list {
+  display: grid;
+  gap: 10px;
+}
+
+.law-summary-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(24, 32, 38, 0.08);
+}
+
+.law-summary-header,
+.law-summary-meta,
+.law-collection-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.law-summary-link {
+  text-decoration: none;
+}
+
+.law-summary-link:hover {
+  text-decoration: underline;
+}
+
 .law-import-form {
   display: flex;
   flex-wrap: wrap;
@@ -1602,6 +1656,10 @@ select.text-input {
   }
 
   .shortcut-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .law-section-summary {
     grid-template-columns: 1fr;
   }
 

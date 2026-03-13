@@ -28,6 +28,10 @@ export interface DocumentRecord {
   category: DocumentCategory;
   category_source: 'auto' | 'manual';
   domain: string;
+  source_id: string | null;
+  source_version: string | null;
+  source_url: string | null;
+  content_hash: string | null;
   tags: string[];
   status: DocumentStatus;
   uploaded_at: string;

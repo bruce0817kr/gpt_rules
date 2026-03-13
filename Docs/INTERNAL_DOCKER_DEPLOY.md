@@ -59,6 +59,15 @@ powershell -ExecutionPolicy Bypass -File scripts/stop_internal_deploy.ps1
 - Backend health from the server itself only: `http://127.0.0.1:28000/api/health`
 - Qdrant dashboard from the server itself only: `http://127.0.0.1:26333/dashboard`
 
+## Company domain proxy notes
+
+For a company domain such as `https://ai.gtp.or.kr/chat/`, the upstream reverse proxy must forward:
+
+- `/chat/` to the internal frontend nginx
+- at least one of `/chat/api/` or `/api/` to the same frontend nginx or directly to the backend
+
+The frontend now auto-detects a working API base between `/chat/api` and `/api`, so either path can be exposed by the company proxy. If neither path is forwarded, document list loading and question answering will both fail.
+
 ## Restart policy
 
 All internal services use `restart: unless-stopped`.

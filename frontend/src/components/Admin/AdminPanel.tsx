@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { categoryLabels, categoryOptions, statusLabels, type DocumentCategory, type DocumentRecord } from '../../types/api';
+import { buildLawCollections, formatLawVersion } from '../../utils/lawCollections';
 
 export interface UploadFormValues {
   files: File[];
@@ -49,6 +50,8 @@ export function AdminPanel({
     () => documents.filter((document) => document.status === 'ready').length,
     [documents],
   );
+  const lawCollections = useMemo(() => buildLawCollections(documents), [documents]);
+  const visibleLawCollections = lawCollections.slice(0, 8);
 
   return (
     <div className="content-stack">
@@ -111,6 +114,58 @@ export function AdminPanel({
                 법령 추가
               </button>
             </form>
+          </div>
+          <div className="law-summary-box">
+            <div className="section-heading-row compact">
+              <div>
+                <h3 className="subsection-title">현재 수집된 법령</h3>
+                <p className="muted-copy small">이미 적재된 법령을 먼저 확인하고, 없는 경우에만 법령명으로 추가하세요.</p>
+              </div>
+              <span className="pill">
+                법령 {lawCollections.length}건 / 문서 {lawCollections.reduce((sum, item) => sum + item.documentCount, 0)}건
+              </span>
+            </div>
+            {lawCollections.length === 0 ? (
+              <div className="empty-state compact">
+                <strong>아직 수집된 법령이 없습니다.</strong>
+                <p className="muted-copy">법령명으로 바로 추가를 실행하면 여기에 자동으로 누적됩니다.</p>
+              </div>
+            ) : (
+              <>
+                <div className="law-summary-list">
+                  {visibleLawCollections.map((law) => (
+                    <article key={law.key} className="law-summary-card">
+                      <div className="law-summary-header">
+                        <strong>{law.title}</strong>
+                        <span className="pill is-outline">{law.documentCount}건</span>
+                      </div>
+                      <div className="law-summary-meta">
+                        <span className="muted-copy small">
+                          {formatLawVersion(law.latestVersion)
+                            ? `시행/버전 ${formatLawVersion(law.latestVersion)}`
+                            : '버전 정보 없음'}
+                        </span>
+                        {law.sourceUrl ? (
+                          <a
+                            className="muted-copy small law-summary-link"
+                            href={law.sourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            원문 보기
+                          </a>
+                        ) : null}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+                {lawCollections.length > visibleLawCollections.length ? (
+                  <p className="muted-copy small">
+                    외 {lawCollections.length - visibleLawCollections.length}건의 법령이 더 등록되어 있습니다.
+                  </p>
+                ) : null}
+              </>
+            )}
           </div>
           <form
             className="form-grid upload-form"
@@ -245,6 +300,13 @@ export function AdminPanel({
                             <span className="muted-copy small">
                               {document.category_source === 'manual' ? '수동 분류' : '자동 분류'}
                             </span>
+                            {document.category === 'law' || document.source_id ? (
+                              <span className="muted-copy small">
+                                {formatLawVersion(document.source_version)
+                                  ? `법령 버전 ${formatLawVersion(document.source_version)}`
+                                  : '법령 문서'}
+                              </span>
+                            ) : null}
                             <span className="muted-copy small">{document.filename}</span>
                             {document.tags.length > 0 ? (
                               <span className="muted-copy small">태그: {document.tags.join(', ')}</span>

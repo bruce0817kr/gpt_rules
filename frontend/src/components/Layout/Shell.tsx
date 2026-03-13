@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent, type PropsWithChildren } from 'react';
 
 import { api } from '../../api/client';
+import { buildLawCollections, formatLawVersion, isLawDocument } from '../../utils/lawCollections';
 import type {
   CategoryDocumentSearchResponse,
   DocumentCategory,
@@ -39,6 +40,9 @@ export function Shell({
   children,
   onOpenDocument,
 }: ShellProps) {
+  const [expandedLawKey, setExpandedLawKey] = useState<string | null>(null);
+  const [isLawSectionOpen, setIsLawSectionOpen] = useState(true);
+  const [lawQuery, setLawQuery] = useState('');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [isCategorySectionOpen, setIsCategorySectionOpen] = useState(false);
   const [categoryQuery, setCategoryQuery] = useState('');
@@ -66,6 +70,28 @@ export function Shell({
       }, {}),
     [documents],
   );
+  const lawCollections = useMemo(() => buildLawCollections(documents), [documents]);
+  const filteredLawCollections = useMemo(() => {
+    const normalizedQuery = lawQuery.trim().toLocaleLowerCase();
+    if (!normalizedQuery) {
+      return lawCollections;
+    }
+
+    return lawCollections.filter(
+      (collection) =>
+        collection.title.toLocaleLowerCase().includes(normalizedQuery) ||
+        collection.items.some(
+          (item) =>
+            item.filename.toLocaleLowerCase().includes(normalizedQuery) ||
+            item.tags.some((tag) => tag.toLocaleLowerCase().includes(normalizedQuery)),
+        ),
+    );
+  }, [lawCollections, lawQuery]);
+  const lawDocumentCount = useMemo(
+    () => documents.filter((document) => isLawDocument(document)).length,
+    [documents],
+  );
+  const nonLawDocumentCount = documents.length - lawDocumentCount;
 
   const readyCount = documents.filter((document) => document.status === 'ready').length;
   const processingCount = documents.filter((document) => document.status === 'processing').length;
@@ -227,6 +253,108 @@ export function Shell({
             </div>
           </section>
 
+          <section className="sidebar-section compact-sidebar-section sidebar-scroll-section" aria-labelledby="law-heading">
+            <div className="section-heading-row">
+              <button
+                type="button"
+                className="sidebar-toggle"
+                aria-expanded={isLawSectionOpen}
+                aria-controls="law-section-panel"
+                onClick={() => {
+                  setIsLawSectionOpen((current) => !current);
+                  if (isLawSectionOpen) {
+                    setExpandedLawKey(null);
+                    setLawQuery('');
+                  }
+                }}
+              >
+                <span id="law-heading">법령 구성</span>
+                <span className="pill">{isLawSectionOpen ? 'Hide' : 'Show'}</span>
+              </button>
+            </div>
+            {!isLawSectionOpen ? (
+              <p className="muted-copy small">수집된 법령 묶음과 기타 내부문서 수량을 펼쳐서 확인할 수 있습니다.</p>
+            ) : lawCollections.length === 0 ? (
+              <div className="empty-state compact">
+                <strong>아직 적재된 법령이 없습니다.</strong>
+                <p className="muted-copy">문서관리에서 법령명을 입력하면 이 영역에 자동으로 누적됩니다.</p>
+              </div>
+            ) : (
+              <div id="law-section-panel" className="law-section-panel">
+                <div className="law-section-summary">
+                  <span className="pill is-outline">법령 {numberFormatter.format(lawCollections.length)}건</span>
+                  <span className="pill is-outline">법령 문서 {numberFormatter.format(lawDocumentCount)}건</span>
+                  <span className="pill is-outline">기타 내부문서 {numberFormatter.format(nonLawDocumentCount)}건</span>
+                </div>
+                <input
+                  className="text-input category-search-input"
+                  value={lawQuery}
+                  placeholder="법령명 또는 파일명 검색"
+                  onChange={(event) => setLawQuery(event.target.value)}
+                />
+                <ul className="category-list scroll-chrome-hidden">
+                  {filteredLawCollections.map((collection) => (
+                    <li key={collection.key} className="category-list-item">
+                      <button
+                        type="button"
+                        className={`category-item ${expandedLawKey === collection.key ? 'is-active' : ''}`}
+                        onClick={() => setExpandedLawKey((current) => (current === collection.key ? null : collection.key))}
+                      >
+                        <span>{collection.title}</span>
+                        <strong>{numberFormatter.format(collection.documentCount)}</strong>
+                      </button>
+                      <div className="law-collection-meta">
+                        <span className="muted-copy small">
+                          {formatLawVersion(collection.latestVersion)
+                            ? `시행/버전 ${formatLawVersion(collection.latestVersion)}`
+                            : '버전 정보 없음'}
+                        </span>
+                        {collection.sourceUrl ? (
+                          <a className="muted-copy small law-summary-link" href={collection.sourceUrl} target="_blank" rel="noreferrer">
+                            원문 보기
+                          </a>
+                        ) : null}
+                      </div>
+                      {expandedLawKey === collection.key ? (
+                        <div className="category-documents scroll-chrome-hidden">
+                          {collection.items.map((document) => (
+                            <article
+                              key={document.id}
+                              className="category-document-card category-document-button"
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => onOpenDocument(document.id)}
+                              onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                  event.preventDefault();
+                                  onOpenDocument(document.id);
+                                }
+                              }}
+                            >
+                              <strong>{document.title}</strong>
+                              <span className="muted-copy small">{document.filename}</span>
+                              <span className="muted-copy small">
+                                {formatLawVersion(document.source_version)
+                                  ? `시행/버전 ${formatLawVersion(document.source_version)}`
+                                  : '버전 정보 없음'}
+                              </span>
+                            </article>
+                          ))}
+                        </div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+                {filteredLawCollections.length === 0 ? (
+                  <div className="empty-state compact">
+                    <strong>해당 조건의 법령이 없습니다.</strong>
+                    <p className="muted-copy">다른 검색어로 다시 확인해 주세요.</p>
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </section>
+
           <section className="sidebar-section compact-sidebar-section sidebar-scroll-section" aria-labelledby="category-heading">
             <div className="section-heading-row">
               <button
@@ -242,7 +370,7 @@ export function Shell({
                   }
                 }}
               >
-                <span id="category-heading">문서 구성</span>
+                <span id="category-heading">카테고리 구성</span>
                 <span className="pill">{isCategorySectionOpen ? 'Hide' : 'Show'}</span>
               </button>
             </div>

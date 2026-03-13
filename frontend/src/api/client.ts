@@ -12,13 +12,86 @@ import type {
   LibrarySearchResponse,
 } from '../types/api';
 
+function normalizeApiBase(value: string | undefined | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  return trimmed.replace(/\/$/, '');
+}
+
+function pushCandidate(target: string[], value: string | null): void {
+  if (!value || target.includes(value)) {
+    return;
+  }
+
+  target.push(value);
+}
+
 const publicBasePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const explicitApiBase = normalizeApiBase(import.meta.env.VITE_API_URL as string | undefined);
 const derivedApiBase = publicBasePath ? `${publicBasePath}/api` : '/api';
-const API_BASE =
-  (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || derivedApiBase;
+
+function buildApiBaseCandidates(): string[] {
+  const candidates: string[] = [];
+  pushCandidate(candidates, explicitApiBase);
+  pushCandidate(candidates, derivedApiBase);
+
+  if (typeof window !== 'undefined') {
+    const relativeApiBase = normalizeApiBase(new URL('api', window.location.href).pathname);
+    pushCandidate(candidates, relativeApiBase);
+  }
+
+  pushCandidate(candidates, '/chat/api');
+  pushCandidate(candidates, '/api');
+  return candidates;
+}
+
+let resolvedApiBase = explicitApiBase ?? derivedApiBase;
+let apiBaseResolutionPromise: Promise<string> | null = null;
+
+async function probeApiBase(candidate: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${candidate}/health`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveApiBase(): Promise<string> {
+  if (apiBaseResolutionPromise) {
+    return apiBaseResolutionPromise;
+  }
+
+  const candidates = buildApiBaseCandidates();
+  apiBaseResolutionPromise = (async () => {
+    for (const candidate of candidates) {
+      if (await probeApiBase(candidate)) {
+        resolvedApiBase = candidate;
+        return candidate;
+      }
+    }
+
+    return resolvedApiBase;
+  })();
+
+  return apiBaseResolutionPromise;
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
+  const apiBase = await resolveApiBase();
+  const response = await fetch(`${apiBase}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -79,7 +152,8 @@ export const api = {
     formData.append('category', payload.category);
     formData.append('tags', payload.tags);
 
-    const response = await fetch(`${API_BASE}/documents/upload`, {
+    const apiBase = await resolveApiBase();
+    const response = await fetch(`${apiBase}/documents/upload`, {
       method: 'POST',
       body: formData,
     });

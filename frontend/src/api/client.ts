@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ChatFeedbackRequest,
   ChatFeedbackResponse,
   ChatRequest,
@@ -63,7 +63,18 @@ async function probeApiBase(candidate: string): Promise<boolean> {
         'Content-Type': 'application/json',
       },
     });
-    return response.ok;
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return false;
+    }
+
+    const payload = (await response.json()) as Partial<HealthResponse>;
+    return typeof payload.llm_configured === 'boolean';
   } catch {
     return false;
   }
@@ -100,7 +111,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    let message = '요청을 처리하지 못했습니다.';
+    let message = '?붿껌??泥섎━?섏? 紐삵뻽?듬땲??';
     try {
       const payload = (await response.json()) as { detail?: string };
       if (payload.detail) {
@@ -112,7 +123,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(message);
   }
 
-  return (await response.json()) as T;
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new Error('API 서버 응답 형식을 확인할 수 없습니다. 백엔드 연결 상태를 점검해 주세요.');
+  }
 }
 
 export interface UploadDocumentInput {
@@ -159,7 +174,7 @@ export const api = {
     });
 
     if (!response.ok) {
-      let message = '문서를 업로드하지 못했습니다.';
+      let message = '臾몄꽌瑜??낅줈?쒗븯吏 紐삵뻽?듬땲??';
       try {
         const body = (await response.json()) as { detail?: string };
         if (body.detail) {
@@ -171,7 +186,11 @@ export const api = {
       throw new Error(message);
     }
 
-    return (await response.json()) as DocumentRecord;
+    try {
+      return (await response.json()) as DocumentRecord;
+    } catch {
+      throw new Error('API 서버 응답 형식을 확인할 수 없습니다. 백엔드 연결 상태를 점검해 주세요.');
+    }
   },
   reindexDocument: (documentId: string) =>
     request<DocumentRecord>(`/documents/${documentId}/reindex`, {
@@ -196,3 +215,4 @@ export const api = {
       body: JSON.stringify({ law_name: lawName }),
     }),
 };
+

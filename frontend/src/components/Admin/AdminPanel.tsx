@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+﻿import { useMemo, useState } from 'react';
 
 import { categoryLabels, categoryOptions, statusLabels, type DocumentCategory, type DocumentRecord } from '../../types/api';
 import { buildLawCollections, formatLawVersion } from '../../utils/lawCollections';
@@ -55,19 +55,19 @@ export function AdminPanel({
 
   return (
     <div className="content-stack">
-      <section className="panel hero-panel" aria-labelledby="admin-title">
-        <p className="eyebrow">Knowledge Operations</p>
-        <div className="hero-grid">
+      <section className="panel hero-panel hero-panel-admin" aria-labelledby="admin-title">
+        <p className="eyebrow">보조 작업 공간</p>
+        <div className="hero-grid hero-grid-admin">
           <div>
             <h2 id="admin-title" className="hero-title">
-              지식 품질을 운영하는 콘솔
+              문서 관리
             </h2>
             <p className="hero-copy">
-              업로드, 재색인, 상태 점검을 한 흐름으로 묶어 내부 정책 지식베이스를 안정적으로 유지합니다.
+              업로드, 재색인, 문서 분류 조정, 법령 수집을 맡는 보조 화면입니다.
             </p>
           </div>
-          <div className="hero-callout">
-            <span className="hero-callout-label">운영 지표</span>
+          <div className="hero-callout hero-callout-admin">
+            <span className="hero-callout-label">관리 현황</span>
             <ul className="example-list">
               <li>총 문서 {documents.length}건</li>
               <li>상담 가능 {readyCount}건</li>
@@ -89,8 +89,8 @@ export function AdminPanel({
           <div className="law-import-box">
             <div className="section-heading-row compact">
               <div>
-                <h3 className="subsection-title">법령명으로 바로 추가</h3>
-                <p className="muted-copy small">국가법령정보 OpenAPI로 최신 법령 본문을 가져와 적재합니다.</p>
+                <h3 className="subsection-title">법령 추가</h3>
+                <p className="muted-copy small">국가법령정보 OpenAPI로 필요한 관계 법령 본문을 가져와 적재합니다.</p>
               </div>
             </div>
             <form
@@ -128,7 +128,7 @@ export function AdminPanel({
             {lawCollections.length === 0 ? (
               <div className="empty-state compact">
                 <strong>아직 수집된 법령이 없습니다.</strong>
-                <p className="muted-copy">법령명으로 바로 추가를 실행하면 여기에 자동으로 누적됩니다.</p>
+                <p className="muted-copy">법령 추가를 실행하면 여기에 자동으로 누적됩니다.</p>
               </div>
             ) : (
               <>
@@ -372,3 +372,4 @@ export function AdminPanel({
     </div>
   );
 }
+

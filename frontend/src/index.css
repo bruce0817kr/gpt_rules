@@ -2077,3 +2077,23 @@ select.text-input {
     width: 100%;
   }
 }
+
+.hero-grid-admin {
+  grid-template-columns: minmax(0, 1.35fr) minmax(240px, 280px);
+}
+
+.hero-panel-admin {
+  min-height: auto;
+  background: linear-gradient(180deg, rgba(250, 252, 254, 0.94), rgba(244, 247, 250, 0.88));
+}
+
+.hero-callout-admin {
+  background: linear-gradient(145deg, rgba(247, 250, 252, 0.96), rgba(235, 242, 247, 0.92));
+  border-color: rgba(24, 32, 38, 0.06);
+}
+
+@media (max-width: 1100px) {
+  .hero-grid-admin {
+    grid-template-columns: 1fr;
+  }
+}

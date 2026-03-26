@@ -24,3 +24,4 @@ scripts/volumes.txt
 scripts/qdrant_health.json
 hwp_mcp_stdio_server.log
 .git_mirror/
+.worktrees/

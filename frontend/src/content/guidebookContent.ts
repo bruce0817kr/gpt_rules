@@ -13,3 +13,9 @@ export const SUGGESTED_QUESTIONS = [
   '계약 변경 시 참고할 내부 규정과 법령을 찾아줘',
   '징계 절차 관련 규정과 법적 근거를 정리해줘',
 ];
+
+export const guideTitle = GUIDEBOOK_TITLE;
+export const guideDescription = GUIDEBOOK_DESCRIPTION;
+export const heroTitle = HERO_TITLE;
+export const heroBadges = HERO_BADGES;
+export const suggestedQuestions = SUGGESTED_QUESTIONS;

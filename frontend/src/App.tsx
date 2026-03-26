@@ -4,6 +4,7 @@ import { api } from './api/client';
 import { AdminPanel, type UploadFormValues } from './components/Admin/AdminPanel';
 import { ChatPanel, type ConversationMessage } from './components/Chat/ChatPanel';
 import { SourceViewerDrawer } from './components/Chat/SourceViewerDrawer';
+import { guideDescription, guideTitle, suggestedQuestions } from './content/guidebookContent';
 import { Shell } from './components/Layout/Shell';
 import type {
   AnswerMode,
@@ -273,8 +274,29 @@ export default function App() {
     }
   };
 
+  const handleOpenLawImport = () => {
+    setActiveView('admin');
+  };
+
+  const applySuggestedQuestion = (question: string) => {
+    setDraft(question);
+  };
+
+  const shellExtras = {
+    guideTitle,
+    guideDescription,
+    latestCitations,
+    onOpenLawImport: handleOpenLawImport,
+  };
+
+  const chatPanelExtras = {
+    suggestedQuestions,
+    onApplySuggestedQuestion: applySuggestedQuestion,
+  };
+
   return (
     <Shell
+      {...(shellExtras as any)}
       activeView={activeView}
       onViewChange={setActiveView}
       health={health}
@@ -294,6 +316,7 @@ export default function App() {
     >
       {activeView === 'chat' ? (
         <ChatPanel
+          {...(chatPanelExtras as any)}
           messages={messages}
           draft={draft}
           isSubmitting={isSubmitting}

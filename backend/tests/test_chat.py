@@ -1,23 +1,27 @@
-from app.models.schemas import Citation, DocumentCategory
-from app.services.chat import _extract_citation_indices, _prune_citations_to_answer
+import asyncio
+
+from app.config import Settings
+from app.models.schemas import ChatRequest, Citation, DocumentCategory
+from app.services.chat import ChatService, _extract_citation_indices, _prune_citations_to_answer
+from app.services.vector_store import SearchHit
 
 
 def make_citation(index: int) -> Citation:
     return Citation(
         index=index,
-        document_id=f"doc-{index}",
-        title=f"문서 {index}",
-        filename=f"doc-{index}.md",
+        document_id=f'doc-{index}',
+        title=f'Doc {index}',
+        filename=f'doc-{index}.md',
         category=DocumentCategory.RULE,
-        location=f"구간 {index}",
+        location=f'Section {index}',
         page_number=None,
-        snippet=f"스니펫 {index}",
+        snippet=f'Snippet {index}',
         score=0.9,
     )
 
 
 def test_extract_citation_indices_preserves_first_appearance_order() -> None:
-    answer = "결론 [4][3] 근거 [2][8] 반복 [4]"
+    answer = 'Answer [4][3] then [2][8] and [4] again'
 
     indices = _extract_citation_indices(answer)
 
@@ -26,20 +30,119 @@ def test_extract_citation_indices_preserves_first_appearance_order() -> None:
 
 def test_prune_citations_to_answer_reorders_and_renumbers() -> None:
     citations = [make_citation(index) for index in range(1, 9)]
-    answer = "결론 [4][3]\n근거 [2][8]\n반복 [4]"
+    answer = 'Answer [4][3]\nthen [2][8]\nagain [4]'
 
     normalized_answer, pruned_citations = _prune_citations_to_answer(answer, citations)
 
-    assert normalized_answer == "결론 [1][2]\n근거 [3][4]\n반복 [1]"
+    assert normalized_answer == 'Answer [1][2]\nthen [3][4]\nagain [1]'
     assert [citation.index for citation in pruned_citations] == [1, 2, 3, 4]
-    assert [citation.document_id for citation in pruned_citations] == ["doc-4", "doc-3", "doc-2", "doc-8"]
+    assert [citation.document_id for citation in pruned_citations] == ['doc-4', 'doc-3', 'doc-2', 'doc-8']
 
 
 def test_prune_citations_to_answer_keeps_original_when_reference_is_missing() -> None:
     citations = [make_citation(index) for index in range(1, 4)]
-    answer = "결론 [2][5]"
+    answer = 'Answer [2][5]'
 
     normalized_answer, pruned_citations = _prune_citations_to_answer(answer, citations)
 
     assert normalized_answer == answer
     assert pruned_citations == citations
+
+
+def make_hit(*, document_id: str = 'doc-1', score: float = 0.41, parent_id: str | None = None, child_id: str | None = None) -> SearchHit:
+    return SearchHit(
+        document_id,
+        'Policy Guide',
+        'travel.md',
+        DocumentCategory.RULE,
+        'Chapter 3 > Section 10',
+        3,
+        'Appendix <2024-01-01>.',
+        score,
+        0,
+        child_id=child_id,
+        parent_id=parent_id,
+        path_key='Chapter 3>Section 10>Clause 1',
+        source_type=None,
+        is_addendum=False,
+        is_appendix=False,
+    )
+
+
+class FakeVectorStore:
+    def __init__(self, hits: list[SearchHit]) -> None:
+        self.hits = hits
+        self.calls: list[tuple[str, list[DocumentCategory], int]] = []
+
+    def search(self, *, question: str, categories: list[DocumentCategory], top_k: int) -> list[SearchHit]:
+        self.calls.append((question, categories, top_k))
+        return list(self.hits)
+
+
+class FakeReranker:
+    def __init__(self, hits: list[SearchHit]) -> None:
+        self.hits = hits
+        self.calls: list[tuple[str, int]] = []
+
+    def rerank(self, query: str, hits: list[SearchHit], top_k: int) -> list[SearchHit]:
+        self.calls.append((query, top_k))
+        return list(self.hits)
+
+
+class BlockingCatalog:
+    def get_document(self, document_id: str):
+        raise AssertionError('catalog should not be consulted for weak evidence')
+
+
+class BlockingParser:
+    def parse(self, path):
+        raise AssertionError('parser should not be consulted for weak evidence')
+
+
+class RecordingFeedbackStore:
+    def __init__(self) -> None:
+        self.records: list[tuple[object, object, object, object]] = []
+
+    def record_interaction(self, *, request, response, template_id, llm_used) -> None:
+        self.records.append((request, response, template_id, llm_used))
+
+
+def test_assess_answerability_rejects_weak_evidence_sets() -> None:
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([make_hit(score=0.42)]),
+        FakeReranker([make_hit(score=0.42)]),
+        BlockingCatalog(),
+        BlockingParser(),
+        RecordingFeedbackStore(),
+    )
+
+    result = service._assess_answerability('Where is the travel policy?', [make_hit(score=0.42)])
+
+    assert result.is_answerable is False
+    assert result.confidence == 'low'
+    assert result.selected_parent_ids == []
+    assert 'evidence' in result.reason.lower()
+
+
+def test_answer_falls_back_without_generation_for_weak_evidence() -> None:
+    weak_hit = make_hit(score=0.39)
+    feedback_store = RecordingFeedbackStore()
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([weak_hit]),
+        FakeReranker([weak_hit]),
+        BlockingCatalog(),
+        BlockingParser(),
+        feedback_store,
+    )
+
+    response = asyncio.run(service.answer(ChatRequest(question='Where is the travel policy?')))
+
+    assert response.answer == 'Insufficient evidence to answer reliably.'
+    assert response.citations == []
+    assert response.confidence == 'low'
+    assert response.retrieved_chunks == 0
+    assert len(feedback_store.records) == 1
+    assert feedback_store.records[0][2] is None
+    assert feedback_store.records[0][3] is False

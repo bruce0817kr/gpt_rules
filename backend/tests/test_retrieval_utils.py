@@ -1,5 +1,6 @@
 ﻿from app.models.schemas import DocumentCategory
 from app.services.retrieval_utils import (
+    aggregate_parent_hits,
     deduplicate_hits,
     is_enumeration_query,
     needs_targeted_expansion,
@@ -114,3 +115,114 @@ def test_prioritize_hits_demotes_weak_chunks_for_title_matched_query() -> None:
     assert prioritized[0].location == '구간 12'
     assert prioritized[1].location == '구간 60'
     assert prioritized[2].document_id == 'doc-2'
+
+
+def test_aggregate_parent_hits_prefers_concentrated_title_matched_parent() -> None:
+    hits = [
+        SearchHit(
+            'doc-1',
+            '여비 규정',
+            'travel.md',
+            DocumentCategory.RULE,
+            '제10조 제1항',
+            None,
+            '제10조 출장비 지급 기준은 다음과 같다.',
+            0.82,
+            0,
+            child_id='child-1',
+            parent_id='parent-1',
+            path_key='제3장>제10조>제1항',
+        ),
+        SearchHit(
+            'doc-1',
+            '여비 규정',
+            'travel.md',
+            DocumentCategory.RULE,
+            '제10조 제1항',
+            None,
+            '부칙 <2023.12.21.>',
+            0.66,
+            1,
+            child_id='child-2',
+            parent_id='parent-1',
+            path_key='제3장>제10조>제1항',
+            is_addendum=True,
+        ),
+        SearchHit(
+            'doc-1',
+            '취업규칙',
+            'hr.md',
+            DocumentCategory.RULE,
+            '제5조',
+            None,
+            '제5조 징계 절차는 별도 규정에 따른다.',
+            0.95,
+            2,
+            child_id='child-3',
+            parent_id='parent-2',
+            path_key='제1장>제5조>제1항',
+        ),
+    ]
+
+    aggregated = aggregate_parent_hits(hits, '여비 규정 제10조 출장비 지급 기준을 요약해줘')
+
+    assert [hit.parent_id for hit in aggregated] == ['parent-1', 'parent-2']
+    assert aggregated[0].child_hit_count == 2
+    assert aggregated[0].best_child_score == 0.82
+    assert aggregated[0].representative_text == '제10조 출장비 지급 기준은 다음과 같다.'
+    assert aggregated[0].aggregate_score >= aggregated[0].lexical_score
+    assert aggregated[0].aggregate_score > aggregated[1].aggregate_score
+
+
+def test_aggregate_parent_hits_penalizes_weak_parent_groups() -> None:
+    hits = [
+        SearchHit(
+            'doc-1',
+            '여비 규정',
+            'travel.md',
+            DocumentCategory.RULE,
+            '제10조',
+            None,
+            '부칙 <2023.8.1.>',
+            0.91,
+            0,
+            child_id='child-1',
+            parent_id='parent-1',
+            path_key='제3장>제10조>제1항',
+            is_addendum=True,
+        ),
+        SearchHit(
+            'doc-1',
+            '여비 규정',
+            'travel.md',
+            DocumentCategory.RULE,
+            '제10조',
+            None,
+            '[시행 2023.12.21.]',
+            0.88,
+            1,
+            child_id='child-2',
+            parent_id='parent-1',
+            path_key='제3장>제10조>제1항',
+            is_addendum=True,
+        ),
+        SearchHit(
+            'doc-1',
+            '여비 규정',
+            'travel.md',
+            DocumentCategory.RULE,
+            '제10조',
+            None,
+            '제10조 출장비 지급 기준은 다음과 같다.',
+            0.84,
+            2,
+            child_id='child-3',
+            parent_id='parent-2',
+            path_key='제3장>제10조>제1항',
+        ),
+    ]
+
+    aggregated = aggregate_parent_hits(hits, '여비 규정 제10조 출장비 지급 기준을 알려줘')
+
+    assert aggregated[0].parent_id == 'parent-2'
+    assert aggregated[0].aggregate_score > aggregated[1].aggregate_score

@@ -1,4 +1,4 @@
-﻿from math import exp
+from math import exp
 
 from sentence_transformers import CrossEncoder
 
@@ -38,7 +38,33 @@ class BGERerankerService:
         return ranked_hits[:top_k]
 
     def _format_hit_for_rerank(self, hit: SearchHit) -> str:
-        return f"Title: {hit.title}\nLocation: {hit.location}\nBody: {hit.snippet}"
+        lines = [
+            f'Title: {hit.title}',
+            f'Filename: {hit.filename}',
+            f'Category: {hit.category.value}',
+            f'Location: {hit.location}',
+        ]
+        if hit.page_number is not None:
+            lines.append(f'Page: {hit.page_number}')
+        lines.append(f'Chunk: {hit.chunk_index}')
+        if hit.parent_id:
+            lines.append(f'Parent: {hit.parent_id}')
+        if hit.child_id:
+            lines.append(f'Child: {hit.child_id}')
+        if hit.path_key:
+            lines.append(f'Path: {hit.path_key}')
+        if hit.source_type is not None:
+            source_type = hit.source_type.value if hasattr(hit.source_type, 'value') else str(hit.source_type)
+            lines.append(f'Source type: {source_type}')
+        flags: list[str] = []
+        if hit.is_addendum:
+            flags.append('addendum')
+        if hit.is_appendix:
+            flags.append('appendix')
+        if flags:
+            lines.append(f'Flags: {", ".join(flags)}')
+        lines.append(f'Body: {hit.snippet}')
+        return '\n'.join(lines)
 
     def _sigmoid(self, value: float) -> float:
         return 1.0 / (1.0 + exp(-value))

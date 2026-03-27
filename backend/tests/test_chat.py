@@ -186,10 +186,10 @@ def test_answer_falls_back_without_generation_for_weak_evidence() -> None:
 
     response = asyncio.run(service.answer(ChatRequest(question='Where is the travel policy?')))
 
-    assert response.answer == 'Insufficient evidence to answer reliably.'
-    assert response.citations == []
+    assert response.answer.startswith('Retrieved evidence is weak')
+    assert len(response.citations) == 1
     assert response.confidence == 'low'
-    assert response.retrieved_chunks == 0
+    assert response.retrieved_chunks == 1
     assert len(feedback_store.records) == 1
     assert feedback_store.records[0][2] is None
     assert feedback_store.records[0][3] is False
@@ -253,4 +253,67 @@ def test_answer_uses_document_title_shortlist_when_question_names_document() -> 
     assert vector_store.calls[0][3] == ['doc-1']
     assert response.citations
 
+
+
+
+
+def test_answer_uses_shortlisted_document_sections_as_fallback() -> None:
+    from datetime import datetime, timezone
+    from app.models.schemas import CategorySource, DocumentDomain, DocumentStatus, DocumentRecord, StructuredSection, ChunkSourceType
+
+    now = datetime.now(timezone.utc)
+    record = DocumentRecord(
+        id='doc-1',
+        title='Employment Rules',
+        filename='rules.md',
+        stored_filename='rules.md',
+        file_path='/tmp/rules.md',
+        category=DocumentCategory.RULE,
+        category_source=CategorySource.AUTO,
+        domain=DocumentDomain.OTHER,
+        tags=[],
+        status=DocumentStatus.READY,
+        uploaded_at=now,
+        updated_at=now,
+    )
+
+    class ListingCatalog(BlockingCatalog):
+        def list_documents(self):
+            return [record]
+
+    class StructuredParser(BlockingParser):
+        def parse_structured_sections(self, path):
+            return [
+                StructuredSection(
+                    source_type=ChunkSourceType.ARTICLE,
+                    text='Section 10 disciplinary procedure requires prior notice, explanation opportunity, and committee review.',
+                    chapter_label='Chapter 3',
+                    section_label=None,
+                    article_label='Section 10',
+                    paragraph_label='Clause 1',
+                    item_label=None,
+                    effective_date=None,
+                    path_key='Chapter 3>Section 10>Clause 1',
+                    page_number=1,
+                    location='Section 10 Clause 1',
+                    is_addendum=False,
+                    is_appendix=False,
+                )
+            ]
+
+    feedback_store = RecordingFeedbackStore()
+    vector_store = FakeVectorStore([])
+    service = ChatService(
+        Settings(openai_api_key=''),
+        vector_store,
+        FakeReranker([]),
+        ListingCatalog(),
+        StructuredParser(),
+        feedback_store,
+    )
+
+    response = asyncio.run(service.answer(ChatRequest(question='Explain disciplinary procedure in Employment Rules step by step')))
+
+    assert response.citations
+    assert response.citations[0].document_id == 'doc-1'
 

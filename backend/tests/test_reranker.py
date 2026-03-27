@@ -28,7 +28,10 @@ def test_reranker_initializes_cross_encoder_for_cpu(monkeypatch) -> None:
 
     monkeypatch.setattr(reranker_module, 'CrossEncoder', factory)
 
-    BGERerankerService('BAAI/bge-reranker-v2-m3')
+    reranker = BGERerankerService('BAAI/bge-reranker-v2-m3')
+    reranker.rerank('Question', [
+        SearchHit('doc-1', 'Doc 1', 'a.txt', DocumentCategory.RULE, 'Section 1', None, 'First', 0.2, 0),
+    ], top_k=1)
 
     assert captured == {
         'model_name': 'BAAI/bge-reranker-v2-m3',
@@ -107,3 +110,20 @@ def test_reranker_includes_metadata_in_context(monkeypatch) -> None:
             ),
         ),
     ]
+
+
+def test_reranker_falls_back_to_original_hits_when_model_init_fails(monkeypatch) -> None:
+    def broken_factory(*args, **kwargs):
+        raise RuntimeError('load failure')
+
+    monkeypatch.setattr(reranker_module, 'CrossEncoder', broken_factory)
+
+    reranker = BGERerankerService('BAAI/bge-reranker-v2-m3')
+    hits = [
+        SearchHit('doc-1', 'Doc 1', 'a.txt', DocumentCategory.RULE, 'Section 1', None, 'First', 0.8, 0),
+        SearchHit('doc-2', 'Doc 2', 'b.txt', DocumentCategory.RULE, 'Section 2', None, 'Second', 0.7, 1),
+    ]
+
+    reranked = reranker.rerank('Question', hits, top_k=1)
+
+    assert [hit.document_id for hit in reranked] == ['doc-1']

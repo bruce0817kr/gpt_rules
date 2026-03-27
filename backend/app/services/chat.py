@@ -11,7 +11,7 @@ from app.services.answer_templates import match_answer_template, render_answer_t
 from app.services.catalog import DocumentCatalog
 from app.services.document_parser import DocumentParser
 from app.services.feedback_store import ChatFeedbackStore
-from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, shortlist_documents_by_title, snippet_is_weak
+from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, score_document_title_match, shortlist_documents_by_title, snippet_is_weak
 from app.services.reranker import BGERerankerService
 from app.services.vector_store import QdrantVectorStore, SearchHit
 
@@ -62,6 +62,17 @@ class ChatService:
         parent_hits = aggregate_parent_hits(hits, request.question)
         hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
 
+        if shortlisted_records and self._needs_shortlist_fallback(hits, parent_hits):
+            lexical_hits = self._search_shortlisted_document_sections(
+                request.question,
+                shortlisted_records,
+                limit=candidate_count,
+            )
+            if lexical_hits:
+                hits = deduplicate_hits(lexical_hits)
+                parent_hits = aggregate_parent_hits(hits, request.question)
+                hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
+
         disclaimer = (
             "????? ????域뱀뮇?? ??? 筌왖燁? ?온??甕곕베議??獄쏅?源??곗쨮 ??밴쉐??몃빍?? "
             "筌ㅼ뮇伊??癒?뼊 ?袁⑸퓠??獄쏆꼶諭???癒???筌ㅼ뮇??揶쏆뮇????????類ㅼ뵥??뤾쉭??"
@@ -84,17 +95,6 @@ class ChatService:
 
 
         answerability = self._assess_answerability(request.question, hits, parent_hits)
-        if not answerability.is_answerable:
-            return self._finalize_response(
-                request=request,
-                answer='Insufficient evidence to answer reliably.',
-                citations=[],
-                confidence=answerability.confidence,
-                disclaimer=disclaimer,
-                retrieved_chunks=0,
-                template_id=None,
-                llm_used=False,
-            )
 
         citations = [
             Citation(
@@ -110,6 +110,39 @@ class ChatService:
             )
             for index, hit in enumerate(hits, start=1)
         ]
+
+        if not answerability.is_answerable:
+            if citations:
+                preview_lines = [
+                    'Retrieved evidence is weak, so this is a document-grounded preview instead of a full answer.',
+                    '',
+                ]
+                for citation in citations:
+                    preview_lines.append(
+                        f"[{citation.index}] {citation.title} / {citation.location}: {citation.snippet[:220]}"
+                    )
+                return self._finalize_response(
+                    request=request,
+                    answer="\n".join(preview_lines),
+                    citations=citations,
+                    confidence=answerability.confidence,
+                    disclaimer=disclaimer,
+                    retrieved_chunks=len(citations),
+                    template_id=None,
+                    llm_used=False,
+                )
+
+            return self._finalize_response(
+                request=request,
+                answer='Insufficient evidence to answer reliably.',
+                citations=[],
+                confidence=answerability.confidence,
+                disclaimer=disclaimer,
+                retrieved_chunks=0,
+                template_id=None,
+                llm_used=False,
+            )
+
 
         template_id = match_answer_template(request.question, request.answer_mode)
 
@@ -258,6 +291,117 @@ class ChatService:
             return prioritize_hits(hits, question)[:top_k]
 
         return prioritize_hits(selected_hits, question)[:top_k]
+
+
+    def _needs_shortlist_fallback(self, hits: list[SearchHit], parent_hits) -> bool:
+        if not hits:
+            return True
+        if not parent_hits:
+            return True
+        top_parent = parent_hits[0]
+        return top_parent.aggregate_score < 0.7 or top_parent.is_addendum or top_parent.is_appendix
+
+    def _search_shortlisted_document_sections(
+        self,
+        question: str,
+        records,
+        *,
+        limit: int,
+    ) -> list[SearchHit]:
+        tokens = self._tokenize(question)
+        candidates: list[SearchHit] = []
+
+        for record in records:
+            structured_sections = []
+            basic_sections = []
+            try:
+                if hasattr(self.parser, 'parse_structured_sections'):
+                    structured_sections = self.parser.parse_structured_sections(Path(record.file_path))
+            except Exception:
+                structured_sections = []
+            try:
+                basic_sections = self.parser.parse(Path(record.file_path))
+            except Exception:
+                basic_sections = []
+
+            raw_sections = structured_sections or basic_sections
+            for index, section in enumerate(raw_sections):
+                text = getattr(section, 'text', '')
+                if not text:
+                    continue
+                location = getattr(section, 'location', f'Section {index + 1}')
+                path_key = getattr(section, 'path_key', location)
+                source_type = getattr(section, 'source_type', None)
+                is_addendum = bool(getattr(section, 'is_addendum', False))
+                is_appendix = bool(getattr(section, 'is_appendix', False))
+
+                score = self._score_shortlisted_section(question, record.title, path_key, text, is_addendum, is_appendix)
+                if score <= 0:
+                    continue
+
+                candidates.append(
+                    SearchHit(
+                        document_id=record.id,
+                        title=record.title,
+                        filename=record.filename,
+                        category=record.category,
+                        location=location,
+                        page_number=getattr(section, 'page_number', None),
+                        snippet=text[:240],
+                        score=score,
+                        chunk_index=index,
+                        child_id=getattr(section, 'child_id', None),
+                        parent_id=getattr(section, 'parent_id', None) or f"{record.id}::{path_key}",
+                        path_key=path_key,
+                        source_type=source_type,
+                        is_addendum=is_addendum,
+                        is_appendix=is_appendix,
+                    )
+                )
+
+        ranked = sorted(
+            candidates,
+            key=lambda hit: (
+                -hit.score,
+                1 if snippet_is_weak(hit.snippet) else 0,
+                hit.location,
+            ),
+        )
+        return ranked[:limit]
+
+    def _score_shortlisted_section(
+        self,
+        question: str,
+        title: str,
+        path_key: str,
+        text: str,
+        is_addendum: bool,
+        is_appendix: bool,
+    ) -> float:
+        title_score = score_document_title_match(question, title)
+        question_tokens = self._tokenize(question)
+        body_tokens = self._tokenize(text)
+        path_tokens = self._tokenize(path_key)
+        body_overlap = len(question_tokens & body_tokens)
+        path_overlap = len(question_tokens & path_tokens)
+        score = title_score + (0.14 * body_overlap) + (0.09 * path_overlap)
+        if is_addendum or is_appendix or snippet_is_weak(text):
+            score -= 0.3
+        return max(0.0, min(1.0, score))
+
+    def _tokenize(self, value: str) -> set[str]:
+        tokens: list[str] = []
+        current: list[str] = []
+        for char in value.lower():
+            if char.isalnum():
+                current.append(char)
+                continue
+            if len(current) >= 2:
+                tokens.append(''.join(current))
+            current = []
+        if len(current) >= 2:
+            tokens.append(''.join(current))
+        return set(tokens)
 
     def _finalize_response(
         self,

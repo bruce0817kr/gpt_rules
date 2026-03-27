@@ -134,7 +134,7 @@ def test_assess_answerability_accepts_strong_parent_group() -> None:
         '?? ??',
         'travel.md',
         DocumentCategory.RULE,
-        '?10?',
+        '\uc81c10\uc870',
         3,
         '?10? ??? ?? ??? ??? ??.',
         0.58,
@@ -317,3 +317,51 @@ def test_answer_uses_shortlisted_document_sections_as_fallback() -> None:
     assert response.citations
     assert response.citations[0].document_id == 'doc-1'
 
+
+
+def test_score_shortlisted_section_prefers_article_body_over_addendum() -> None:
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([]),
+        FakeReranker([]),
+        BlockingCatalog(),
+        BlockingParser(),
+        RecordingFeedbackStore(),
+    )
+
+    article_score = service._score_shortlisted_section(
+        '\ucde8\uc5c5\uaddc\uce59\uc5d0\uc11c \uc9d5\uacc4 \uc808\ucc28\ub97c \ub2e8\uacc4\ubcc4\ub85c \uc124\uba85\ud574\uc918',
+        '[3-18] \ucde8\uc5c5\uaddc\uce59(2026.1.1.)',
+        '\uc81c10\uc870',
+        '\uc81c10\uc870 \uc9d5\uacc4 \uc808\ucc28\ub294 \uc0ac\uc804 \ud1b5\uc9c0, \uc18c\uba85 \uae30\ud68c, \uc704\uc6d0\ud68c \uc2ec\uc758 \uc21c\uc73c\ub85c \uc9c4\ud589\ud55c\ub2e4.',
+        'article',
+        False,
+        False,
+    )
+    addendum_score = service._score_shortlisted_section(
+        '\ucde8\uc5c5\uaddc\uce59\uc5d0\uc11c \uc9d5\uacc4 \uc808\ucc28\ub97c \ub2e8\uacc4\ubcc4\ub85c \uc124\uba85\ud574\uc918',
+        '[3-18] \ucde8\uc5c5\uaddc\uce59(2026.1.1.)',
+        '\ubd80\uce59',
+        '\ubd80\uce59 <2025.12.16.>',
+        'addendum',
+        True,
+        False,
+    )
+
+    assert article_score > addendum_score
+
+
+def test_tokenize_handles_korean_particles_for_shortlisted_sections() -> None:
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([]),
+        FakeReranker([]),
+        BlockingCatalog(),
+        BlockingParser(),
+        RecordingFeedbackStore(),
+    )
+
+    tokens = service._tokenize('\ucde8\uc5c5\uaddc\uce59\uc5d0\uc11c \uc9d5\uacc4 \uc808\ucc28\ub97c \ub2e8\uacc4\ubcc4\ub85c \uc124\uba85\ud574\uc918')
+
+    assert '\ucde8\uc5c5\uaddc\uce59' in tokens
+    assert '\uc808\ucc28' in tokens

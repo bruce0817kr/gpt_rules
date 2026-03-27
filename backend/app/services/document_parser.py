@@ -286,11 +286,64 @@ class DocumentParser:
         text = re.sub(r" {2,}", " ", text)
         return text.strip()
 
+    def _looks_like_noise_payload(self, text: str) -> bool:
+        compact = re.sub(r"\s+", '', text)
+        if not compact:
+            return True
+        semantic = re.sub(r"[^0-9A-Za-z\uac00-\ud7a3]", '', text)
+        if semantic and set(semantic) == {'0'}:
+            return True
+        if len(semantic) <= 2 and len(compact) <= 12:
+            return True
+        symbol_chars = re.sub(r"[0-9A-Za-z\uac00-\ud7a3]", '', compact)
+        if compact and len(symbol_chars) / len(compact) >= 0.55 and len(semantic) <= 6:
+            return True
+        if '|' in text and len(semantic) <= 6:
+            return True
+        return False
+
+    def _is_noise_line(self, text: str) -> bool:
+        normalized = self._clean(text)
+        if not normalized:
+            return True
+        if normalized in {'---', '***', '___'}:
+            return True
+        if re.fullmatch(r"\[\uc2dc\ud589[^\]]*\](?:\s*\[[^\]]*\])?", normalized):
+            return True
+        if normalized.lower().startswith('title:'):
+            return True
+        if '|' in normalized and re.sub(r"[|:\-\s]", '', normalized) == '':
+            return True
+        if self._looks_like_noise_payload(normalized):
+            return True
+        return False
+
+    def _is_noise_block(self, text: str) -> bool:
+        normalized = self._clean(text)
+        if not normalized:
+            return True
+        if re.fullmatch(r"---\s*\ntitle:.*?\n---", normalized, flags=re.IGNORECASE | re.DOTALL):
+            return True
+        lines = [line for line in (self._clean(part) for part in normalized.splitlines()) if line]
+        if not lines:
+            return True
+        if all(self._is_noise_line(line) for line in lines):
+            return True
+        return False
+
     def _split_blocks(self, text: str) -> list[str]:
-        return [block for block in (self._clean(part) for part in re.split(r"\n\s*\n", text)) if block]
+        return [
+            block
+            for block in (self._clean(part) for part in re.split(r"\n\s*\n", text))
+            if block and not self._is_noise_block(block)
+        ]
 
     def _split_lines(self, text: str) -> list[str]:
-        return [line for line in (self._clean(part) for part in text.splitlines()) if line]
+        return [
+            line
+            for line in (self._clean(part) for part in text.splitlines())
+            if line and not self._is_noise_line(line)
+        ]
 
     def _build_path_key(
         self,
@@ -357,10 +410,9 @@ class DocumentParser:
 
     def _parse_text(self, file_path: Path) -> list[ParsedSection]:
         raw_text = file_path.read_text(encoding="utf-8", errors="ignore")
-        blocks = [self._clean(block) for block in re.split(r"\n\s*\n", raw_text)]
-        sections = [block for block in blocks if block]
+        sections = self._split_blocks(raw_text)
         return [
-            ParsedSection(text=block, location=f"구간 {index}")
+            ParsedSection(text=block, location=f"\uad6c\uac04 {index}")
             for index, block in enumerate(sections, start=1)
         ]
 

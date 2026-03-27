@@ -1,4 +1,4 @@
-﻿from app.models.schemas import DocumentCategory
+from app.models.schemas import DocumentCategory
 from app.services.retrieval_utils import (
     aggregate_parent_hits,
     deduplicate_hits,
@@ -8,6 +8,8 @@ from app.services.retrieval_utils import (
     needs_wide_top_k,
     prioritize_hits,
     retrieval_window,
+    score_document_title_match,
+    shortlist_documents_by_title,
     snippet_is_weak,
     title_matches_question,
 )
@@ -256,3 +258,63 @@ def test_score_document_title_match_prefers_specific_title_overlap() -> None:
     )
 
     assert shortlisted == [record]
+
+
+def test_score_document_title_match_handles_title_noise_and_particles() -> None:
+    score = score_document_title_match(
+        '취업규칙에서 징계 절차를 단계별로 설명해줘',
+        '[3-18] 취업규칙(2026.1.1.)',
+    )
+
+    assert score >= 0.5
+
+
+def test_shortlist_documents_by_title_prefers_exact_document_with_noisy_title() -> None:
+    from app.models.schemas import CategorySource, DocumentDomain, DocumentStatus, DocumentRecord
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc)
+    target = DocumentRecord(
+        id='doc-1',
+        title='[3-18] 취업규칙(2026.1.1.)',
+        filename='[3-18] 취업규칙(2026.1.1.).md',
+        stored_filename='rules.md',
+        file_path='/tmp/rules.md',
+        category=DocumentCategory.RULE,
+        category_source=CategorySource.AUTO,
+        domain=DocumentDomain.OTHER,
+        tags=[],
+        status=DocumentStatus.READY,
+        uploaded_at=now,
+        updated_at=now,
+    )
+    distractor = DocumentRecord(
+        id='doc-2',
+        title='[2-4] 인사 관리 규정(2025.10.24.)',
+        filename='hr-rule.md',
+        stored_filename='hr-rule.md',
+        file_path='/tmp/hr-rule.md',
+        category=DocumentCategory.RULE,
+        category_source=CategorySource.AUTO,
+        domain=DocumentDomain.OTHER,
+        tags=[],
+        status=DocumentStatus.READY,
+        uploaded_at=now,
+        updated_at=now,
+    )
+
+    shortlisted = shortlist_documents_by_title(
+        '취업규칙에서 징계 절차를 단계별로 설명해줘',
+        [distractor, target],
+    )
+
+    assert shortlisted[0].id == target.id
+
+
+def test_score_document_title_match_prefers_specific_compound_title_tokens() -> None:
+    question = '\ubc95\uc778\ucc28\ub7c9 \uad00\ub9ac \uaddc\uce59\uc5d0\uc11c \ucc28\ub7c9 \uc6b4\ud589\uacfc \uad00\ub9ac \ucc45\uc784 \uae30\uc900\uc744 \uc694\uc57d\ud574\uc918'
+
+    target_score = score_document_title_match(question, '[3-11] \ubc95\uc778\ucc28\ub7c9 \uad00\ub9ac \uaddc\uce59(2024.12.19.)')
+    distractor_score = score_document_title_match(question, '[3-5] \uc778\uc0ac \uad00\ub9ac \uaddc\uce59(2026.1.23.)')
+
+    assert target_score > distractor_score

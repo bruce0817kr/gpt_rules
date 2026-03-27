@@ -119,3 +119,43 @@ def test_parse_hwp_raises_when_hwp2md_missing(monkeypatch: pytest.MonkeyPatch, t
 
     with pytest.raises(ValueError, match="hwp2md"):
         parser.parse(sample_file)
+
+
+def test_parse_text_ignores_markdown_front_matter_and_rule_lines(tmp_path: Path) -> None:
+    parser = DocumentParser()
+    sample_file = tmp_path / 'front_matter.md'
+    sample_file.write_text(
+        '\u002d\u002d\u002d\n'
+        'title: \ucde8\uc5c5\uaddc\uce59\n'
+        '\u002d\u002d\u002d\n\n'
+        '\ucde8\uc5c5\uaddc\uce59\n\n'
+        '[\uc2dc\ud589 2026.1.1.] [2025.12.16., \uc77c\ubd80\uac1c\uc815]\n\n'
+        '\uc81c1\uc7a5 \ucd1d\uce59\n\n'
+        '\uc81c1\uc870(\ubaa9\uc801) \uc774 \uaddc\uce59\uc740 \uc9c1\uc6d0\uc758 \ubcf5\ubb34 \uae30\uc900\uc744 \uc815\ud55c\ub2e4.\n',
+        encoding='utf-8',
+    )
+
+    sections = parser.parse(sample_file)
+
+    assert [section.text for section in sections] == [
+        '\ucde8\uc5c5\uaddc\uce59',
+        '\uc81c1\uc7a5 \ucd1d\uce59',
+        '\uc81c1\uc870(\ubaa9\uc801) \uc774 \uaddc\uce59\uc740 \uc9c1\uc6d0\uc758 \ubcf5\ubb34 \uae30\uc900\uc744 \uc815\ud55c\ub2e4.',
+    ]
+
+
+
+def test_parse_text_drops_symbol_and_zero_only_blocks(tmp_path: Path) -> None:
+    parser = DocumentParser()
+    sample_file = tmp_path / 'noise_blocks.md'
+    sample_file.write_text(
+        '000000\n\n'
+        '| | | | |\n\n'
+        '(?)\n\n'
+        '\uc81c5\uc870(\uc9d5\uacc4) \uc9d5\uacc4 \uc808\ucc28\ub294 \uc0ac\uc804 \ud1b5\uc9c0\uc640 \uc18c\uba85 \uae30\ud68c\ub97c \ud3ec\ud568\ud55c\ub2e4.\n',
+        encoding='utf-8',
+    )
+
+    sections = parser.parse(sample_file)
+
+    assert [section.text for section in sections] == ['\uc81c5\uc870(\uc9d5\uacc4) \uc9d5\uacc4 \uc808\ucc28\ub294 \uc0ac\uc804 \ud1b5\uc9c0\uc640 \uc18c\uba85 \uae30\ud68c\ub97c \ud3ec\ud568\ud55c\ub2e4.']

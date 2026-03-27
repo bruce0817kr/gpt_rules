@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import re
 from typing import Protocol
 
 from app.models.schemas import ChildChunkRecord, ParentChunkRecord, StructuredSection
@@ -111,10 +112,10 @@ class Chunker:
                 pieces.append(unit)
             else:
                 pieces.extend(self._split_long_unit(unit))
-        return pieces or ([self._clean(text)] if self._clean(text) else [])
+        return [piece for piece in pieces if not self._is_weak_text(piece)] or ([] if self._is_weak_text(self._clean(text)) else ([self._clean(text)] if self._clean(text) else []))
 
     def _split_legal_units(self, text: str) -> list[str]:
-        return [unit for unit in (self._clean(part) for part in text.split("\n\n")) if unit]
+        return [unit for unit in (self._clean(part) for part in text.split("\n\n")) if unit and not self._is_weak_text(unit)]
 
     def _split_long_unit(self, text: str) -> list[str]:
         pieces: list[str] = []
@@ -151,6 +152,38 @@ class Chunker:
         if boundary <= start:
             return None
         return boundary + 1
+
+    def _looks_like_noise_payload(self, text: str) -> bool:
+        compact = re.sub(r"\s+", '', text)
+        if not compact:
+            return True
+        semantic = re.sub(r"[^0-9A-Za-z\uac00-\ud7a3]", '', text)
+        if semantic and set(semantic) == {'0'}:
+            return True
+        if len(semantic) <= 2 and len(compact) <= 12:
+            return True
+        symbol_chars = re.sub(r"[0-9A-Za-z\uac00-\ud7a3]", '', compact)
+        if compact and len(symbol_chars) / len(compact) >= 0.55 and len(semantic) <= 6:
+            return True
+        if '|' in text and len(semantic) <= 6:
+            return True
+        return False
+
+    def _is_weak_text(self, text: str) -> bool:
+        normalized = self._clean(text)
+        if not normalized:
+            return True
+        if normalized in {'---', '***', '___'}:
+            return True
+        if normalized.lower().startswith('title:'):
+            return True
+        if re.fullmatch(r"\[\uc2dc\ud589[^\]]*\](?:\s*\[[^\]]*\])?", normalized):
+            return True
+        if '|' in normalized and re.sub(r"[|:\-\s]", '', normalized) == '':
+            return True
+        if self._looks_like_noise_payload(normalized):
+            return True
+        return False
 
     def _clean(self, text: str) -> str:
         return " ".join(text.replace("\r\n", "\n").replace("\r", "\n").split()).strip()

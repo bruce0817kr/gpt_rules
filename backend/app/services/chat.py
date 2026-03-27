@@ -11,7 +11,7 @@ from app.services.answer_templates import match_answer_template, render_answer_t
 from app.services.catalog import DocumentCatalog
 from app.services.document_parser import DocumentParser
 from app.services.feedback_store import ChatFeedbackStore
-from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, score_document_title_match, shortlist_documents_by_title, snippet_is_weak
+from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, score_document_title_match, shortlist_documents_by_title, snippet_is_weak, tokenize_search_terms
 from app.services.reranker import BGERerankerService
 from app.services.vector_store import QdrantVectorStore, SearchHit
 
@@ -74,16 +74,16 @@ class ChatService:
                 hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
 
         disclaimer = (
-            "????? ????域뱀뮇?? ??? 筌왖燁? ?온??甕곕베議??獄쏅?源??곗쨮 ??밴쉐??몃빍?? "
-            "筌ㅼ뮇伊??癒?뼊 ?袁⑸퓠??獄쏆꼶諭???癒???筌ㅼ뮇??揶쏆뮇????????類ㅼ뵥??뤾쉭??"
+            "Answers are generated from the retrieved regulations and laws. "
+            "Verify the original clauses and latest revisions before making a final decision."
         )
 
         if not hits:
             return self._finalize_response(
                 request=request,
                 answer=(
-                    "筌욌뜄揆??筌욊낯???怨뚭퍙??롫뮉 ?얜챷苑뚨몴?筌≪뼚? 筌륁궢六??щ빍?? "
-                    "?얜챷苑?甕곕뗄?욅몴??リ낱?녑쳞怨뺢돌 筌욌뜄揆??鈺곌퀗?????닌딄퍥?怨몄몵嚥??臾믨쉐??雅뚯눘苑??"
+                    "I could not find enough evidence to answer this question directly. "
+                    "Try again with a regulation name or a more specific clause keyword."
                 ),
                 citations=[],
                 confidence="low",
@@ -335,7 +335,7 @@ class ChatService:
                 is_addendum = bool(getattr(section, 'is_addendum', False))
                 is_appendix = bool(getattr(section, 'is_appendix', False))
 
-                score = self._score_shortlisted_section(question, record.title, path_key, text, is_addendum, is_appendix)
+                score = self._score_shortlisted_section(question, record.title, path_key, text, source_type, is_addendum, is_appendix)
                 if score <= 0:
                     continue
 
@@ -375,6 +375,7 @@ class ChatService:
         title: str,
         path_key: str,
         text: str,
+        source_type,
         is_addendum: bool,
         is_appendix: bool,
     ) -> float:
@@ -384,24 +385,20 @@ class ChatService:
         path_tokens = self._tokenize(path_key)
         body_overlap = len(question_tokens & body_tokens)
         path_overlap = len(question_tokens & path_tokens)
-        score = title_score + (0.14 * body_overlap) + (0.09 * path_overlap)
+        score = title_score + (0.16 * body_overlap) + (0.11 * path_overlap)
+
+        if source_type is not None and getattr(source_type, 'value', source_type) == 'article':
+            score += 0.08
+        if body_overlap == 0 and path_overlap == 0:
+            score -= 0.35
         if is_addendum or is_appendix or snippet_is_weak(text):
-            score -= 0.3
+            score -= 0.45
+        if len(text.strip()) <= 8:
+            score -= 0.25
         return max(0.0, min(1.0, score))
 
     def _tokenize(self, value: str) -> set[str]:
-        tokens: list[str] = []
-        current: list[str] = []
-        for char in value.lower():
-            if char.isalnum():
-                current.append(char)
-                continue
-            if len(current) >= 2:
-                tokens.append(''.join(current))
-            current = []
-        if len(current) >= 2:
-            tokens.append(''.join(current))
-        return set(tokens)
+        return set(tokenize_search_terms(value))
 
     def _finalize_response(
         self,
@@ -439,44 +436,35 @@ class ChatService:
     def _system_prompt(self, answer_mode: AnswerMode, is_enumeration_query: bool) -> str:
         mode_instruction = {
             AnswerMode.STANDARD: (
-                "??뿅?筌왖?癒곗굨??곗쨮 揶쏄쑨猿??랁??類μ넇??띿쓺 ???릭?? ???뼎 野껉퀡以???믪눘? ??뽯뻻??랁? "
-                "獄쏅뗀以???곷선??域뱀눊援?? 雅뚯눘???鍮???븐늿肉??"
+                "Explain the core rule first and keep the answer grounded in the cited regulations and laws."
             ),
             AnswerMode.HR_ADMIN: (
-                "?紐꾧텢????癒?퓗?????릭?? ?띯뫁毓썸뉩?뽱뒅, 癰귣벉龜, ?諭彛? ???, ???, 筌욌벚?? ?諭????됯컧?? "
-                "??됱뇚 鈺곌퀗援???닌됲뀋????살구??랁? ??쇱젫 筌ｌ꼶????뽮퐣????ｍ뜞 ??뽯뻻??롮뵬."
+                "Focus on HR procedures, approval paths, responsibilities, and required notices."
             ),
             AnswerMode.CONTRACT_REVIEW: (
-                "?④쑴鍮?野꺜??????癒?퓗?????릭?? ?怨몄뒠 鈺곌퀬鍮? 筌?굞??甕곕뗄?? ??됱뇚, ?袁⑥뵭 ?袁る퓮, "
-                "?브쑴?????????롫떊 ??살구??랁? ?類ㅼ뵥???袁⑹뒄???얜㈇?꾤몴?筌욎떝堉??"
+                "Focus on contract change steps, required approvals, counterparty consent, and legal risk."
             ),
             AnswerMode.PROJECT_MANAGEMENT: (
-                "??毓썸꽴???????癒?퓗?????릭?? ??毓???묐뻬 ??됯컧, 筌욌쵑六?疫꿸퀣?, 癰귣떯???癒?カ, "
-                "??깆젟 獄??怨쀭뀱???온?癒?퓠????쥙彛??곸뵠 ?닌듼?酉鍮???살구??롮뵬."
+                "Focus on practical execution steps, approvals, records, and operating requirements."
             ),
             AnswerMode.PROCUREMENT_BID: (
-                "?닌됤꼻/??녾컳 ????癒?퓗?????릭?? ?닌됤꼻 獄쎻뫗?? ??쑨?녑칰????癒?뮉 ??녾컳 ?袁⑹뒄 ???, "
-                "野꺜??? ?④쑴鍮?筌ｋ떯猿?????? 筌앹빖???얜챷苑뚨몴?餓λ쵐???곗쨮 ?類ｂ봺??롮뵬."
+                "Separate threshold amounts, procedures, exceptions, and supporting documents."
             ),
             AnswerMode.AUDIT_RESPONSE: (
-                "揶쏅Ŋ沅?????????癒?퓗?????릭?? ??됯컧 ?袁⑥뵭, 域뱀뮇???袁⑥뺘 揶쎛?關苑? 筌앹빖???⑤벉媛? "
-                "????癰귣똻???袁⑹뒄??鍮???怨쀪퐨??뽰맄??嚥??癒???롮뵬."
+                "Focus on evidence retention, approval history, missing evidence, and remediation steps."
             ),
         }[answer_mode]
 
         enumeration_instruction = (
-            "筌욌뜄揆??筌뤴뫖以? 疫꿸퀣??? 筌욊낫?믦퉪??癒?뮉 ?醫륁굨癰??類ｂ봺???遺쎈럡??롢늺 ?????됵쭕????릭筌왖 筌띾Þ??"
-            "域뱀눊援??얜챷苑???됰퓠 ??덈뮉 ?온???????揶쎛?館釉?甕곕뗄?욄틦?? 筌뤴뫀紐?筌뤴뫁釉???뺢돌 筌뤴뫖以??類κ묶嚥??類ｂ봺??롮뵬. "
-            "???筌??類ㅼ뵥??롢늺 ?袁⑥뵭 揶쎛?關苑??筌뤿굞???랁? ?類ㅼ뵥?????됪?沃섎챸?????????닌됲뀋??롮뵬."
+            "When the question asks for a list or table, organize the answer by item and tie each item back to the cited evidence."
             if is_enumeration_query
-            else "筌욌뜄揆??筌욊낯???怨뚭퍙??롫뮉 疫꿸퀣?, ?怨몄뒠 甕곕뗄?? ??됱뇚???믪눘? ??뽯뻻??롮뵬."
+            else "Separate the answer into key criteria, procedure, and exceptions when possible."
         )
 
         return (
-            "?諭??? ???텢 ??? 域뱀뮇?숁?甕곕베議??域뱀눊援끾에??????롫뮉 ??끦??怨룸뼖 ??뽯뮞??뽰뵠?? "
-            "獄쏆꼶諭????볥궗??域뱀눊援??얜챷苑?甕곕뗄????됰퓠??뺤춸 ???릭?? ?얜챷苑????용뮉 ??곸뒠?? ?곕뗄???? 筌띾뜄?? "
-            "域뱀눊援끻첎? ?겸뫖猷??띻탢???븍뜄梨?類λ릭筌?域???????믪눘? 筌뤿굞???롮뵬. "
-            "????? ?믪눘? 野껉퀡以? ??쇱벉??域뱀눊援??遺용튋, 筌띾뜆?筌띾맩肉?雅뚯눘???鍮??癒?뮉 ?곕떽? ?類ㅼ뵥??鍮???뽮퐣嚥??類ｂ봺??롮뵬. "
+            "You are a regulation and law assistant for Gyeonggi Technopark. "
+            "Answer only from the retrieved evidence, and clearly state when the evidence is weak or incomplete. "
+            "Do not add unsupported interpretations. Cite evidence numbers when they materially support the answer. "
             f"{mode_instruction} {enumeration_instruction}"
         )
 

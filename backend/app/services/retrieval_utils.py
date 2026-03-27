@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from collections import defaultdict
 import re
@@ -58,6 +58,65 @@ WEAK_SNIPPET_PREFIXES = (
 
 def normalize_question_text(value: str) -> str:
     return re.sub(r'\s+', '', value).lower()
+
+
+KOREAN_PARTICLE_SUFFIXES = (
+    '으로부터',
+    '까지는',
+    '까지도',
+    '에서는',
+    '에게서',
+    '으로는',
+    '이라면',
+    '이라서',
+    '이라도',
+    '이지만',
+    '에서',
+    '으로',
+    '에게',
+    '한테',
+    '보다',
+    '처럼',
+    '부터',
+    '까지',
+    '라도',
+    '이라',
+    '이면',
+    '은',
+    '는',
+    '이',
+    '가',
+    '을',
+    '를',
+    '의',
+    '에',
+    '와',
+    '과',
+    '도',
+    '만',
+    '로',
+    '라',
+)
+
+
+def _strip_title_noise(value: str) -> str:
+    cleaned = re.sub(r'^\[[^\]]+\]\s*', '', value).strip()
+    cleaned = re.sub(r'\([^)]*\d{2,4}[./-]\d{1,2}[./-]\d{1,2}\.?[^)]*\)\s*$', '', cleaned).strip()
+    return cleaned
+
+
+def _strip_korean_particles(token: str) -> list[str]:
+    variants = [token]
+    for suffix in KOREAN_PARTICLE_SUFFIXES:
+        if token.endswith(suffix) and len(token) - len(suffix) >= 2:
+            variants.append(token[: -len(suffix)])
+    return variants
+
+
+def _is_meaningful_token(token: str) -> bool:
+    if len(token) < 2:
+        return False
+    return any(char.isalpha() for char in token)
 
 
 def is_enumeration_query(question: str) -> bool:
@@ -245,20 +304,30 @@ def prioritize_hits(hits: list[SearchHit], question: str) -> list[SearchHit]:
 
 
 def _tokenize_search_terms(value: str) -> list[str]:
-    normalized = value.lower()
+    normalized = _strip_title_noise(value).lower()
     tokens: list[str] = []
     current: list[str] = []
     for char in normalized:
         if char.isalnum():
             current.append(char)
             continue
-        if len(current) >= 2:
-            tokens.append(''.join(current))
+        if current:
+            base_token = ''.join(current)
+            for variant in _strip_korean_particles(base_token):
+                if _is_meaningful_token(variant):
+                    tokens.append(variant)
         current = []
-    if len(current) >= 2:
-        tokens.append(''.join(current))
-    return tokens
+    if current:
+        base_token = ''.join(current)
+        for variant in _strip_korean_particles(base_token):
+            if _is_meaningful_token(variant):
+                tokens.append(variant)
+    return list(dict.fromkeys(tokens))
 
+
+
+def tokenize_search_terms(value: str) -> list[str]:
+    return _tokenize_search_terms(value)
 
 
 def score_document_title_match(question: str, title: str) -> float:
@@ -270,8 +339,8 @@ def score_document_title_match(question: str, title: str) -> float:
     overlap = question_tokens & title_tokens
     token_score = len(overlap) / len(title_tokens)
     normalized_question = normalize_question_text(question)
-    normalized_title = normalize_question_text(title)
-    prefix_bonus = 0.35 if any(question_token.startswith(title_token) for question_token in question_tokens for title_token in title_tokens) else 0.0
+    normalized_title = normalize_question_text(_strip_title_noise(title))
+    prefix_bonus = 0.35 if any(len(title_token) >= 4 and question_token.startswith(title_token) for question_token in question_tokens for title_token in title_tokens) else 0.0
     substring_bonus = 0.35 if normalized_title and normalized_title in normalized_question else 0.0
     return min(1.0, token_score + max(prefix_bonus, substring_bonus))
 

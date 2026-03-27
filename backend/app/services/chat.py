@@ -11,7 +11,7 @@ from app.services.answer_templates import match_answer_template, render_answer_t
 from app.services.catalog import DocumentCatalog
 from app.services.document_parser import DocumentParser
 from app.services.feedback_store import ChatFeedbackStore
-from app.services.retrieval_utils import deduplicate_hits, is_enumeration_query, retrieval_window
+from app.services.retrieval_utils import deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window
 from app.services.reranker import BGERerankerService
 from app.services.vector_store import QdrantVectorStore
 
@@ -55,6 +55,7 @@ class ChatService:
         hits = deduplicate_hits(hits)
         hits = self.reranker.rerank(request.question, hits, top_k=effective_top_k)
         hits = deduplicate_hits(hits)
+        hits = prioritize_hits(hits, request.question)[:effective_top_k]
 
         disclaimer = (
             "답변은 사단 규정, 내부 지침, 관련 법령을 바탕으로 생성됩니다. "

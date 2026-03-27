@@ -1,4 +1,4 @@
-from math import exp
+﻿from math import exp
 
 from sentence_transformers import CrossEncoder
 
@@ -13,7 +13,7 @@ class BGERerankerService:
         if not hits:
             return []
 
-        pairs = [(query, hit.snippet) for hit in hits]
+        pairs = [(query, self._format_hit_for_rerank(hit)) for hit in hits]
         scores = self.model.predict(
             pairs,
             convert_to_numpy=True,
@@ -36,6 +36,9 @@ class BGERerankerService:
         ]
         ranked_hits.sort(key=lambda item: item.score, reverse=True)
         return ranked_hits[:top_k]
+
+    def _format_hit_for_rerank(self, hit: SearchHit) -> str:
+        return f"Title: {hit.title}\nLocation: {hit.location}\nBody: {hit.snippet}"
 
     def _sigmoid(self, value: float) -> float:
         return 1.0 / (1.0 + exp(-value))

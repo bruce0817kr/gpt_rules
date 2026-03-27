@@ -136,9 +136,10 @@ class QdrantVectorStore:
         question: str,
         categories: list[DocumentCategory],
         top_k: int,
+        document_ids: list[str] | None = None,
     ) -> list[SearchHit]:
         self.ensure_collection()
-        query_filter = self._build_category_filter(categories)
+        query_filter = self._build_filter(categories, document_ids)
         response = self.client.query_points(
             collection_name=self.collection_name,
             query=self.embedder.embed_query(question),
@@ -179,23 +180,34 @@ class QdrantVectorStore:
         except ValueError:
             return None
 
-    def _build_category_filter(
-        self, categories: list[DocumentCategory]
+    def _build_filter(
+        self,
+        categories: list[DocumentCategory],
+        document_ids: list[str] | None,
     ) -> models.Filter | None:
-        if not categories:
-            return None
-        if len(categories) == 1:
-            return models.Filter(
-                must=[
+        must_conditions: list[models.Condition] = []
+        should_conditions: list[models.Condition] = []
+
+        if document_ids:
+            should_conditions.extend(
+                models.FieldCondition(key='document_id', match=models.MatchValue(value=document_id))
+                for document_id in document_ids
+            )
+
+        if categories:
+            if len(categories) == 1:
+                must_conditions.append(
                     models.FieldCondition(
-                        key="category",
+                        key='category',
                         match=models.MatchValue(value=categories[0].value),
                     )
-                ]
-            )
-        return models.Filter(
-            should=[
-                models.FieldCondition(key="category", match=models.MatchValue(value=category.value))
-                for category in categories
-            ]
-        )
+                )
+            else:
+                should_conditions.extend(
+                    models.FieldCondition(key='category', match=models.MatchValue(value=category.value))
+                    for category in categories
+                )
+
+        if not must_conditions and not should_conditions:
+            return None
+        return models.Filter(must=must_conditions or None, should=should_conditions or None)

@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 
 from app.config import Settings
 from app.models.schemas import ChatRequest, Citation, DocumentCategory
@@ -72,10 +72,10 @@ def make_hit(*, document_id: str = 'doc-1', score: float = 0.41, parent_id: str 
 class FakeVectorStore:
     def __init__(self, hits: list[SearchHit]) -> None:
         self.hits = hits
-        self.calls: list[tuple[str, list[DocumentCategory], int]] = []
+        self.calls: list[tuple[str, list[DocumentCategory], int, list[str] | None]] = []
 
-    def search(self, *, question: str, categories: list[DocumentCategory], top_k: int) -> list[SearchHit]:
-        self.calls.append((question, categories, top_k))
+    def search(self, *, question: str, categories: list[DocumentCategory], top_k: int, document_ids=None) -> list[SearchHit]:
+        self.calls.append((question, categories, top_k, document_ids))
         return list(self.hits)
 
 
@@ -90,6 +90,9 @@ class FakeReranker:
 
 
 class BlockingCatalog:
+    def list_documents(self):
+        return []
+
     def get_document(self, document_id: str):
         raise AssertionError('catalog should not be consulted for weak evidence')
 
@@ -190,3 +193,64 @@ def test_answer_falls_back_without_generation_for_weak_evidence() -> None:
     assert len(feedback_store.records) == 1
     assert feedback_store.records[0][2] is None
     assert feedback_store.records[0][3] is False
+
+
+
+def test_answer_uses_document_title_shortlist_when_question_names_document() -> None:
+    from datetime import datetime, timezone
+    from app.models.schemas import CategorySource, DocumentDomain, DocumentStatus, DocumentRecord
+
+    hit = SearchHit(
+        'doc-1',
+        '취업규칙',
+        'rules.md',
+        DocumentCategory.RULE,
+        '제10조',
+        1,
+        '제10조 징계 절차는 다음과 같다.',
+        0.72,
+        0,
+        child_id='child-1',
+        parent_id='parent-1',
+        path_key='제10조',
+        source_type=None,
+        is_addendum=False,
+        is_appendix=False,
+    )
+    now = datetime.now(timezone.utc)
+    record = DocumentRecord(
+        id='doc-1',
+        title='취업규칙',
+        filename='rules.md',
+        stored_filename='rules.md',
+        file_path='/tmp/rules.md',
+        category=DocumentCategory.RULE,
+        category_source=CategorySource.AUTO,
+        domain=DocumentDomain.OTHER,
+        tags=[],
+        status=DocumentStatus.READY,
+        uploaded_at=now,
+        updated_at=now,
+    )
+
+    class ListingCatalog(BlockingCatalog):
+        def list_documents(self):
+            return [record]
+
+    feedback_store = RecordingFeedbackStore()
+    vector_store = FakeVectorStore([hit])
+    service = ChatService(
+        Settings(openai_api_key=''),
+        vector_store,
+        FakeReranker([hit]),
+        ListingCatalog(),
+        BlockingParser(),
+        feedback_store,
+    )
+
+    response = asyncio.run(service.answer(ChatRequest(question='취업규칙에서 징계 절차를 단계별로 설명해줘')))
+
+    assert vector_store.calls[0][3] == ['doc-1']
+    assert response.citations
+
+

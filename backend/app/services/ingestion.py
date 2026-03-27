@@ -231,9 +231,28 @@ class DocumentIngestionService:
     def _index_record(self, record: DocumentRecord) -> DocumentRecord:
         file_path = Path(record.file_path)
         sections = self.parser.parse(file_path)
-        chunks = self.chunker.chunk_sections(sections)
+
+        structured_sections = []
+        if hasattr(self.parser, 'parse_structured_sections'):
+            try:
+                structured_sections = self.parser.parse_structured_sections(file_path)
+            except Exception:
+                structured_sections = []
+
+        chunks = []
+        if structured_sections and hasattr(self.chunker, 'chunk_structured_sections'):
+            _, child_chunks = self.chunker.chunk_structured_sections(
+                document_id=record.id,
+                document_title=record.title,
+                sections=structured_sections,
+            )
+            chunks = list(child_chunks)
+
         if not chunks:
-            raise ValueError("인덱싱할 텍스트 청크가 없습니다.")
+            chunks = self.chunker.chunk_sections(sections)
+
+        if not chunks:
+            raise ValueError("?????? ?????????? ??????.")
 
         inferred_category = (
             record.category

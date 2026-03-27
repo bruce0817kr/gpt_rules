@@ -226,3 +226,33 @@ def test_aggregate_parent_hits_penalizes_weak_parent_groups() -> None:
 
     assert aggregated[0].parent_id == 'parent-2'
     assert aggregated[0].aggregate_score > aggregated[1].aggregate_score
+
+
+def test_score_document_title_match_prefers_specific_title_overlap() -> None:
+    from app.models.schemas import CategorySource, DocumentDomain, DocumentStatus, DocumentRecord
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc)
+    record = DocumentRecord(
+        id='doc-1',
+        title='취업규칙',
+        filename='rules.md',
+        stored_filename='rules.md',
+        file_path='/tmp/rules.md',
+        category=DocumentCategory.RULE,
+        category_source=CategorySource.AUTO,
+        domain=DocumentDomain.OTHER,
+        tags=[],
+        status=DocumentStatus.READY,
+        uploaded_at=now,
+        updated_at=now,
+    )
+
+    from app.services.retrieval_utils import shortlist_documents_by_title
+
+    shortlisted = shortlist_documents_by_title(
+        '취업규칙에서 징계 절차를 단계별로 설명해줘',
+        [record],
+    )
+
+    assert shortlisted == [record]

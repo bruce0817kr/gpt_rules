@@ -11,7 +11,7 @@ from app.services.answer_templates import match_answer_template, render_answer_t
 from app.services.catalog import DocumentCatalog
 from app.services.document_parser import DocumentParser
 from app.services.feedback_store import ChatFeedbackStore
-from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, snippet_is_weak
+from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, shortlist_documents_by_title, snippet_is_weak
 from app.services.reranker import BGERerankerService
 from app.services.vector_store import QdrantVectorStore, SearchHit
 
@@ -47,10 +47,14 @@ class ChatService:
             rerank_candidates=self.settings.rerank_candidates,
         )
 
+        shortlisted_records = shortlist_documents_by_title(request.question, self.catalog.list_documents())
+        shortlisted_ids = [record.id for record in shortlisted_records]
+
         hits = self.vector_store.search(
             question=request.question,
             categories=request.categories,
             top_k=candidate_count,
+            document_ids=shortlisted_ids or None,
         )
         hits = deduplicate_hits(hits)
         hits = self.reranker.rerank(request.question, hits, top_k=effective_top_k)

@@ -3,7 +3,7 @@
 from collections import defaultdict
 import re
 
-from app.models.schemas import AggregatedParentHit, ChunkSourceType
+from app.models.schemas import AggregatedParentHit, ChunkSourceType, DocumentRecord
 from app.services.vector_store import SearchHit
 
 
@@ -241,3 +241,57 @@ def prioritize_hits(hits: list[SearchHit], question: str) -> list[SearchHit]:
             -hit.score,
         ),
     )
+
+
+
+def _tokenize_search_terms(value: str) -> list[str]:
+    normalized = value.lower()
+    tokens: list[str] = []
+    current: list[str] = []
+    for char in normalized:
+        if char.isalnum():
+            current.append(char)
+            continue
+        if len(current) >= 2:
+            tokens.append(''.join(current))
+        current = []
+    if len(current) >= 2:
+        tokens.append(''.join(current))
+    return tokens
+
+
+
+def score_document_title_match(question: str, title: str) -> float:
+    question_tokens = set(_tokenize_search_terms(question))
+    title_tokens = set(_tokenize_search_terms(title))
+    if not question_tokens or not title_tokens:
+        return 0.0
+
+    overlap = question_tokens & title_tokens
+    token_score = len(overlap) / len(title_tokens)
+    normalized_question = normalize_question_text(question)
+    normalized_title = normalize_question_text(title)
+    prefix_bonus = 0.35 if any(question_token.startswith(title_token) for question_token in question_tokens for title_token in title_tokens) else 0.0
+    substring_bonus = 0.35 if normalized_title and normalized_title in normalized_question else 0.0
+    return min(1.0, token_score + max(prefix_bonus, substring_bonus))
+
+
+
+def shortlist_documents_by_title(
+    question: str,
+    records: list[DocumentRecord],
+    *,
+    limit: int = 5,
+    min_score: float = 0.25,
+) -> list[DocumentRecord]:
+    scored = [
+        (score_document_title_match(question, record.title), record)
+        for record in records
+    ]
+    shortlisted = [
+        record
+        for score, record in sorted(scored, key=lambda item: item[0], reverse=True)
+        if score >= min_score
+    ]
+    return shortlisted[:limit]
+

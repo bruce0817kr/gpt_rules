@@ -135,3 +135,25 @@ def test_search_returns_child_parent_metadata(monkeypatch) -> None:
     assert hit.source_type == ChunkSourceType.ARTICLE
     assert hit.is_addendum is False
     assert hit.is_appendix is False
+
+
+def test_search_uses_document_id_filter_when_shortlisted(monkeypatch) -> None:
+    monkeypatch.setattr("app.services.vector_store.QdrantClient", FakeQdrantClient)
+    monkeypatch.setattr(QdrantVectorStore, "ensure_collection", lambda self: None)
+
+    store = QdrantVectorStore(
+        settings=SimpleNamespace(collection_name="documents", qdrant_host="localhost", qdrant_port=6333),
+        embedder=FakeEmbedder(),
+    )
+
+    store.search(
+        question='?????? ?? ??? ???? ????',
+        categories=[DocumentCategory.RULE],
+        top_k=5,
+        document_ids=['doc-1', 'doc-2'],
+    )
+
+    query_filter = store.client.query_points_calls[0]['query_filter']
+    document_condition = query_filter.must[0]
+    assert document_condition.key == 'document_id'
+    assert document_condition.match.any == ['doc-1', 'doc-2']

@@ -189,9 +189,11 @@ class QdrantVectorStore:
         should_conditions: list[models.Condition] = []
 
         if document_ids:
-            should_conditions.extend(
-                models.FieldCondition(key='document_id', match=models.MatchValue(value=document_id))
-                for document_id in document_ids
+            must_conditions.append(
+                models.FieldCondition(
+                    key='document_id',
+                    match=models.MatchAny(any=document_ids),
+                )
             )
 
         if categories:

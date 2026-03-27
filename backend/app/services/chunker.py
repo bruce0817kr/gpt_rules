@@ -1,6 +1,13 @@
 from dataclasses import dataclass
+from typing import Protocol
 
-from app.services.document_parser import ParsedSection
+from app.models.schemas import ChildChunkRecord, ParentChunkRecord, StructuredSection
+
+
+class _SectionLike(Protocol):
+    text: str
+    location: str
+    page_number: int | None
 
 
 @dataclass(slots=True)
@@ -16,7 +23,7 @@ class Chunker:
         self.chunk_size = chunk_size
         self.chunk_overlap = min(chunk_overlap, max(chunk_size - 1, 0))
 
-    def chunk_sections(self, sections: list[ParsedSection]) -> list[Chunk]:
+    def chunk_sections(self, sections: list[_SectionLike]) -> list[Chunk]:
         chunks: list[Chunk] = []
         chunk_index = 0
         for section in sections:
@@ -31,6 +38,70 @@ class Chunker:
                 )
                 chunk_index += 1
         return chunks
+
+    def chunk_structured_sections(
+        self,
+        document_id: str,
+        document_title: str,
+        sections: list[StructuredSection],
+    ) -> tuple[list[ParentChunkRecord], list[ChildChunkRecord]]:
+        parent_records: list[ParentChunkRecord] = []
+        child_records: list[ChildChunkRecord] = []
+        child_index = 0
+
+        for section_index, section in enumerate(sections):
+            pieces = self._slice(section.text)
+            if not pieces:
+                continue
+
+            parent_id = self._build_parent_id(document_id, section.path_key, section_index)
+            child_ids: list[str] = []
+            for piece_index, piece in enumerate(pieces):
+                child_id = self._build_child_id(parent_id, piece_index)
+                child_records.append(
+                    ChildChunkRecord(
+                        child_id=child_id,
+                        parent_id=parent_id,
+                        document_id=document_id,
+                        document_title=document_title,
+                        source_type=section.source_type,
+                        path_key=section.path_key,
+                        text=piece,
+                        page_number=section.page_number,
+                        location=section.location,
+                        chunk_index=child_index,
+                        is_addendum=section.is_addendum,
+                        is_appendix=section.is_appendix,
+                    )
+                )
+                child_ids.append(child_id)
+                child_index += 1
+
+            parent_records.append(
+                ParentChunkRecord(
+                    parent_id=parent_id,
+                    document_id=document_id,
+                    document_title=document_title,
+                    source_type=section.source_type,
+                    path_key=section.path_key,
+                    article_label=section.article_label,
+                    text=section.text,
+                    representative_text=pieces[0],
+                    child_ids=child_ids,
+                    page_number=section.page_number,
+                    location=section.location,
+                    is_addendum=section.is_addendum,
+                    is_appendix=section.is_appendix,
+                )
+            )
+
+        return parent_records, child_records
+
+    def _build_parent_id(self, document_id: str, path_key: str, section_index: int) -> str:
+        return f"{document_id}::{path_key}::{section_index}"
+
+    def _build_child_id(self, parent_id: str, child_index: int) -> str:
+        return f"{parent_id}::{child_index}"
 
     def _slice(self, text: str) -> list[str]:
         if len(text) <= self.chunk_size:

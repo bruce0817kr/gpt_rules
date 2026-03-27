@@ -21,6 +21,7 @@ def load_cases(path: Path) -> list[dict[str, Any]]:
 
         case = {
             'id': str(raw_case.get('id', '')).strip(),
+            'split': str(raw_case.get('split', '')).strip(),
             'focus_area': str(raw_case.get('focus_area', '')).strip(),
             'question': str(raw_case.get('question', '')).strip(),
             'answer_mode': str(raw_case.get('answer_mode', '')).strip(),

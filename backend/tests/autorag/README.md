@@ -146,3 +146,12 @@ Recommended evaluation loop:
 
 Detailed anti-overfitting policy:
 - `Docs/superpowers/specs/2026-03-28-rag-evaluation-anti-overfitting-plan.md`
+
+
+Representative gate check:
+
+```bash
+python /app/tests/autorag/evaluate_representative_gate.py --cases-path /app/tests/autorag/representative_cases.json --baseline-output-dir /app/data/autorag/representative/dev_baseline --candidate-output-dir /app/data/autorag/representative/dev_candidate --split validation --output-dir /app/data/autorag/representative --run-id validation_gate
+```
+
+Use this only as a keep/revert gate after a candidate already looks promising on the dev split.

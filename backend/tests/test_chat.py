@@ -125,6 +125,50 @@ def test_assess_answerability_rejects_weak_evidence_sets() -> None:
     assert 'evidence' in result.reason.lower()
 
 
+def test_assess_answerability_accepts_strong_parent_group() -> None:
+    hit = SearchHit(
+        'doc-1',
+        '?? ??',
+        'travel.md',
+        DocumentCategory.RULE,
+        '?10?',
+        3,
+        '?10? ??? ?? ??? ??? ??.',
+        0.58,
+        0,
+        child_id='child-1',
+        parent_id='parent-1',
+        path_key='?3?>?10?',
+        source_type=None,
+        is_addendum=False,
+        is_appendix=False,
+    )
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([hit]),
+        FakeReranker([hit]),
+        BlockingCatalog(),
+        BlockingParser(),
+        RecordingFeedbackStore(),
+    )
+
+    parent_hits = [
+        type('ParentHit', (), {
+            'parent_id': 'parent-1',
+            'aggregate_score': 0.72,
+            'child_hit_count': 1,
+            'is_addendum': False,
+            'is_appendix': False,
+        })()
+    ]
+
+    result = service._assess_answerability('?? ??? ??? ?? ??? ????', [hit], parent_hits)
+
+    assert result.is_answerable is True
+    assert result.confidence == 'medium'
+    assert result.selected_parent_ids == ['parent-1']
+
+
 def test_answer_falls_back_without_generation_for_weak_evidence() -> None:
     weak_hit = make_hit(score=0.39)
     feedback_store = RecordingFeedbackStore()

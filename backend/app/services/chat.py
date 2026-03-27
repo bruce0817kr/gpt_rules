@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+﻿from datetime import datetime, timezone
 from pathlib import Path
 import re
 from uuid import uuid4
@@ -11,7 +11,7 @@ from app.services.answer_templates import match_answer_template, render_answer_t
 from app.services.catalog import DocumentCatalog
 from app.services.document_parser import DocumentParser
 from app.services.feedback_store import ChatFeedbackStore
-from app.services.retrieval_utils import deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, snippet_is_weak
+from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, snippet_is_weak
 from app.services.reranker import BGERerankerService
 from app.services.vector_store import QdrantVectorStore, SearchHit
 
@@ -55,19 +55,20 @@ class ChatService:
         hits = deduplicate_hits(hits)
         hits = self.reranker.rerank(request.question, hits, top_k=effective_top_k)
         hits = deduplicate_hits(hits)
-        hits = prioritize_hits(hits, request.question)[:effective_top_k]
+        parent_hits = aggregate_parent_hits(hits, request.question)
+        hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
 
         disclaimer = (
-            "?듬?? ?щ떒 洹쒖젙, ?대? 吏移? 愿??踰뺣졊??諛뷀깢?쇰줈 ?앹꽦?⑸땲?? "
-            "理쒖쥌 ?먮떒 ?꾩뿉??諛섎뱶???먮Ц怨?理쒖떊 媛쒖젙 ?щ?瑜??뺤씤?섏꽭??"
+            "????? ????域뱀뮇?? ??? 筌왖燁? ?온??甕곕베議??獄쏅?源??곗쨮 ??밴쉐??몃빍?? "
+            "筌ㅼ뮇伊??癒?뼊 ?袁⑸퓠??獄쏆꼶諭???癒???筌ㅼ뮇??揶쏆뮇????????類ㅼ뵥??뤾쉭??"
         )
 
         if not hits:
             return self._finalize_response(
                 request=request,
                 answer=(
-                    "吏덈Ц怨?吏곸젒 ?곌껐?섎뒗 臾몄꽌瑜?李얠? 紐삵뻽?듬땲?? "
-                    "臾몄꽌 踰붿쐞瑜?醫곹엳嫄곕굹 吏덈Ц??議곌툑 ??援ъ껜?곸쑝濡??묒꽦??二쇱꽭??"
+                    "筌욌뜄揆??筌욊낯???怨뚭퍙??롫뮉 ?얜챷苑뚨몴?筌≪뼚? 筌륁궢六??щ빍?? "
+                    "?얜챷苑?甕곕뗄?욅몴??リ낱?녑쳞怨뺢돌 筌욌뜄揆??鈺곌퀗?????닌딄퍥?怨몄몵嚥??臾믨쉐??雅뚯눘苑??"
                 ),
                 citations=[],
                 confidence="low",
@@ -78,7 +79,7 @@ class ChatService:
             )
 
 
-        answerability = self._assess_answerability(request.question, hits)
+        answerability = self._assess_answerability(request.question, hits, parent_hits)
         if not answerability.is_answerable:
             return self._finalize_response(
                 request=request,
@@ -110,7 +111,7 @@ class ChatService:
 
         if self.client is None and template_id is None:
             preview_lines = [
-                "?꾩옱 LLM ?곌껐???ㅼ젙?섏? ?딆븘 寃?됰맂 臾몄꽌 ?붿빟留??쒓났?⑸땲??",
+                "?袁⑹삺 LLM ?怨뚭퍙????쇱젟??? ??녿툡 野꺜??곕쭆 ?얜챷苑??遺용튋筌???볥궗??몃빍??",
                 "",
             ]
             for citation in citations:
@@ -131,17 +132,17 @@ class ChatService:
         supplemental_contexts: dict[int, str] = {}
         context_blocks = []
         for citation in citations:
-            page_label = f" / ?섏씠吏 {citation.page_number}" if citation.page_number else ""
+            page_label = f" / ??륁뵠筌왖 {citation.page_number}" if citation.page_number else ""
             supplemental = self._supplemental_context(
                 citation.document_id,
                 citation.location,
                 expand=is_list_query,
             )
             supplemental_contexts[citation.index] = supplemental
-            supplemental_text = f"\n蹂닿컯 臾몃㎘:\n{supplemental}" if supplemental else ""
+            supplemental_text = f"\n癰귣떯而??얜챶??\n{supplemental}" if supplemental else ""
             context_blocks.append(
-                f"[{citation.index}] ?쒕ぉ: {citation.title} / 遺꾨쪟: {citation.category.value} / ?꾩튂: {citation.location}{page_label}\n"
-                f"?댁슜: {citation.snippet}{supplemental_text}"
+                f"[{citation.index}] ??뺛걠: {citation.title} / ?브쑬履? {citation.category.value} / ?袁⑺뒄: {citation.location}{page_label}\n"
+                f"??곸뒠: {citation.snippet}{supplemental_text}"
             )
 
         if template_id is not None:
@@ -164,7 +165,7 @@ class ChatService:
 
         if self.client is None:
             preview_lines = [
-                "?꾩옱 LLM ?곌껐???ㅼ젙?섏? ?딆븘 寃?됰맂 臾몄꽌 ?붿빟留??쒓났?⑸땲??",
+                "?袁⑹삺 LLM ?怨뚭퍙????쇱젟??? ??녿툡 野꺜??곕쭆 ?얜챷苑??遺용튋筌???볥궗??몃빍??",
                 "",
             ]
             for citation in citations:
@@ -195,16 +196,16 @@ class ChatService:
                 {
                     "role": "user",
                     "content": (
-                        f"吏덈Ц: {request.question}\n\n"
-                        f"洹쇨굅 臾몄꽌:\n{prompt}\n\n"
-                        "?붽뎄?ы빆: 異붿젙?쇰줈 ?듯븯吏 留먭퀬 洹쇨굅 ?녿뒗 ?⑥젙? 湲덉??쒕떎. "
-                        "?몄슜? 諛섎뱶??[踰덊샇] ?뺤떇?쇰줈 ?쒓린?쒕떎."
+                        f"筌욌뜄揆: {request.question}\n\n"
+                        f"域뱀눊援??얜챷苑?\n{prompt}\n\n"
+                        "?遺쎈럡??鍮? ?곕뗄???곗쨮 ???릭筌왖 筌띾Þ??域뱀눊援???용뮉 ??μ젟?? 疫뀀뜆???뺣뼄. "
+                        "?紐꾩뒠?? 獄쏆꼶諭??[甕곕뜇?? ?類ㅻ뻼??곗쨮 ??볥┛??뺣뼄."
                     ),
                 },
             ],
         )
 
-        message = completion.choices[0].message.content or "?듬????앹꽦?섏? 紐삵뻽?듬땲??"
+        message = completion.choices[0].message.content or "???????밴쉐??? 筌륁궢六??щ빍??"
         return self._finalize_response(
             request=request,
             answer=message.strip(),
@@ -215,6 +216,44 @@ class ChatService:
             template_id=template_id,
             llm_used=True,
         )
+
+
+    def _select_answer_hits(
+        self,
+        hits: list[SearchHit],
+        parent_hits,
+        question: str,
+        top_k: int,
+    ) -> list[SearchHit]:
+        if not hits:
+            return []
+
+        selected_parent_ids = [
+            parent_hit.parent_id
+            for parent_hit in parent_hits
+            if parent_hit.aggregate_score >= 0.55
+        ][: max(top_k, 3)]
+
+        if not selected_parent_ids:
+            return prioritize_hits(hits, question)[:top_k]
+
+        grouped: dict[str, list[SearchHit]] = {}
+        for hit in hits:
+            key = hit.parent_id or f"{hit.document_id}:{hit.location}"
+            grouped.setdefault(key, []).append(hit)
+
+        selected_hits: list[SearchHit] = []
+        for parent_id in selected_parent_ids:
+            group_hits = grouped.get(parent_id, [])
+            if not group_hits:
+                continue
+            ranked_group = prioritize_hits(group_hits, question)
+            selected_hits.append(ranked_group[0])
+
+        if not selected_hits:
+            return prioritize_hits(hits, question)[:top_k]
+
+        return prioritize_hits(selected_hits, question)[:top_k]
 
     def _finalize_response(
         self,
@@ -252,44 +291,44 @@ class ChatService:
     def _system_prompt(self, answer_mode: AnswerMode, is_enumeration_query: bool) -> str:
         mode_instruction = {
             AnswerMode.STANDARD: (
-                "?ㅻТ 吏?먰삎?쇰줈 媛꾧껐?섍퀬 ?뺥솗?섍쾶 ?듯븯?? ?듭떖 寃곕줎??癒쇱? ?쒖떆?섍퀬, "
-                "諛붾줈 ?댁뼱??洹쇨굅? 二쇱쓽?ы빆??遺숈뿬??"
+                "??뿅?筌왖?癒곗굨??곗쨮 揶쏄쑨猿??랁??類μ넇??띿쓺 ???릭?? ???뼎 野껉퀡以???믪눘? ??뽯뻻??랁? "
+                "獄쏅뗀以???곷선??域뱀눊援?? 雅뚯눘???鍮???븐늿肉??"
             ),
             AnswerMode.HR_ADMIN: (
-                "?몄궗?대떦?먯쿂???듯븯?? 痍⑥뾽洹쒖튃, 蹂듬Т, ?뱀쭊, ?됯?, ?닿?, 吏뺢퀎, ?뱀씤 ?덉감? "
-                "?덉쇅 議곌굔??援щ텇???ㅻ챸?섍퀬, ?ㅼ젣 泥섎━ ?쒖꽌瑜??④퍡 ?쒖떆?섎씪."
+                "?紐꾧텢????癒?퓗?????릭?? ?띯뫁毓썸뉩?뽱뒅, 癰귣벉龜, ?諭彛? ???, ???, 筌욌벚?? ?諭????됯컧?? "
+                "??됱뇚 鈺곌퀗援???닌됲뀋????살구??랁? ??쇱젫 筌ｌ꼶????뽮퐣????ｍ뜞 ??뽯뻻??롮뵬."
             ),
             AnswerMode.CONTRACT_REVIEW: (
-                "怨꾩빟 寃???대떦?먯쿂???듯븯?? ?곸슜 議고빆, 梨낆엫 踰붿쐞, ?덉쇅, ?꾨씫 ?꾪뿕, "
-                "遺꾩웳 ?뚯?瑜??섎닠 ?ㅻ챸?섍퀬, ?뺤씤???꾩슂??臾멸뎄瑜?吏싳뼱??"
+                "?④쑴鍮?野꺜??????癒?퓗?????릭?? ?怨몄뒠 鈺곌퀬鍮? 筌?굞??甕곕뗄?? ??됱뇚, ?袁⑥뵭 ?袁る퓮, "
+                "?브쑴?????????롫떊 ??살구??랁? ?類ㅼ뵥???袁⑹뒄???얜㈇?꾤몴?筌욎떝堉??"
             ),
             AnswerMode.PROJECT_MANAGEMENT: (
-                "?ъ뾽愿由??대떦?먯쿂???듯븯?? ?ъ뾽 ?섑뻾 ?덉감, 吏묓뻾 湲곗?, 蹂닿퀬 ?먮쫫, "
-                "?쇱젙 諛??곗텧臾?愿?먯뿉??鍮좎쭚?놁씠 援ъ“?뷀빐 ?ㅻ챸?섎씪."
+                "??毓썸꽴???????癒?퓗?????릭?? ??毓???묐뻬 ??됯컧, 筌욌쵑六?疫꿸퀣?, 癰귣떯???癒?カ, "
+                "??깆젟 獄??怨쀭뀱???온?癒?퓠????쥙彛??곸뵠 ?닌듼?酉鍮???살구??롮뵬."
             ),
             AnswerMode.PROCUREMENT_BID: (
-                "援щℓ/?낆같 ?대떦?먯쿂???듯븯?? 援щℓ 諛⑹떇, 鍮꾧탳寃ъ쟻 ?먮뒗 ?낆같 ?꾩슂 ?щ?, "
-                "寃?섏? 怨꾩빟 泥닿껐 ?ъ씤?? 利앸튃 臾몄꽌瑜?以묒떖?쇰줈 ?뺣━?섎씪."
+                "?닌됤꼻/??녾컳 ????癒?퓗?????릭?? ?닌됤꼻 獄쎻뫗?? ??쑨?녑칰????癒?뮉 ??녾컳 ?袁⑹뒄 ???, "
+                "野꺜??? ?④쑴鍮?筌ｋ떯猿?????? 筌앹빖???얜챷苑뚨몴?餓λ쵐???곗쨮 ?類ｂ봺??롮뵬."
             ),
             AnswerMode.AUDIT_RESPONSE: (
-                "媛먯궗 ????대떦?먯쿂???듯븯?? ?덉감 ?꾨씫, 洹쒖젙 ?꾨컲 媛?μ꽦, 利앸튃 怨듬갚, "
-                "?ы썑 蹂댁셿 ?꾩슂?ы빆???곗꽑?쒖쐞?濡??먭??섎씪."
+                "揶쏅Ŋ沅?????????癒?퓗?????릭?? ??됯컧 ?袁⑥뵭, 域뱀뮇???袁⑥뺘 揶쎛?關苑? 筌앹빖???⑤벉媛? "
+                "????癰귣똻???袁⑹뒄??鍮???怨쀪퐨??뽰맄??嚥??癒???롮뵬."
             ),
         }[answer_mode]
 
         enumeration_instruction = (
-            "吏덈Ц??紐⑸줉, 湲곗??? 吏곴툒蹂??먮뒗 ?좏삎蹂??뺣━瑜??붽뎄?섎㈃ ????ぉ留??듯븯吏 留먭퀬 "
-            "洹쇨굅 臾몄꽌 ?덉뿉 ?덈뒗 愿????ぉ??媛?ν븳 踰붿쐞源뚯? 紐⑤몢 紐⑥븘 ?쒕굹 紐⑸줉 ?뺥깭濡??뺣━?섎씪. "
-            "?쇰?留??뺤씤?섎㈃ ?꾨씫 媛?μ꽦??紐낆떆?섍퀬, ?뺤씤????ぉ怨?誘명솗????ぉ??援щ텇?섎씪."
+            "筌욌뜄揆??筌뤴뫖以? 疫꿸퀣??? 筌욊낫?믦퉪??癒?뮉 ?醫륁굨癰??類ｂ봺???遺쎈럡??롢늺 ?????됵쭕????릭筌왖 筌띾Þ??"
+            "域뱀눊援??얜챷苑???됰퓠 ??덈뮉 ?온???????揶쎛?館釉?甕곕뗄?욄틦?? 筌뤴뫀紐?筌뤴뫁釉???뺢돌 筌뤴뫖以??類κ묶嚥??類ｂ봺??롮뵬. "
+            "???筌??類ㅼ뵥??롢늺 ?袁⑥뵭 揶쎛?關苑??筌뤿굞???랁? ?類ㅼ뵥?????됪?沃섎챸?????????닌됲뀋??롮뵬."
             if is_enumeration_query
-            else "吏덈Ц怨?吏곸젒 ?곌껐?섎뒗 湲곗?, ?곸슜 踰붿쐞, ?덉쇅瑜?癒쇱? ?쒖떆?섎씪."
+            else "筌욌뜄揆??筌욊낯???怨뚭퍙??롫뮉 疫꿸퀣?, ?怨몄뒠 甕곕뗄?? ??됱뇚???믪눘? ??뽯뻻??롮뵬."
         )
 
         return (
-            "?뱀떊? ?뚯궗 ?대? 洹쒖젙怨?踰뺣졊??洹쇨굅濡??듬??섎뒗 ?낅Т ?곷떞 ?쒖뒪?쒖씠?? "
-            "諛섎뱶???쒓났??洹쇨굅 臾몄꽌 踰붿쐞 ?덉뿉?쒕쭔 ?듯븯怨? 臾몄꽌???녿뒗 ?댁슜? 異붿젙?섏? 留덈씪. "
-            "洹쇨굅媛 異⑸룎?섍굅??遺덈챸?뺥븯硫?洹??ъ떎??癒쇱? 紐낆떆?섎씪. "
-            "?듬?? 癒쇱? 寃곕줎, ?ㅼ쓬??洹쇨굅 ?붿빟, 留덉?留됱뿉 二쇱쓽?ы빆 ?먮뒗 異붽? ?뺤씤?ы빆 ?쒖꽌濡??뺣━?섎씪. "
+            "?諭??? ???텢 ??? 域뱀뮇?숁?甕곕베議??域뱀눊援끾에??????롫뮉 ??끦??怨룸뼖 ??뽯뮞??뽰뵠?? "
+            "獄쏆꼶諭????볥궗??域뱀눊援??얜챷苑?甕곕뗄????됰퓠??뺤춸 ???릭?? ?얜챷苑????용뮉 ??곸뒠?? ?곕뗄???? 筌띾뜄?? "
+            "域뱀눊援끻첎? ?겸뫖猷??띻탢???븍뜄梨?類λ릭筌?域???????믪눘? 筌뤿굞???롮뵬. "
+            "????? ?믪눘? 野껉퀡以? ??쇱벉??域뱀눊援??遺용튋, 筌띾뜆?筌띾맩肉?雅뚯눘???鍮??癒?뮉 ?곕떽? ?類ㅼ뵥??鍮???뽮퐣嚥??類ｂ봺??롮뵬. "
             f"{mode_instruction} {enumeration_instruction}"
         )
 
@@ -300,7 +339,12 @@ class ChatService:
             return "medium"
         return "low"
 
-    def _assess_answerability(self, question: str, hits: list[SearchHit]) -> AnswerabilityResult:
+    def _assess_answerability(
+        self,
+        question: str,
+        hits: list[SearchHit],
+        parent_hits=None,
+    ) -> AnswerabilityResult:
         if not hits:
             return AnswerabilityResult(
                 is_answerable=False,
@@ -317,7 +361,23 @@ class ChatService:
         strong_hits = [hit for hit in top_hits if hit.score >= 0.68 and not snippet_is_weak(hit.snippet)]
         rich_hits = [hit for hit in top_hits if self._metadata_richness(hit) >= 3]
         weak_hits = [hit for hit in top_hits if snippet_is_weak(hit.snippet)]
-        selected_parent_ids = self._selected_parent_ids(ranked_hits)
+        aggregated_hits = parent_hits if parent_hits is not None else aggregate_parent_hits(hits, question)
+        selected_parent_ids = self._selected_parent_ids(aggregated_hits)
+        top_parent = aggregated_hits[0] if aggregated_hits else None
+
+        if top_parent is not None and top_parent.aggregate_score >= 0.62 and not top_parent.is_addendum and not top_parent.is_appendix:
+            confidence = "high" if top_parent.aggregate_score >= 0.82 and top_parent.child_hit_count >= 2 else "medium"
+            reason = (
+                f"parent_score={top_parent.aggregate_score:.2f}; "
+                f"child_hits={top_parent.child_hit_count}; "
+                f"selected={len(selected_parent_ids)}; confidence={confidence}"
+            )
+            return AnswerabilityResult(
+                is_answerable=True,
+                confidence=confidence,
+                reason=reason,
+                selected_parent_ids=selected_parent_ids,
+            )
 
         if (
             top_score < 0.55
@@ -350,14 +410,16 @@ class ChatService:
                 unique_hits[key] = hit
         return list(unique_hits.values())
 
-    def _selected_parent_ids(self, hits: list[SearchHit]) -> list[str]:
+    def _selected_parent_ids(self, parent_hits) -> list[str]:
         parent_ids: list[str] = []
         seen: set[str] = set()
-        for hit in hits:
-            if hit.parent_id is None or hit.score < 0.6 or hit.parent_id in seen:
+        for hit in parent_hits:
+            parent_id = getattr(hit, 'parent_id', None)
+            aggregate_score = getattr(hit, 'aggregate_score', 0.0)
+            if parent_id is None or aggregate_score < 0.5 or parent_id in seen:
                 continue
-            seen.add(hit.parent_id)
-            parent_ids.append(hit.parent_id)
+            seen.add(parent_id)
+            parent_ids.append(parent_id)
             if len(parent_ids) >= 3:
                 break
         return parent_ids
@@ -451,4 +513,7 @@ def _extract_citation_indices(answer: str) -> list[int]:
         seen.add(index)
         indices.append(index)
     return indices
+
+
+
 

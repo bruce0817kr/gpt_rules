@@ -143,3 +143,6 @@ Recommended evaluation loop:
 2. Accept or reject the change on `validation`.
 3. Run `holdout` only after a candidate is worth keeping.
 4. If `holdout` regresses, do not tune directly against it; go back to `dev` and `validation`.
+
+Detailed anti-overfitting policy:
+- `Docs/superpowers/specs/2026-03-28-rag-evaluation-anti-overfitting-plan.md`

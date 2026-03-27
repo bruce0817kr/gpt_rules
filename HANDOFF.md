@@ -21,6 +21,9 @@ The codebase is testable and the recent retrieval/debugging changes are locally 
 - Added a stronger shortlist path that can prefer lexical section search before dense retrieval
 - Rebuilt the representative evaluation structure to reduce overfitting risk
 
+## Evaluation Policy Reference
+- `Docs/superpowers/specs/2026-03-28-rag-evaluation-anti-overfitting-plan.md`
+
 ## Representative Evaluation Structure
 The representative suite is now split into three lanes in `backend/tests/autorag/representative_cases.json`:
 - `dev`: fast debugging set

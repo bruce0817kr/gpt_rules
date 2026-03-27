@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import asdict, dataclass
+from collections import defaultdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,7 @@ class GateMetrics:
     preview_rate_delta: float
     worst_case_coverage_delta: float
     regressions_over_threshold: int
+    segment_reports: dict[str, dict[str, dict[str, float]]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,34 @@ def _select_rows(frame: pd.DataFrame, indices: list[int]) -> pd.DataFrame:
 def _is_preview(text: str) -> bool:
     return str(text).startswith(PREVIEW_PREFIX)
 
+
+
+
+def _segment_summary(rows: list[tuple[dict[str, Any], Any]]) -> dict[str, dict[str, float]]:
+    grouped: dict[str, list[float]] = defaultdict(list)
+    preview_flags: dict[str, list[float]] = defaultdict(list)
+    for case, comparison in rows:
+        grouped[str(case['segment_value'])].append(float(comparison.coverage_delta))
+        preview_flags[str(case['segment_value'])].append(1.0 if str(comparison.candidate_preview).startswith(PREVIEW_PREFIX) else 0.0)
+    return {
+        key: {
+            'count': float(len(values)),
+            'mean_coverage_delta': round(sum(values) / len(values), 4),
+            'preview_rate_candidate': round(sum(preview_flags[key]) / len(preview_flags[key]), 4),
+        }
+        for key, values in grouped.items()
+    }
+
+
+def build_segment_reports(cases: list[dict[str, Any]], comparisons: list[Any]) -> dict[str, dict[str, dict[str, float]]]:
+    reports: dict[str, dict[str, dict[str, float]]] = {}
+    for segment_key in ['doc_type', 'query_type', 'document_named', 'difficulty']:
+        rows = []
+        for case, comparison in zip(cases, comparisons, strict=True):
+            segment_value = case.get(segment_key, 'unknown')
+            rows.append(({**case, 'segment_value': segment_value}, comparison))
+        reports[segment_key] = _segment_summary(rows)
+    return reports
 
 def compute_gate_metrics(
     cases: list[dict[str, Any]],
@@ -101,6 +131,7 @@ def compute_gate_metrics(
         preview_rate_delta=round(float(candidate_preview_rate - baseline_preview_rate), 4),
         worst_case_coverage_delta=round(min(coverage_deltas), 4),
         regressions_over_threshold=regressions_over_threshold,
+        segment_reports=build_segment_reports(selected_cases, comparisons),
     )
 
 
@@ -149,7 +180,14 @@ def format_decision(decision: GateDecision, baseline_name: str, candidate_name: 
         lines.extend(f'- {reason}' for reason in decision.reasons)
     else:
         lines.append('- Gate passed: no blocking regression criteria were triggered.')
-    lines.append('')
+    lines.extend(['', '## Segment Reports', ''])
+    for segment_key, report in metrics.segment_reports.items():
+        lines.append(f'### {segment_key}')
+        for segment_value, values in sorted(report.items()):
+            lines.append(
+                f"- {segment_value}: count={int(values['count'])}, mean_coverage_delta={values['mean_coverage_delta']:+.4f}, preview_rate_candidate={values['preview_rate_candidate']:.4f}"
+            )
+        lines.append('')
     return '\n'.join(lines)
 
 

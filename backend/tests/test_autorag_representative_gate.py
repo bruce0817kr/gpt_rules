@@ -89,3 +89,35 @@ def test_load_cases_preserves_distribution_metadata() -> None:
     assert first['domain']
     assert first['expected_target_document']
     assert first['expected_source_type']
+
+
+def test_compute_gate_metrics_builds_segment_reports() -> None:
+    cases = [
+        {'id': 'a', 'split': 'validation', 'focus_area': 'x', 'question': 'a?', 'expected_keywords': ['alpha'], 'doc_type': 'rule', 'query_type': 'procedure', 'document_named': False, 'difficulty': 'easy'},
+        {'id': 'b', 'split': 'validation', 'focus_area': 'x', 'question': 'b?', 'expected_keywords': ['beta'], 'doc_type': 'law', 'query_type': 'criteria', 'document_named': True, 'difficulty': 'hard'},
+    ]
+    baseline_outputs = {
+        'generation': _frame([
+            {'generated_texts': 'alpha', 'bleu': 0.0, 'rouge': 0.0},
+            {'generated_texts': 'beta', 'bleu': 0.0, 'rouge': 0.0},
+        ]),
+        'retrieval_on': _frame([{'retrieval_f1': 0.0}] * 2),
+        'retrieval_off': _frame([{'retrieval_f1': 0.0}] * 2),
+    }
+    candidate_outputs = {
+        'generation': _frame([
+            {'generated_texts': 'alpha', 'bleu': 0.0, 'rouge': 0.0},
+            {'generated_texts': 'Retrieved evidence is weak', 'bleu': 0.0, 'rouge': 0.0},
+        ]),
+        'retrieval_on': _frame([{'retrieval_f1': 0.0}] * 2),
+        'retrieval_off': _frame([{'retrieval_f1': 0.0}] * 2),
+    }
+
+    metrics = compute_gate_metrics(cases, baseline_outputs, candidate_outputs, split='validation')
+
+    assert 'doc_type' in metrics.segment_reports
+    assert 'query_type' in metrics.segment_reports
+    assert 'document_named' in metrics.segment_reports
+    assert 'difficulty' in metrics.segment_reports
+    assert 'rule' in metrics.segment_reports['doc_type']
+    assert 'law' in metrics.segment_reports['doc_type']

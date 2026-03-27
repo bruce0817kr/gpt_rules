@@ -73,3 +73,19 @@ def test_evaluate_gate_fails_on_validation_regression() -> None:
 
     assert decision.passed is False
     assert len(decision.reasons) >= 1
+
+
+def test_load_cases_preserves_distribution_metadata() -> None:
+    from pathlib import Path
+    from autorag.compare_representative_runs import load_cases
+
+    cases = load_cases(Path(r'c:\Project\gpt_rules\.worktrees\gtp-guidebook-redesign\backend\tests\autorag\representative_cases.json'))
+    first = cases[0]
+
+    assert first['doc_type']
+    assert first['query_type']
+    assert isinstance(first['document_named'], bool)
+    assert first['difficulty']
+    assert first['domain']
+    assert first['expected_target_document']
+    assert first['expected_source_type']

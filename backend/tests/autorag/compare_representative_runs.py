@@ -23,6 +23,11 @@ def load_cases(path: Path) -> list[dict[str, Any]]:
             'id': str(raw_case.get('id', '')).strip(),
             'split': str(raw_case.get('split', '')).strip(),
             'focus_area': str(raw_case.get('focus_area', '')).strip(),
+            'doc_type': str(raw_case.get('doc_type', '')).strip(),
+            'query_type': str(raw_case.get('query_type', '')).strip(),
+            'document_named': bool(raw_case.get('document_named', False)),
+            'difficulty': str(raw_case.get('difficulty', '')).strip(),
+            'domain': str(raw_case.get('domain', '')).strip(),
             'question': str(raw_case.get('question', '')).strip(),
             'answer_mode': str(raw_case.get('answer_mode', '')).strip(),
             'categories': [str(category).strip() for category in raw_case.get('categories', []) if str(category).strip()],
@@ -31,6 +36,8 @@ def load_cases(path: Path) -> list[dict[str, Any]]:
                 for keyword in raw_case.get('expected_keywords', [])
                 if str(keyword).strip()
             ],
+            'expected_target_document': str(raw_case.get('expected_target_document', '')).strip(),
+            'expected_source_type': str(raw_case.get('expected_source_type', '')).strip(),
             'benchmark_note': str(raw_case.get('benchmark_note', '')).strip(),
         }
         if not case['id'] or not case['question'] or not case['expected_keywords']:

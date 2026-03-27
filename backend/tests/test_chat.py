@@ -141,7 +141,7 @@ def test_assess_answerability_accepts_strong_parent_group() -> None:
         0,
         child_id='child-1',
         parent_id='parent-1',
-        path_key='?3?>?10?',
+        path_key='\uc81c3\uc7a5>\uc81c10\uc870',
         source_type=None,
         is_addendum=False,
         is_appendix=False,
@@ -365,3 +365,82 @@ def test_tokenize_handles_korean_particles_for_shortlisted_sections() -> None:
 
     assert '\ucde8\uc5c5\uaddc\uce59' in tokens
     assert '\uc808\ucc28' in tokens
+
+
+def test_answer_prefers_lexical_shortlist_when_title_match_is_strong() -> None:
+    from datetime import datetime, timezone
+    from app.models.schemas import CategorySource, DocumentDomain, DocumentStatus, DocumentRecord, StructuredSection, ChunkSourceType
+
+    now = datetime.now(timezone.utc)
+    record = DocumentRecord(
+        id='doc-1',
+        title='[3-18] \ucde8\uc5c5\uaddc\uce59(2026.1.1.)',
+        filename='rules.md',
+        stored_filename='rules.md',
+        file_path='/tmp/rules.md',
+        category=DocumentCategory.RULE,
+        category_source=CategorySource.AUTO,
+        domain=DocumentDomain.OTHER,
+        tags=[],
+        status=DocumentStatus.READY,
+        uploaded_at=now,
+        updated_at=now,
+    )
+
+    class ListingCatalog(BlockingCatalog):
+        def list_documents(self):
+            return [record]
+
+    class StructuredParser(BlockingParser):
+        def parse_structured_sections(self, path):
+            return [
+                StructuredSection(
+                    source_type=ChunkSourceType.ARTICLE,
+                    text='\uc81c10\uc870 \uc9d5\uacc4 \uc808\ucc28\ub294 \uc0ac\uc804 \ud1b5\uc9c0, \uc18c\uba85 \uae30\ud68c, \uc704\uc6d0\ud68c \uc2ec\uc758 \uc21c\uc73c\ub85c \uc9c4\ud589\ud55c\ub2e4.',
+                    chapter_label='\uc81c3\uc7a5',
+                    section_label=None,
+                    article_label='\uc81c10\uc870',
+                    paragraph_label=None,
+                    item_label=None,
+                    effective_date=None,
+                    path_key='\uc81c3\uc7a5>\uc81c10\uc870',
+                    page_number=1,
+                    location='\uc81c10\uc870',
+                    is_addendum=False,
+                    is_appendix=False,
+                )
+            ]
+
+        def parse(self, path):
+            raise AssertionError('legacy parser should not be used when structured sections are available')
+
+    vector_store = FakeVectorStore([])
+    service = ChatService(
+        Settings(openai_api_key=''),
+        vector_store,
+        FakeReranker([]),
+        ListingCatalog(),
+        StructuredParser(),
+        RecordingFeedbackStore(),
+    )
+
+    response = asyncio.run(service.answer(ChatRequest(question='\ucde8\uc5c5\uaddc\uce59\uc5d0\uc11c \uc9d5\uacc4 \uc808\ucc28\ub97c \ub2e8\uacc4\ubcc4\ub85c \uc124\uba85\ud574\uc918')))
+
+    assert vector_store.calls == []
+    assert response.citations
+    assert response.citations[0].document_id == 'doc-1'
+
+
+def test_hard_lock_shortlist_requires_score_gap() -> None:
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([]),
+        FakeReranker([]),
+        BlockingCatalog(),
+        BlockingParser(),
+        RecordingFeedbackStore(),
+    )
+
+    assert service._should_hard_lock_shortlist(0.95, 0.60) is True
+    assert service._should_hard_lock_shortlist(0.95, 0.82) is False
+    assert service._should_hard_lock_shortlist(0.84, 0.10) is False

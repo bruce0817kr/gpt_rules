@@ -48,19 +48,46 @@ class ChatService:
         )
 
         shortlisted_records = shortlist_documents_by_title(request.question, self.catalog.list_documents())
+        shortlisted_scores = [
+            (record, score_document_title_match(request.question, record.title))
+            for record in shortlisted_records
+        ]
         shortlisted_ids = [record.id for record in shortlisted_records]
-
-        hits = self.vector_store.search(
-            question=request.question,
-            categories=request.categories,
-            top_k=candidate_count,
-            document_ids=shortlisted_ids or None,
+        strongest_shortlist_score = shortlisted_scores[0][1] if shortlisted_scores else 0.0
+        second_shortlist_score = shortlisted_scores[1][1] if len(shortlisted_scores) > 1 else 0.0
+        hard_locked_records = (
+            [shortlisted_scores[0][0]]
+            if self._should_hard_lock_shortlist(strongest_shortlist_score, second_shortlist_score)
+            else []
         )
-        hits = deduplicate_hits(hits)
-        hits = self.reranker.rerank(request.question, hits, top_k=effective_top_k)
-        hits = deduplicate_hits(hits)
-        parent_hits = aggregate_parent_hits(hits, request.question)
-        hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
+
+        hits: list[SearchHit] = []
+        parent_hits = []
+
+        if hard_locked_records:
+            lexical_hits = self._search_shortlisted_document_sections(
+                request.question,
+                hard_locked_records,
+                limit=candidate_count,
+            )
+            if lexical_hits:
+                hits = deduplicate_hits(lexical_hits)
+                parent_hits = aggregate_parent_hits(hits, request.question)
+                hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
+
+        if not hits:
+            search_document_ids = [hard_locked_records[0].id] if hard_locked_records else (shortlisted_ids or None)
+            hits = self.vector_store.search(
+                question=request.question,
+                categories=request.categories,
+                top_k=candidate_count,
+                document_ids=search_document_ids,
+            )
+            hits = deduplicate_hits(hits)
+            hits = self.reranker.rerank(request.question, hits, top_k=effective_top_k)
+            hits = deduplicate_hits(hits)
+            parent_hits = aggregate_parent_hits(hits, request.question)
+            hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
 
         if shortlisted_records and self._needs_shortlist_fallback(hits, parent_hits):
             lexical_hits = self._search_shortlisted_document_sections(
@@ -292,6 +319,9 @@ class ChatService:
 
         return prioritize_hits(selected_hits, question)[:top_k]
 
+
+    def _should_hard_lock_shortlist(self, strongest_score: float, second_score: float) -> bool:
+        return strongest_score >= 0.9 and (strongest_score - second_score) >= 0.2
 
     def _needs_shortlist_fallback(self, hits: list[SearchHit], parent_hits) -> bool:
         if not hits:

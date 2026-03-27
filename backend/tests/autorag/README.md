@@ -14,6 +14,10 @@ What it does:
 - `representative_cases.json`
   - a small, stable query suite for integration checks and before/after comparisons
   - covers the questions that most often regress in this domain: travel expense rules, disciplinary procedures, vehicle management, contract review, facility-law lookup, procurement, leave, and audit evidence
+- representative split policy
+  - `dev`: fast debugging set; can be inspected frequently during tuning
+  - `validation`: selection gate; use this to decide whether a retrieval change is actually better
+  - `holdout`: final check; do not repeatedly tune against individual holdout results
 - `compare_representative_runs.py`
   - compares two saved AutoRAG result directories against the representative query suite
   - scores generated answers with simple keyword coverage and reports retrieval/generation deltas
@@ -124,3 +128,18 @@ powershell -ExecutionPolicy Bypass -File scripts/run_gold_ops_loop.ps1 -RunId go
 
 
 
+
+Representative split usage:
+
+```bash
+python /app/tests/autorag/run_representative_snapshot.py --cases-path /app/tests/autorag/representative_cases.json --split dev --output-dir /app/data/autorag/representative/dev_snapshot
+python /app/tests/autorag/run_representative_snapshot.py --cases-path /app/tests/autorag/representative_cases.json --split validation --output-dir /app/data/autorag/representative/validation_snapshot
+python /app/tests/autorag/run_representative_snapshot.py --cases-path /app/tests/autorag/representative_cases.json --split holdout --output-dir /app/data/autorag/representative/holdout_snapshot
+```
+
+Recommended evaluation loop:
+
+1. Tune on `dev` only.
+2. Accept or reject the change on `validation`.
+3. Run `holdout` only after a candidate is worth keeping.
+4. If `holdout` regresses, do not tune directly against it; go back to `dev` and `validation`.

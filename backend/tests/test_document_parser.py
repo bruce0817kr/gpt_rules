@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 
 import pytest
 
@@ -39,6 +39,41 @@ def test_parse_structured_sections_recognizes_article_addendum_and_appendix(
     assert "부칙" in addendum_sections[0].path_key
     assert appendix_sections and appendix_sections[0].source_type == ChunkSourceType.APPENDIX
     assert appendix_sections[0].article_label is None
+
+
+def test_parse_structured_sections_extracts_paragraph_and_item_hierarchy(
+    tmp_path: Path,
+) -> None:
+    parser = DocumentParser()
+    sample_file = tmp_path / "hierarchy.md"
+    sample_file.write_text(
+        "제1장 총칙\n\n"
+        "제1조(목적) 이 규정은 임직원의 출장비 지급 기준을 정한다.\n"
+        "제1항 이 규정은 모든 출장에 적용한다.\n"
+        "1. 국내 출장의 경우 실제 비용을 기준으로 한다.\n"
+        "2. 국외 출장의 경우 별도 기준을 적용한다.\n"
+        "제2항 세부 기준은 별표에 따른다.\n\n"
+        "부칙 <2024. 1. 1.>\n"
+        "이 규정은 2024년 1월 1일부터 시행한다.\n\n"
+        "별표 1 출장비 기준표\n"
+        "서울 1박 120000원",
+        encoding="utf-8",
+    )
+
+    sections = parser.parse_structured_sections(sample_file)
+
+    article_sections = [section for section in sections if section.source_type == ChunkSourceType.ARTICLE]
+    paragraph_sections = [section for section in sections if section.paragraph_label]
+    item_sections = [section for section in sections if section.item_label]
+
+    assert article_sections[0].article_label == "제1조"
+    assert article_sections[0].path_key == "제1장>제1조"
+    assert paragraph_sections[0].paragraph_label == "제1항"
+    assert paragraph_sections[0].path_key == "제1장>제1조>제1항"
+    assert item_sections[0].item_label == "1."
+    assert item_sections[0].path_key == "제1장>제1조>제1항>1."
+    assert item_sections[1].item_label == "2."
+    assert item_sections[1].path_key == "제1장>제1조>제1항>2."
 
 
 def test_parse_structured_sections_preserves_structure_flags_on_legacy_parse_path(

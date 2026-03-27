@@ -1,4 +1,4 @@
-﻿import os
+import os
 import re
 import shutil
 import subprocess
@@ -22,6 +22,13 @@ class DocumentParser:
 
     _CHAPTER_RE = re.compile(r"^(?P<label>제\s*\d+\s*장)(?:\s+(?P<title>.+))?$")
     _ARTICLE_RE = re.compile(r"^(?P<label>제\s*\d+\s*조)(?:\s*(?:\((?P<title>[^)]+)\)))?(?P<body>.*)$")
+    _PARAGRAPH_RE = re.compile(r"^(?P<label>제\s*\d+\s*항)(?:\s*(?:\((?P<title>[^)]+)\)))?(?P<body>.*)$")
+    _ITEM_PATTERNS = (
+        re.compile(r"^(?P<label>\(\s*\d+\s*\))\s*(?P<body>.*)$"),
+        re.compile(r"^(?P<label>\d+\.)\s*(?P<body>.*)$"),
+        re.compile(r"^(?P<label>[가-힣]\.)\s*(?P<body>.*)$"),
+        re.compile(r"^(?P<label>\(\s*[가-힣]\s*\))\s*(?P<body>.*)$"),
+    )
     _ADDENDUM_RE = re.compile(r"^(?P<label>부칙)(?P<body>.*)$")
     _APPENDIX_RE = re.compile(
         r"^(?P<label>(?:별표\s*\d+(?:-\d+)?|별지\s*제?\s*\d+호(?:서식)?|서식\s*\d+))(?:\s+(?P<title>.+))?$"
@@ -47,23 +54,225 @@ class DocumentParser:
     def parse_structured_sections(self, file_path: Path) -> list[StructuredSection]:
         basic_sections = self.parse(file_path)
         structured_sections: list[StructuredSection] = []
+
         current_chapter: str | None = None
+        current_article_label: str | None = None
+        current_article_lines: list[str] = []
+        current_paragraph_label: str | None = None
+        current_paragraph_lines: list[str] = []
+        current_item_label: str | None = None
+        current_item_lines: list[str] = []
+        current_addendum_lines: list[str] = []
+        current_appendix_label: str | None = None
+        current_appendix_lines: list[str] = []
+        current_page_number: int | None = None
+
+        def emit_section(
+            *,
+            source_type: ChunkSourceType,
+            text_lines: list[str],
+            location: str,
+            page_number: int | None,
+            chapter_label: str | None = None,
+            article_label: str | None = None,
+            paragraph_label: str | None = None,
+            item_label: str | None = None,
+            effective_date: str | None = None,
+            path_key: str | None = None,
+            is_addendum: bool = False,
+            is_appendix: bool = False,
+        ) -> None:
+            text = self._clean("\n".join(text_lines))
+            if not text:
+                return
+            structured_sections.append(
+                StructuredSection(
+                    source_type=source_type,
+                    text=text,
+                    chapter_label=chapter_label,
+                    section_label=None,
+                    article_label=article_label,
+                    paragraph_label=paragraph_label,
+                    item_label=item_label,
+                    effective_date=effective_date,
+                    path_key=path_key if path_key is not None else self._build_path_key(chapter_label, article_label, paragraph_label, item_label, effective_date),
+                    page_number=page_number,
+                    location=location,
+                    is_addendum=is_addendum,
+                    is_appendix=is_appendix,
+                )
+            )
+
+        def flush_article() -> None:
+            nonlocal current_article_lines
+            if current_article_label is None or not current_article_lines:
+                return
+            emit_section(
+                source_type=ChunkSourceType.ARTICLE,
+                text_lines=current_article_lines,
+                location=current_article_label,
+                page_number=current_page_number,
+                chapter_label=current_chapter,
+                article_label=current_article_label,
+                path_key=self._build_path_key(current_chapter, current_article_label, None, None),
+            )
+            current_article_lines = []
+
+        def flush_paragraph() -> None:
+            nonlocal current_paragraph_lines
+            if current_paragraph_label is None or not current_paragraph_lines:
+                return
+            emit_section(
+                source_type=ChunkSourceType.ARTICLE,
+                text_lines=current_paragraph_lines,
+                location=self._build_location(current_article_label, current_paragraph_label),
+                page_number=current_page_number,
+                chapter_label=current_chapter,
+                article_label=current_article_label,
+                paragraph_label=current_paragraph_label,
+                path_key=self._build_path_key(current_chapter, current_article_label, current_paragraph_label, None),
+            )
+            current_paragraph_lines = []
+
+        def flush_item() -> None:
+            nonlocal current_item_label, current_item_lines
+            if current_item_label is None or not current_item_lines:
+                return
+            emit_section(
+                source_type=ChunkSourceType.ARTICLE,
+                text_lines=current_item_lines,
+                location=self._build_location(current_article_label, current_paragraph_label, current_item_label),
+                page_number=current_page_number,
+                chapter_label=current_chapter,
+                article_label=current_article_label,
+                paragraph_label=current_paragraph_label,
+                item_label=current_item_label,
+                path_key=self._build_path_key(current_chapter, current_article_label, current_paragraph_label, current_item_label),
+            )
+            current_item_lines = []
+            current_item_label = None
+
+        def flush_addendum() -> None:
+            nonlocal current_addendum_lines
+            if not current_addendum_lines:
+                return
+            addendum_text = self._clean("\n".join(current_addendum_lines))
+            effective_date = self._extract_effective_date(addendum_text)
+            emit_section(
+                source_type=ChunkSourceType.ADDENDUM,
+                text_lines=current_addendum_lines,
+                location="부칙",
+                page_number=current_page_number,
+                effective_date=effective_date,
+                path_key=("부칙" if effective_date is None else f"부칙>{effective_date}"),
+                is_addendum=True,
+            )
+            current_addendum_lines = []
+
+        def flush_appendix() -> None:
+            nonlocal current_appendix_lines, current_appendix_label
+            if current_appendix_label is None or not current_appendix_lines:
+                return
+            emit_section(
+                source_type=ChunkSourceType.APPENDIX,
+                text_lines=current_appendix_lines,
+                location=current_appendix_label,
+                page_number=current_page_number,
+                path_key=current_appendix_label,
+                is_appendix=True,
+            )
+            current_appendix_lines = []
+            current_appendix_label = None
+
+        def reset_article_state() -> None:
+            flush_item()
+            flush_paragraph()
+            flush_article()
+
+        def reset_top_level_state() -> None:
+            nonlocal current_article_label, current_paragraph_label, current_item_label
+            reset_article_state()
+            flush_addendum()
+            flush_appendix()
+            current_article_label = None
+            current_paragraph_label = None
+            current_item_label = None
 
         for section in basic_sections:
-            for block in self._split_blocks(section.text):
-                if not block:
+            current_page_number = section.page_number
+            for raw_line in self._split_lines(section.text):
+                line = self._clean(raw_line)
+                if not line:
                     continue
-                parsed_section, current_chapter = self._classify_structured_block(
-                    block=block,
-                    location=section.location,
-                    page_number=section.page_number,
-                    current_chapter=current_chapter,
-                )
-                if parsed_section is None:
-                    if self._should_append_to_previous(structured_sections):
-                        structured_sections[-1].text = self._join_text(structured_sections[-1].text, block)
+
+                chapter_match = self._CHAPTER_RE.match(line)
+                if chapter_match:
+                    reset_top_level_state()
+                    current_chapter = self._normalize_label(chapter_match.group("label"))
                     continue
-                structured_sections.append(parsed_section)
+
+                article_match = self._ARTICLE_RE.match(line)
+                if article_match:
+                    reset_top_level_state()
+                    current_article_label = self._normalize_label(article_match.group("label"))
+                    current_article_lines = [line]
+                    continue
+
+                paragraph_match = self._PARAGRAPH_RE.match(line)
+                if paragraph_match and current_article_label is not None:
+                    flush_item()
+                    flush_paragraph()
+                    if current_article_lines:
+                        flush_article()
+                    current_paragraph_label = self._normalize_label(paragraph_match.group("label"))
+                    current_paragraph_lines = [line]
+                    continue
+
+                item_label = self._match_item_label(line)
+                if item_label and current_article_label is not None:
+                    flush_item()
+                    if current_paragraph_label is not None:
+                        flush_paragraph()
+                    elif current_article_lines:
+                        flush_article()
+                    current_item_label = item_label
+                    current_item_lines = [line]
+                    continue
+
+                addendum_match = self._ADDENDUM_RE.match(line)
+                if addendum_match:
+                    reset_top_level_state()
+                    current_addendum_lines = [line]
+                    continue
+
+                appendix_match = self._APPENDIX_RE.match(line)
+                if appendix_match:
+                    reset_top_level_state()
+                    current_appendix_label = self._normalize_label(appendix_match.group("label"))
+                    current_appendix_lines = [line]
+                    continue
+
+                if current_item_lines:
+                    current_item_lines.append(line)
+                elif current_paragraph_lines:
+                    current_paragraph_lines.append(line)
+                elif current_article_lines:
+                    current_article_lines.append(line)
+                elif current_addendum_lines:
+                    current_addendum_lines.append(line)
+                elif current_appendix_lines:
+                    current_appendix_lines.append(line)
+                else:
+                    emit_section(
+                        source_type=ChunkSourceType.METADATA,
+                        text_lines=[line],
+                        location=section.location,
+                        page_number=section.page_number,
+                        chapter_label=current_chapter,
+                        path_key=section.location,
+                    )
+
+        reset_top_level_state()
 
         if not structured_sections:
             raise ValueError("문서에서 구조화할 수 있는 텍스트를 찾지 못했습니다.")
@@ -80,124 +289,40 @@ class DocumentParser:
     def _split_blocks(self, text: str) -> list[str]:
         return [block for block in (self._clean(part) for part in re.split(r"\n\s*\n", text)) if block]
 
-    def _join_text(self, first: str, second: str) -> str:
-        return f"{first}\n\n{second}".strip()
+    def _split_lines(self, text: str) -> list[str]:
+        return [line for line in (self._clean(part) for part in text.splitlines()) if line]
 
-    def _should_append_to_previous(self, structured_sections: list[StructuredSection]) -> bool:
-        if not structured_sections:
-            return False
-        return structured_sections[-1].source_type in {
-            ChunkSourceType.ARTICLE,
-            ChunkSourceType.ADDENDUM,
-            ChunkSourceType.APPENDIX,
-        }
-
-    def _classify_structured_block(
+    def _build_path_key(
         self,
-        block: str,
-        location: str,
-        page_number: int | None,
-        current_chapter: str | None,
-    ) -> tuple[StructuredSection | None, str | None]:
-        chapter_match = self._CHAPTER_RE.match(block)
-        if chapter_match:
-            return None, self._normalize_label(chapter_match.group("label"))
+        chapter_label: str | None,
+        article_label: str | None,
+        paragraph_label: str | None,
+        item_label: str | None,
+        effective_date: str | None = None,
+    ) -> str:
+        parts = [part for part in [chapter_label, article_label, paragraph_label, item_label] if part]
+        if effective_date:
+            parts.append(effective_date)
+        return ">".join(parts)
 
-        article_match = self._ARTICLE_RE.match(block)
-        if article_match:
-            article_label = self._normalize_label(article_match.group("label"))
-            chapter_label = current_chapter
-            title = article_match.group("title")
-            text = self._clean(block)
-            if title:
-                title = self._clean(title)
-            path_parts = [part for part in [chapter_label, article_label] if part]
-            path_key = ">".join(path_parts) if path_parts else article_label
-            return (
-                StructuredSection(
-                    source_type=ChunkSourceType.ARTICLE,
-                    text=text,
-                    chapter_label=chapter_label,
-                    section_label=None,
-                    article_label=article_label,
-                    paragraph_label=None,
-                    item_label=None,
-                    effective_date=None,
-                    path_key=path_key,
-                    page_number=page_number,
-                    location=article_label,
-                    is_addendum=False,
-                    is_appendix=False,
-                ),
-                chapter_label,
-            )
-
-        addendum_match = self._ADDENDUM_RE.match(block)
-        if addendum_match:
-            effective_date = self._extract_effective_date(block)
-            path_key = "부칙"
-            if effective_date:
-                path_key = f"{path_key}>{effective_date}"
-            return (
-                StructuredSection(
-                    source_type=ChunkSourceType.ADDENDUM,
-                    text=self._clean(block),
-                    chapter_label=None,
-                    section_label=None,
-                    article_label=None,
-                    paragraph_label=None,
-                    item_label=None,
-                    effective_date=effective_date,
-                    path_key=path_key,
-                    page_number=page_number,
-                    location=self._normalize_label(addendum_match.group("label")),
-                    is_addendum=True,
-                    is_appendix=False,
-                ),
-                current_chapter,
-            )
-
-        appendix_match = self._APPENDIX_RE.match(block)
-        if appendix_match:
-            label = self._normalize_label(appendix_match.group("label"))
-            return (
-                StructuredSection(
-                    source_type=ChunkSourceType.APPENDIX,
-                    text=self._clean(block),
-                    chapter_label=None,
-                    section_label=None,
-                    article_label=None,
-                    paragraph_label=None,
-                    item_label=None,
-                    effective_date=None,
-                    path_key=label,
-                    page_number=page_number,
-                    location=label,
-                    is_addendum=False,
-                    is_appendix=True,
-                ),
-                current_chapter,
-            )
-
-        metadata_section = StructuredSection(
-            source_type=ChunkSourceType.METADATA,
-            text=self._clean(block),
-            chapter_label=current_chapter,
-            section_label=None,
-            article_label=None,
-            paragraph_label=None,
-            item_label=None,
-            effective_date=None,
-            path_key=location,
-            page_number=page_number,
-            location=location,
-            is_addendum=False,
-            is_appendix=False,
-        )
-        return metadata_section, current_chapter
+    def _build_location(
+        self,
+        article_label: str | None,
+        paragraph_label: str | None = None,
+        item_label: str | None = None,
+    ) -> str:
+        parts = [part for part in [article_label, paragraph_label, item_label] if part]
+        return " ".join(parts)
 
     def _normalize_label(self, label: str) -> str:
         return re.sub(r"\s+", "", label).strip()
+
+    def _match_item_label(self, line: str) -> str | None:
+        for pattern in self._ITEM_PATTERNS:
+            match = pattern.match(line)
+            if match:
+                return self._normalize_label(match.group("label"))
+        return None
 
     def _extract_effective_date(self, text: str) -> str | None:
         match = self._EFFECTIVE_DATE_RE.search(text)
@@ -276,4 +401,5 @@ class DocumentParser:
         if configured_path:
             return configured_path
         return shutil.which("hwp2md")
+
 

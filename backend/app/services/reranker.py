@@ -1,4 +1,4 @@
-from math import exp
+﻿from math import exp
 
 from sentence_transformers import CrossEncoder
 
@@ -7,7 +7,7 @@ from app.services.vector_store import SearchHit
 
 class BGERerankerService:
     def __init__(self, model_name: str) -> None:
-        self.model = CrossEncoder(model_name)
+        self.model = CrossEncoder(model_name, device='cpu', automodel_args={'low_cpu_mem_usage': False}, local_files_only=True)
 
     def rerank(self, query: str, hits: list[SearchHit], top_k: int) -> list[SearchHit]:
         if not hits:
@@ -68,3 +68,4 @@ class BGERerankerService:
 
     def _sigmoid(self, value: float) -> float:
         return 1.0 / (1.0 + exp(-value))
+

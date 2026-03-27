@@ -1,14 +1,15 @@
-from app.models.schemas import DocumentCategory
+﻿from app.models.schemas import DocumentCategory
 from app.services import reranker as reranker_module
 from app.services.reranker import BGERerankerService
 from app.services.vector_store import SearchHit
 
 
 class FakeCrossEncoder:
-    def __init__(self, model_name: str, scores: list[float] | None = None) -> None:
+    def __init__(self, model_name: str, **kwargs) -> None:
         self.model_name = model_name
+        self.kwargs = kwargs
         self.received_pairs = None
-        self.scores = scores or [0.1, 3.5, -1.0]
+        self.scores = kwargs.pop('scores', [0.1, 3.5, -1.0])
 
     def predict(self, pairs, convert_to_numpy: bool, show_progress_bar: bool):
         assert convert_to_numpy is True
@@ -17,9 +18,31 @@ class FakeCrossEncoder:
         return self.scores[: len(pairs)]
 
 
+def test_reranker_initializes_cross_encoder_for_cpu(monkeypatch) -> None:
+    captured = {}
+
+    def factory(model_name: str, **kwargs):
+        captured['model_name'] = model_name
+        captured['kwargs'] = kwargs
+        return FakeCrossEncoder(model_name, **kwargs)
+
+    monkeypatch.setattr(reranker_module, 'CrossEncoder', factory)
+
+    BGERerankerService('BAAI/bge-reranker-v2-m3')
+
+    assert captured == {
+        'model_name': 'BAAI/bge-reranker-v2-m3',
+        'kwargs': {
+            'device': 'cpu',
+            'automodel_args': {'low_cpu_mem_usage': False},
+            'local_files_only': True,
+        },
+    }
+
+
 def test_reranker_sorts_hits_by_cross_encoder_score(monkeypatch) -> None:
     fake_model = FakeCrossEncoder('BAAI/bge-reranker-v2-m3')
-    monkeypatch.setattr(reranker_module, 'CrossEncoder', lambda model_name: fake_model)
+    monkeypatch.setattr(reranker_module, 'CrossEncoder', lambda model_name, **kwargs: fake_model)
 
     reranker = BGERerankerService('BAAI/bge-reranker-v2-m3')
     hits = [
@@ -41,7 +64,7 @@ def test_reranker_sorts_hits_by_cross_encoder_score(monkeypatch) -> None:
 
 def test_reranker_includes_metadata_in_context(monkeypatch) -> None:
     fake_model = FakeCrossEncoder('BAAI/bge-reranker-v2-m3', scores=[0.1])
-    monkeypatch.setattr(reranker_module, 'CrossEncoder', lambda model_name: fake_model)
+    monkeypatch.setattr(reranker_module, 'CrossEncoder', lambda model_name, **kwargs: fake_model)
 
     reranker = BGERerankerService('BAAI/bge-reranker-v2-m3')
     hits = [
@@ -84,5 +107,3 @@ def test_reranker_includes_metadata_in_context(monkeypatch) -> None:
             ),
         ),
     ]
-
-

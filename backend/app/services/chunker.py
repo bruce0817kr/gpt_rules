@@ -104,24 +104,29 @@ class Chunker:
         return f"{parent_id}::{child_index}"
 
     def _slice(self, text: str) -> list[str]:
-        if len(text) <= self.chunk_size:
-            return [text]
+        legal_units = self._split_legal_units(text)
+        pieces: list[str] = []
+        for unit in legal_units:
+            if len(unit) <= self.chunk_size:
+                pieces.append(unit)
+            else:
+                pieces.extend(self._split_long_unit(unit))
+        return pieces or ([self._clean(text)] if self._clean(text) else [])
 
+    def _split_legal_units(self, text: str) -> list[str]:
+        return [unit for unit in (self._clean(part) for part in text.split("\n\n")) if unit]
+
+    def _split_long_unit(self, text: str) -> list[str]:
         pieces: list[str] = []
         start = 0
         text_length = len(text)
+
         while start < text_length:
             end = min(text_length, start + self.chunk_size)
             if end < text_length:
-                boundary_candidates = [
-                    text.rfind("\n", start, end),
-                    text.rfind(". ", start, end),
-                    text.rfind("다. ", start, end),
-                    text.rfind(" ", start, end),
-                ]
-                boundary = max(boundary_candidates)
-                if boundary > start + self.chunk_size // 2:
-                    end = boundary + 1
+                boundary = self._find_boundary(text, start, end)
+                if boundary is not None and boundary > start + max(self.chunk_size // 2, 1):
+                    end = boundary
             piece = text[start:end].strip()
             if piece:
                 pieces.append(piece)
@@ -132,3 +137,20 @@ class Chunker:
                 next_start = end
             start = next_start
         return pieces
+
+    def _find_boundary(self, text: str, start: int, end: int) -> int | None:
+        candidates = [
+            text.rfind("\n", start, end),
+            text.rfind(". ", start, end),
+            text.rfind("? ", start, end),
+            text.rfind("! ", start, end),
+            text.rfind("; ", start, end),
+            text.rfind(" ", start, end),
+        ]
+        boundary = max(candidates)
+        if boundary <= start:
+            return None
+        return boundary + 1
+
+    def _clean(self, text: str) -> str:
+        return " ".join(text.replace("\r\n", "\n").replace("\r", "\n").split()).strip()

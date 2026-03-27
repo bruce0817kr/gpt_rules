@@ -1,4 +1,4 @@
-# AutoRAG Evaluation Harness
+﻿# AutoRAG Evaluation Harness
 
 This folder uses AutoRAG's evaluation decorators to test the current RAG implementation.
 
@@ -11,7 +11,12 @@ What it does:
 - `evaluate_current_rag.py`
   - evaluates the current retrieval path with AutoRAG retrieval metrics
   - evaluates the current answer generation with AutoRAG generation metrics
-
+- `representative_cases.json`
+  - a small, stable query suite for integration checks and before/after comparisons
+  - covers the questions that most often regress in this domain: travel expense rules, disciplinary procedures, vehicle management, contract review, facility-law lookup, procurement, leave, and audit evidence
+- `compare_representative_runs.py`
+  - compares two saved AutoRAG result directories against the representative query suite
+  - scores generated answers with simple keyword coverage and reports retrieval/generation deltas
 Important:
 
 - The generated QA set is a bootstrap dataset, not a human-reviewed gold set.
@@ -21,7 +26,7 @@ Important:
 Gold-set expansion workflow:
 
 - `generate_persona_candidates.py`
-  - uses a persona sub-agent (for example `경력 5년차 직원`) to generate realistic question candidates
+  - uses a persona sub-agent (for example `寃쎈젰 5?꾩감 吏곸썝`) to generate realistic question candidates
   - writes candidate cases to `backend/data/autorag/candidates/`
 - `build_review_queue.py`
   - runs the current system on those candidates
@@ -55,6 +60,15 @@ python /app/tests/autorag/build_bootstrap_dataset.py
 python /app/tests/autorag/evaluate_current_rag.py
 ```
 
+Representative integration check:
+
+```bash
+python /app/tests/autorag/evaluate_current_rag.py --qa-path /app/data/autorag/bootstrap/qa.parquet --output-dir /app/data/autorag/runs/baseline
+python /app/tests/autorag/evaluate_current_rag.py --qa-path /app/data/autorag/bootstrap/qa.parquet --output-dir /app/data/autorag/runs/candidate
+python /app/tests/autorag/compare_representative_runs.py --baseline-output-dir /app/data/autorag/runs/baseline --candidate-output-dir /app/data/autorag/runs/candidate --output-dir /app/data/autorag/representative --run-id integration_check
+```
+
+The representative comparison is row-aligned. Keep the case ordering in `representative_cases.json` stable so baseline and candidate runs stay comparable.
 Persona candidate run:
 
 ```bash
@@ -106,3 +120,7 @@ If you also want to generate a fresh persona batch before merging:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/run_gold_ops_loop.ps1 -RunId gold_ops_demo -GenerateCandidates -PersonaIds new_employee,five_year_employee,team_lead,finance_officer
 ```
+
+
+
+

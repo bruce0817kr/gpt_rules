@@ -23,6 +23,40 @@ def test_chunker_preserves_overlap_and_sequence() -> None:
     assert len(chunks[0].text) <= 400
 
 
+def test_chunker_keeps_legal_units_on_boundary_when_splitting() -> None:
+    section = StructuredSection(
+        source_type=ChunkSourceType.ARTICLE,
+        text=(
+            "제10조(출장비) 출장비는 실제 발생한 비용을 기준으로 한다.\n\n"
+            "제1항 교통비는 실비로 지급한다.\n\n"
+            "1. 시내 이동은 대중교통을 우선한다.\n\n"
+            "2. 시외 이동은 택시비를 포함할 수 있다."
+        ),
+        article_label="제10조",
+        paragraph_label="제1항",
+        path_key="제3장>제10조>제1항",
+        page_number=3,
+        location="제10조 제1항",
+    )
+    chunker = Chunker(chunk_size=45, chunk_overlap=8)
+
+    parents, children = chunker.chunk_structured_sections(
+        document_id="doc-1",
+        document_title="Travel Rules",
+        sections=[section],
+    )
+
+    assert len(parents) == 1
+    assert [child.text for child in children] == [
+        "제10조(출장비) 출장비는 실제 발생한 비용을 기준으로 한다.",
+        "제1항 교통비는 실비로 지급한다.",
+        "1. 시내 이동은 대중교통을 우선한다.",
+        "2. 시외 이동은 택시비를 포함할 수 있다.",
+    ]
+    assert parents[0].child_ids == [child.child_id for child in children]
+    assert parents[0].representative_text == children[0].text
+
+
 def test_chunker_builds_linked_parent_and_child_records() -> None:
     section = StructuredSection(
         source_type=ChunkSourceType.ARTICLE,

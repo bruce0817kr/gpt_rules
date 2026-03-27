@@ -1,0 +1,74 @@
+﻿[
+  {
+    "id": "travel_expense_approval",
+    "focus_area": "travel expense rules",
+    "question": "출장비 정산 시 숙박비와 교통비는 어떤 증빙이 필요하고, 사전 승인은 어디까지 받아야 하나요?",
+    "answer_mode": "project_management",
+    "categories": ["rule", "guide", "notice"],
+    "expected_keywords": ["사전 승인", "증빙", "숙박비", "교통비"],
+    "benchmark_note": "출장 정산, 증빙 요건, 사전 승인 범위를 함께 설명하는 답변을 확인한다."
+  },
+  {
+    "id": "disciplinary_procedure_notice",
+    "focus_area": "disciplinary procedures",
+    "question": "징계 절차를 시작할 때 사전 통지, 소명 기회, 징계위원회 심의는 어떻게 안내해야 하나요?",
+    "answer_mode": "hr_admin",
+    "categories": ["rule", "law"],
+    "expected_keywords": ["사전 통지", "소명", "징계위원회", "심의"],
+    "benchmark_note": "징계 절차의 적법성, 통지 시점, 소명권 보장이 핵심이다."
+  },
+  {
+    "id": "vehicle_management_log",
+    "focus_area": "vehicle management",
+    "question": "법인 차량을 배차할 때 운행일지, 주유, 정비 기록은 어떤 수준으로 남겨야 하나요?",
+    "answer_mode": "project_management",
+    "categories": ["rule", "guide", "notice"],
+    "expected_keywords": ["운행일지", "배차", "주유", "정비"],
+    "benchmark_note": "차량 운영 기록과 관리 책임이 함께 언급되는지 본다."
+  },
+  {
+    "id": "contract_review_change_order",
+    "focus_area": "contract review",
+    "question": "계약 변경이 필요할 때 변경계약, 특약, 상대방 동의는 어떤 순서로 검토해야 하나요?",
+    "answer_mode": "contract_review",
+    "categories": ["rule", "guide", "law"],
+    "expected_keywords": ["변경계약", "특약", "상대방 동의", "검토"],
+    "benchmark_note": "계약 변경 리스크와 문서화 순서를 함께 확인한다."
+  },
+  {
+    "id": "facility_law_lookup",
+    "focus_area": "facility-law lookup",
+    "question": "시설 법령을 찾을 때 건축물 용도, 허가, 점검 기준은 어떤 문서부터 확인해야 하나요?",
+    "answer_mode": "standard",
+    "categories": ["law", "guide"],
+    "expected_keywords": ["건축물 용도", "허가", "점검 기준", "문서"],
+    "benchmark_note": "시설·법령 조회 답변이 어떤 기준 문서로 좁혀지는지 본다."
+  },
+  {
+    "id": "procurement_quote_threshold",
+    "focus_area": "procurement quote rule",
+    "question": "소액 수의계약이나 비교견적이 필요한 경우 기준금액과 확인 절차는 어떻게 정리해야 하나요?",
+    "answer_mode": "procurement_bid",
+    "categories": ["rule", "guide", "law"],
+    "expected_keywords": ["기준금액", "수의계약", "비교견적", "확인 절차"],
+    "benchmark_note": "조달/견적 기준이 숫자와 절차 둘 다로 설명되는지 확인한다."
+  },
+  {
+    "id": "leave_process_policy",
+    "focus_area": "leave policy",
+    "question": "연차 사용 신청은 몇 일 전에 받아야 하고, 대체휴무와 함께 쓸 때 승인 절차는 어떻게 되나요?",
+    "answer_mode": "hr_admin",
+    "categories": ["rule", "guide"],
+    "expected_keywords": ["연차", "신청", "대체휴무", "승인"],
+    "benchmark_note": "휴가 신청 타이밍과 결재 경로가 분명한지 본다."
+  },
+  {
+    "id": "audit_evidence_retention",
+    "focus_area": "audit evidence",
+    "question": "감사 대응용 증빙은 결재문서와 정산자료를 얼마나 보관해야 하고, 누락 시 어떤 보완이 필요하나요?",
+    "answer_mode": "audit_response",
+    "categories": ["rule", "guide", "law"],
+    "expected_keywords": ["증빙", "보관", "정산자료", "보완"],
+    "benchmark_note": "감사 대응 답변이 보관 기간과 누락 보완을 함께 다루는지 확인한다."
+  }
+]

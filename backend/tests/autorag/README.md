@@ -155,3 +155,10 @@ python /app/tests/autorag/evaluate_representative_gate.py --cases-path /app/test
 ```
 
 Use this only as a keep/revert gate after a candidate already looks promising on the dev split.
+
+
+Representative validation loop:
+
+```bash
+python /app/tests/autorag/run_representative_validation_loop.py --cases-path /app/tests/autorag/representative_cases.json --split validation --baseline-output-dir /app/data/autorag/representative/validation_baseline --candidate-output-dir /app/data/autorag/representative/validation_candidate --gate-output-dir /app/data/autorag/representative --run-id validation_loop
+```

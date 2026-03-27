@@ -1,7 +1,7 @@
 ﻿import asyncio
 
 from app.config import Settings
-from app.models.schemas import ChatRequest, Citation, DocumentCategory
+from app.models.schemas import AnswerMode, ChatRequest, Citation, DocumentCategory
 from app.services.chat import ChatService, _extract_citation_indices, _prune_citations_to_answer
 from app.services.vector_store import SearchHit
 
@@ -444,3 +444,18 @@ def test_hard_lock_shortlist_requires_score_gap() -> None:
     assert service._should_hard_lock_shortlist(0.95, 0.60) is True
     assert service._should_hard_lock_shortlist(0.95, 0.82) is False
     assert service._should_hard_lock_shortlist(0.84, 0.10) is False
+
+
+def test_system_prompt_defaults_to_korean_output() -> None:
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([]),
+        FakeReranker([]),
+        BlockingCatalog(),
+        BlockingParser(),
+        RecordingFeedbackStore(),
+    )
+
+    prompt = service._system_prompt(AnswerMode.STANDARD, False)
+
+    assert 'Respond in Korean' in prompt

@@ -1,64 +1,49 @@
-# 재단 규정 상담봇
+﻿# 寃쎄린?뚰겕?명뙆??洹쒖젙 諛?愿怨꾨쾿??媛?대뱶遺?
+寃쎄린?뚰겕?명뙆?ъ쓽 洹쒖젙怨?愿怨?踰뺣졊???④퍡 寃?됲빐, 吏곸썝??梨꾪똿?쇰줈 吏덈Ц?덉쓣 ??洹쇨굅 以묒떖 ?듬???鍮좊Ⅴ寃??뺤씤?????덈룄濡??뺣뒗 ?대? ?낅Т??媛?대뱶遺곸엯?덈떎.
 
-재단 규정, 내부 규칙, 관계 법령을 RAG로 검색해 직원 질문에 근거 중심 답변을 제공하는 내부용 업무 상담 챗봇입니다.
+## 援ъ꽦
 
-## 구성
+- `frontend/`: React + Vite 湲곕컲??吏덈Ц 以묒떖 UI
+- `backend/`: FastAPI 湲곕컲??臾몄꽌 寃??諛??듬? API
+- `qdrant`: 踰≫꽣 ??μ냼
+- `KoE5`: 臾몄꽌 寃?됱슜 濡쒖뺄 ?꾨쿋??紐⑤뜽
+- `bge-reranker-v2-m3`: 寃??寃곌낵 ?ъ젙?ъ슜 濡쒖뺄 由щ옲而?
+## 二쇱슂 湲곕뒫
 
-- `frontend/`: React + Vite 기반 직원 상담/문서관리 UI
-- `backend/`: FastAPI 기반 문서 업로드, 인덱싱, 검색, 답변 API
-- `qdrant`: 벡터 저장소
-- `KoE5`: 한국어 문서 검색용 로컬 임베딩 모델
-- `bge-reranker-v2-m3`: 검색 결과 재정렬용 로컬 리랭커
+- PDF, DOCX, TXT, MD ?낅줈??諛??먮룞 ?됱씤
+- HWP, HWPX ?낅줈??諛??먮룞 ?됱씤
+- 臾몄꽌 紐⑸줉, ?곸꽭, 寃??- 洹쒖젙怨?愿怨?踰뺣졊???④퍡 蹂댁뿬二쇰뒗 洹쇨굅 以묒떖 ?묐떟
+- 臾몄꽌 遺꾨쪟蹂?寃??踰붿쐞 ?쒗븳
+- 濡쒓렇???녿뒗 ?대? ??꾩꽌鍮꾩뒪 ?댁쁺
 
-## 주요 기능
+## 鍮좊Ⅸ ?ㅽ뻾
 
-- PDF, DOCX, TXT, MD 업로드 및 자동 인덱싱
-- HWP, HWPX 업로드 및 자동 인덱싱
-- 문서 목록, 삭제, 재색인
-- 질문별 근거 문서 인용 표시
-- 문서 분류별 검색 범위 제한
-- 로그인 없는 내부망 전용 운영 가정
-
-## 빠른 실행
-
-1. `.env.example`을 복사해 `.env`를 만듭니다.
-2. `OPENAI_API_KEY`와 필요 시 `OPENAI_BASE_URL`, `LLM_MODEL`을 채웁니다.
-3. 사내 배포 경로가 `https://ai.gtp.or.kr/chat` 이므로 기본 `VITE_PUBLIC_BASE_PATH`는 `/chat/` 입니다.
-4. 아래 명령으로 실행합니다.
+1. `.env.example`??蹂듭궗??`.env`瑜?留뚮벊?덈떎.
+2. `OPENAI_API_KEY`? ?꾩슂 ??`OPENAI_BASE_URL`, `LLM_MODEL`???ㅼ젙?⑸땲??
+3. 諛고룷 寃쎈줈媛 `https://ai.gtp.or.kr/chat`?대㈃ 湲곕낯 `VITE_PUBLIC_BASE_PATH`??`/chat/`?낅땲??
+4. ?꾨옒 紐낅졊?쇰줈 ?ㅽ뻾?⑸땲??
 
 ```bash
 docker compose up --build
 ```
 
-기본 접속 주소:
+湲곕낯 ?묒냽 二쇱냼:
 
-- 프론트엔드: `http://localhost:8088/chat/`
-- 백엔드 헬스체크: `http://localhost:8000/api/health`
-- 프론트 프록시 헬스체크: `http://localhost:8088/chat/api/health`
+- ?꾨줎?몄뿏?? `http://localhost:8088/chat/`
+- 諛깆뿏???ъ뒪泥댄겕: `http://localhost:8000/api/health`
+- ?꾨줎?몄뿏??寃쎌쑀 API ?ъ뒪泥댄겕: `http://localhost:8088/chat/api/health`
 - Qdrant: `http://localhost:6333/dashboard`
 
-## 사내 도메인 배포
+## 諛고룷 李멸퀬
 
-- 목표 주소: `https://ai.gtp.or.kr/chat/`
-- 외부 TLS 종료는 사내 리버스 프록시 또는 인그레스에서 처리합니다.
-- 프록시는 `/chat/` 경로를 프론트엔드 컨테이너로 전달하면 됩니다.
-- 프론트엔드 컨테이너는 `/chat/api/` 요청을 내부적으로 백엔드로 프록시합니다.
+- 紐⑺몴 二쇱냼: `https://ai.gtp.or.kr/chat/`
+- 由щ쾭???꾨줉?쒕뒗 `/chat/` 寃쎈줈瑜??꾨떖?댁빞 ?⑸땲??
+- 理쒖냼 ?섎굹??API 寃쎈줈(`/chat/api/` ?먮뒗 `/api/`)媛 ?꾨떖?섏뼱???⑸땲??
+- ?꾨줎?몄뿏?쒕뒗 釉뚮씪?곗??먯꽌 `/chat/api`? `/api`瑜??먮룞 ?먮퀎?⑸땲??
+- ??寃쎈줈 紐⑤몢 ?꾨떖?섏? ?딆쑝硫?臾몄꽌 紐⑸줉怨?梨꾪똿 ?묐떟??紐⑤몢 ?ㅽ뙣?⑸땲??
 
-## 내부 배포 주의사항
-
-- 앱 자체 로그인/회원관리는 없습니다.
-- 반드시 사내 VPN, 방화벽, 리버스 프록시 등 네트워크 계층에서 접근을 제한하세요.
-- 답변은 참고용이며 최종 판단 전 원문 확인이 필요합니다.
-
-## 법령 Markdown 동기화
-
-- 수동 동기화: `python scripts/import_law_md.py`
-- Windows 배치 실행: `scripts/run_law_sync.bat`
-- 예약 작업 등록(PowerShell 관리자 권장): `powershell -ExecutionPolicy Bypass -File scripts/register_law_sync_task.ps1`
-- 기본 법령 폴더: `C:\Project\gpt_rules\Docs\MD\law_md`
-## Company Domain Proxy
-
-- `https://ai.gtp.or.kr/chat/` front proxy must pass `/chat/`
-- It must also expose at least one API path: `/chat/api/` or `/api/`
-- The frontend now auto-detects between `/chat/api` and `/api` in the browser
-- If neither API path is forwarded, document list loading and chat answers will both fail
+## 踰뺣졊 Markdown ?숆린??
+- ?섎룞 ?숆린?? `python scripts/import_law_md.py`
+- Windows 諛곗튂 ?ㅽ뻾: `scripts/run_law_sync.bat`
+- ?덉빟 ?묒뾽 ?깅줉(愿由ъ옄 沅뚯옣): `powershell -ExecutionPolicy Bypass -File scripts/register_law_sync_task.ps1`
+- 湲곕낯 踰뺣졊 ?대뜑: `C:\Project\gpt_rules\Docs\MD\law_md`

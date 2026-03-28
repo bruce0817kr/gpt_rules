@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
+﻿import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
 
 import {
   answerModeOptions,
@@ -12,6 +12,7 @@ import {
   type FeedbackLabel,
   type FeedbackReasonCode,
 } from '../../types/api';
+import { GUIDEBOOK_TITLE, HERO_BADGES, HERO_TITLE } from '../../content/guidebookContent';
 
 export interface ConversationMessage {
   id: string;
@@ -35,10 +36,12 @@ interface ChatPanelProps {
   selectedCategories: DocumentCategory[];
   answerMode: AnswerMode;
   feedbackSubmittingId: string | null;
+  suggestedQuestions: string[];
   onDraftChange: (value: string) => void;
   onToggleCategory: (category: DocumentCategory) => void;
   onAnswerModeChange: (value: AnswerMode) => void;
   onSubmit: () => void;
+  onApplySuggestedQuestion: (question: string) => void;
   onOpenCitation: (citation: Citation) => void;
   onSubmitFeedback: (
     messageId: string,
@@ -56,10 +59,12 @@ export function ChatPanel({
   selectedCategories,
   answerMode,
   feedbackSubmittingId,
+  suggestedQuestions,
   onDraftChange,
   onToggleCategory,
   onAnswerModeChange,
   onSubmit,
+  onApplySuggestedQuestion,
   onOpenCitation,
   onSubmitFeedback,
 }: ChatPanelProps) {
@@ -87,65 +92,42 @@ export function ChatPanel({
 
   return (
     <div className="content-stack">
-      <section className="panel hero-panel" aria-labelledby="chat-hero-title">
-        <p className="eyebrow">Employee Guidance Desk</p>
-        <div className="hero-grid chat-hero-grid">
-          <div className="hero-main-block">
-            <span className="hero-badge">근거 문서 기반 상담</span>
-            <h2 id="chat-hero-title" className="hero-title">
-              규정과 법령을 찾고, 질문으로 바로 확인하는 업무 도우미
-            </h2>
-            <p className="hero-copy">근거 문서, 관련 조항, 원문 확인까지 한 화면에서 빠르게 이어집니다.</p>
-            <div className="hero-filter-block" aria-labelledby="scope-title">
-              <div className="section-heading-row compact hero-filter-heading">
-                <h2 id="scope-title">질문 범위</h2>
-                <p className="inline-hint">선택하지 않으면 전체 문서를 검색합니다.</p>
-              </div>
-              <fieldset className="chip-fieldset hero-chip-fieldset">
-                <legend className="sr-only">검색 범위 선택</legend>
-                {categoryOptions.map((option) => {
-                  const active = selectedCategories.includes(option.value);
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`filter-chip ${active ? 'is-active' : ''}`}
-                      aria-pressed={active}
-                      onClick={() => onToggleCategory(option.value)}
-                    >
-                      {option.label}
-                    </button>
-                  );
-                })}
-              </fieldset>
-              <div className="field-group hero-mode-group">
-                <div className="section-heading-row compact hero-filter-heading">
-                  <label className="field-label" htmlFor="answer-mode-standard">
-                    답변 모드
-                  </label>
-                  <p className="inline-hint">기본값은 일반이며, 질문 성격에 따라 바꿀 수 있습니다.</p>
-                </div>
-                <fieldset className="chip-fieldset hero-chip-fieldset">
-                  <legend className="sr-only">답변 모드 선택</legend>
-                  {answerModeOptions.map((option) => {
-                    const active = answerMode === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        id={`answer-mode-${option.value}`}
-                        type="button"
-                        className={`filter-chip ${active ? 'is-active' : ''}`}
-                        aria-pressed={active}
-                        onClick={() => onAnswerModeChange(option.value as AnswerMode)}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </fieldset>
-              </div>
-            </div>
+      <section className="panel hero-panel hero-panel-question-first" aria-labelledby="chat-hero-title">
+        <p className="eyebrow">{GUIDEBOOK_TITLE}</p>
+        <div className="hero-main-block hero-main-block-question-first">
+          <div className="hero-badge-row" aria-label="핵심 안내 배지">
+            {HERO_BADGES.map((badge) => (
+              <span key={badge} className="hero-badge">
+                {badge}
+              </span>
+            ))}
           </div>
+          <h2 id="chat-hero-title" className="hero-title">
+            {HERO_TITLE}
+          </h2>
+          <p className="hero-copy">
+            내부 규정과 관계 법령을 함께 찾아 근거 중심으로 정리합니다. 추천 질문으로 시작하면 바로 질문 입력창으로 이어집니다.
+          </p>
+          {suggestedQuestions.length > 0 ? (
+            <section className="suggested-question-section" aria-labelledby="suggested-questions-title">
+              <div className="section-heading-row compact hero-filter-heading">
+                <h2 id="suggested-questions-title">추천 질문</h2>
+                <p className="inline-hint">버튼을 누르면 질문을 바로 적용할 수 있습니다.</p>
+              </div>
+              <div className="suggested-question-list">
+                {suggestedQuestions.map((question) => (
+                  <button
+                    key={question}
+                    type="button"
+                    className="suggested-question-chip"
+                    onClick={() => onApplySuggestedQuestion(question)}
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
       </section>
 
@@ -219,14 +201,14 @@ export function ChatPanel({
                   <div className="feedback-heading">
                     <div className="message-title-block">
                       <span className="message-kicker">Quality Check</span>
-                      <strong>이 답변이 도움이 되었는지 평가</strong>
+                      <strong>이번 답변이 충분했나요?</strong>
                       <p className="inline-hint">
-                        여러분의 답변 평가는 답변 품질 강화와 다음 조정 라운드 우선순위 설정에 큰 도움이 됩니다.
+                        평가를 남기면 다음 답변의 품질과 선호도가 더 잘 맞도록 조정할 수 있습니다.
                       </p>
                     </div>
                     <div className="message-pill-row">
                       {message.feedbackRecordedAt ? (
-                        <span className="pill is-accent">평가 저장됨</span>
+                        <span className="pill is-accent">평가 반영됨</span>
                       ) : (
                         <span className="pill">미평가</span>
                       )}
@@ -289,7 +271,7 @@ export function ChatPanel({
                     </button>
                   </div>
                   <p className="inline-hint">
-                    `Bad`는 이유 코드를 하나 이상 고르면 저장됩니다. 같은 답변에 다시 평가를 남기면 최신 평가가 기준입니다.
+                    `Bad`에 해당하는 이유 코드를 선택하면 됩니다. 같은 답변을 다시 평가하면 최신 평가가 기준이 됩니다.
                   </p>
                   {message.feedbackReasons && message.feedbackReasons.length > 0 ? (
                     <div className="feedback-chip-row">
@@ -309,7 +291,7 @@ export function ChatPanel({
         </div>
 
         <form
-          className="composer"
+          className="composer composer-question-first"
           onSubmit={(event) => {
             event.preventDefault();
             if (!draft.trim() || isSubmitting) {
@@ -319,13 +301,13 @@ export function ChatPanel({
           }}
         >
           <label className="field-label" htmlFor="question-input">
-            상담 질문
+            무엇이 궁금한가요?
           </label>
           <textarea
             id="question-input"
             name="question"
             className="text-input text-area"
-            placeholder="예: 직급별 승진 소요년수를 표로 정리해 주세요."
+            placeholder="예: 출장비 지급 기준을 알려주세요."
             value={draft}
             autoComplete="off"
             spellCheck={false}
@@ -333,8 +315,8 @@ export function ChatPanel({
             onKeyDown={handleKeyDown}
           />
           <div className="composer-footer">
-            <p className="inline-hint">Ctrl/Cmd + Enter로도 전송할 수 있습니다.</p>
-            <button type="submit" className="primary-button" disabled={!draft.trim() || isSubmitting}>
+            <p className="inline-hint">규정과 관계 법령을 함께 검토해 근거와 원문 위치를 보여드립니다.</p>
+            <button type="submit" className="primary-button composer-cta" disabled={!draft.trim() || isSubmitting}>
               {isSubmitting ? '답변 생성 중' : '근거와 함께 답변 받기'}
             </button>
           </div>

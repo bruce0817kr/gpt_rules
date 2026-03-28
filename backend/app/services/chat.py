@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+﻿from datetime import datetime, timezone
 from pathlib import Path
 import re
 from uuid import uuid4
@@ -6,14 +6,14 @@ from uuid import uuid4
 from openai import AsyncOpenAI
 
 from app.config import Settings
-from app.models.schemas import AnswerMode, ChatRequest, ChatResponse, Citation
+from app.models.schemas import AnswerMode, AnswerabilityResult, ChatRequest, ChatResponse, Citation
 from app.services.answer_templates import match_answer_template, render_answer_template
 from app.services.catalog import DocumentCatalog
 from app.services.document_parser import DocumentParser
 from app.services.feedback_store import ChatFeedbackStore
-from app.services.retrieval_utils import deduplicate_hits, is_enumeration_query, retrieval_window
+from app.services.retrieval_utils import aggregate_parent_hits, deduplicate_hits, is_enumeration_query, prioritize_hits, retrieval_window, score_document_title_match, shortlist_documents_by_title, snippet_is_weak, tokenize_search_terms
 from app.services.reranker import BGERerankerService
-from app.services.vector_store import QdrantVectorStore
+from app.services.vector_store import QdrantVectorStore, SearchHit
 
 
 class ChatService:
@@ -47,26 +47,70 @@ class ChatService:
             rerank_candidates=self.settings.rerank_candidates,
         )
 
-        hits = self.vector_store.search(
-            question=request.question,
-            categories=request.categories,
-            top_k=candidate_count,
+        shortlisted_records = shortlist_documents_by_title(request.question, self.catalog.list_documents())
+        shortlisted_scores = [
+            (record, score_document_title_match(request.question, record.title))
+            for record in shortlisted_records
+        ]
+        shortlisted_ids = [record.id for record in shortlisted_records]
+        strongest_shortlist_score = shortlisted_scores[0][1] if shortlisted_scores else 0.0
+        second_shortlist_score = shortlisted_scores[1][1] if len(shortlisted_scores) > 1 else 0.0
+        hard_locked_records = (
+            [shortlisted_scores[0][0]]
+            if self._should_hard_lock_shortlist(strongest_shortlist_score, second_shortlist_score)
+            else []
         )
-        hits = deduplicate_hits(hits)
-        hits = self.reranker.rerank(request.question, hits, top_k=effective_top_k)
-        hits = deduplicate_hits(hits)
+
+        hits: list[SearchHit] = []
+        parent_hits = []
+
+        if hard_locked_records:
+            lexical_hits = self._search_shortlisted_document_sections(
+                request.question,
+                hard_locked_records,
+                limit=candidate_count,
+            )
+            if lexical_hits:
+                hits = deduplicate_hits(lexical_hits)
+                parent_hits = aggregate_parent_hits(hits, request.question)
+                hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
+
+        if not hits:
+            search_document_ids = [hard_locked_records[0].id] if hard_locked_records else (shortlisted_ids or None)
+            hits = self.vector_store.search(
+                question=request.question,
+                categories=request.categories,
+                top_k=candidate_count,
+                document_ids=search_document_ids,
+            )
+            hits = deduplicate_hits(hits)
+            hits = self.reranker.rerank(request.question, hits, top_k=effective_top_k)
+            hits = deduplicate_hits(hits)
+            parent_hits = aggregate_parent_hits(hits, request.question)
+            hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
+
+        if shortlisted_records and self._needs_shortlist_fallback(hits, parent_hits):
+            lexical_hits = self._search_shortlisted_document_sections(
+                request.question,
+                shortlisted_records,
+                limit=candidate_count,
+            )
+            if lexical_hits:
+                hits = deduplicate_hits(lexical_hits)
+                parent_hits = aggregate_parent_hits(hits, request.question)
+                hits = self._select_answer_hits(hits, parent_hits, request.question, effective_top_k)
 
         disclaimer = (
-            "답변은 사단 규정, 내부 지침, 관련 법령을 바탕으로 생성됩니다. "
-            "최종 판단 전에는 반드시 원문과 최신 개정 여부를 확인하세요."
+            "Answers are generated from the retrieved regulations and laws. "
+            "Verify the original clauses and latest revisions before making a final decision."
         )
 
         if not hits:
             return self._finalize_response(
                 request=request,
                 answer=(
-                    "질문과 직접 연결되는 문서를 찾지 못했습니다. "
-                    "문서 범위를 좁히거나 질문을 조금 더 구체적으로 작성해 주세요."
+                    "I could not find enough evidence to answer this question directly. "
+                    "Try again with a regulation name or a more specific clause keyword."
                 ),
                 citations=[],
                 confidence="low",
@@ -75,6 +119,9 @@ class ChatService:
                 template_id=None,
                 llm_used=False,
             )
+
+
+        answerability = self._assess_answerability(request.question, hits, parent_hits)
 
         citations = [
             Citation(
@@ -91,11 +138,44 @@ class ChatService:
             for index, hit in enumerate(hits, start=1)
         ]
 
+        if not answerability.is_answerable:
+            if citations:
+                preview_lines = [
+                    'Retrieved evidence is weak, so this is a document-grounded preview instead of a full answer.',
+                    '',
+                ]
+                for citation in citations:
+                    preview_lines.append(
+                        f"[{citation.index}] {citation.title} / {citation.location}: {citation.snippet[:220]}"
+                    )
+                return self._finalize_response(
+                    request=request,
+                    answer="\n".join(preview_lines),
+                    citations=citations,
+                    confidence=answerability.confidence,
+                    disclaimer=disclaimer,
+                    retrieved_chunks=len(citations),
+                    template_id=None,
+                    llm_used=False,
+                )
+
+            return self._finalize_response(
+                request=request,
+                answer='Insufficient evidence to answer reliably.',
+                citations=[],
+                confidence=answerability.confidence,
+                disclaimer=disclaimer,
+                retrieved_chunks=0,
+                template_id=None,
+                llm_used=False,
+            )
+
+
         template_id = match_answer_template(request.question, request.answer_mode)
 
         if self.client is None and template_id is None:
             preview_lines = [
-                "현재 LLM 연결이 설정되지 않아 검색된 문서 요약만 제공합니다.",
+                "?袁⑹삺 LLM ?怨뚭퍙????쇱젟??? ??녿툡 野꺜??곕쭆 ?얜챷苑??遺용튋筌???볥궗??몃빍??",
                 "",
             ]
             for citation in citations:
@@ -116,17 +196,17 @@ class ChatService:
         supplemental_contexts: dict[int, str] = {}
         context_blocks = []
         for citation in citations:
-            page_label = f" / 페이지 {citation.page_number}" if citation.page_number else ""
+            page_label = f" / ??륁뵠筌왖 {citation.page_number}" if citation.page_number else ""
             supplemental = self._supplemental_context(
                 citation.document_id,
                 citation.location,
                 expand=is_list_query,
             )
             supplemental_contexts[citation.index] = supplemental
-            supplemental_text = f"\n보강 문맥:\n{supplemental}" if supplemental else ""
+            supplemental_text = f"\n癰귣떯而??얜챶??\n{supplemental}" if supplemental else ""
             context_blocks.append(
-                f"[{citation.index}] 제목: {citation.title} / 분류: {citation.category.value} / 위치: {citation.location}{page_label}\n"
-                f"내용: {citation.snippet}{supplemental_text}"
+                f"[{citation.index}] ??뺛걠: {citation.title} / ?브쑬履? {citation.category.value} / ?袁⑺뒄: {citation.location}{page_label}\n"
+                f"??곸뒠: {citation.snippet}{supplemental_text}"
             )
 
         if template_id is not None:
@@ -149,7 +229,7 @@ class ChatService:
 
         if self.client is None:
             preview_lines = [
-                "현재 LLM 연결이 설정되지 않아 검색된 문서 요약만 제공합니다.",
+                "?袁⑹삺 LLM ?怨뚭퍙????쇱젟??? ??녿툡 野꺜??곕쭆 ?얜챷苑??遺용튋筌???볥궗??몃빍??",
                 "",
             ]
             for citation in citations:
@@ -180,16 +260,16 @@ class ChatService:
                 {
                     "role": "user",
                     "content": (
-                        f"질문: {request.question}\n\n"
-                        f"근거 문서:\n{prompt}\n\n"
-                        "요구사항: 추정으로 답하지 말고 근거 없는 단정은 금지한다. "
-                        "인용은 반드시 [번호] 형식으로 표기한다."
+                        f"筌욌뜄揆: {request.question}\n\n"
+                        f"域뱀눊援??얜챷苑?\n{prompt}\n\n"
+                        "?遺쎈럡??鍮? ?곕뗄???곗쨮 ???릭筌왖 筌띾Þ??域뱀눊援???용뮉 ??μ젟?? 疫뀀뜆???뺣뼄. "
+                        "?紐꾩뒠?? 獄쏆꼶諭??[甕곕뜇?? ?類ㅻ뻼??곗쨮 ??볥┛??뺣뼄."
                     ),
                 },
             ],
         )
 
-        message = completion.choices[0].message.content or "답변을 생성하지 못했습니다."
+        message = completion.choices[0].message.content or "???????밴쉐??? 筌륁궢六??щ빍??"
         return self._finalize_response(
             request=request,
             answer=message.strip(),
@@ -200,6 +280,155 @@ class ChatService:
             template_id=template_id,
             llm_used=True,
         )
+
+
+    def _select_answer_hits(
+        self,
+        hits: list[SearchHit],
+        parent_hits,
+        question: str,
+        top_k: int,
+    ) -> list[SearchHit]:
+        if not hits:
+            return []
+
+        selected_parent_ids = [
+            parent_hit.parent_id
+            for parent_hit in parent_hits
+            if parent_hit.aggregate_score >= 0.55
+        ][: max(top_k, 3)]
+
+        if not selected_parent_ids:
+            return prioritize_hits(hits, question)[:top_k]
+
+        grouped: dict[str, list[SearchHit]] = {}
+        for hit in hits:
+            key = hit.parent_id or f"{hit.document_id}:{hit.location}"
+            grouped.setdefault(key, []).append(hit)
+
+        selected_hits: list[SearchHit] = []
+        for parent_id in selected_parent_ids:
+            group_hits = grouped.get(parent_id, [])
+            if not group_hits:
+                continue
+            ranked_group = prioritize_hits(group_hits, question)
+            selected_hits.append(ranked_group[0])
+
+        if not selected_hits:
+            return prioritize_hits(hits, question)[:top_k]
+
+        return prioritize_hits(selected_hits, question)[:top_k]
+
+
+    def _should_hard_lock_shortlist(self, strongest_score: float, second_score: float) -> bool:
+        return strongest_score >= 0.9 and (strongest_score - second_score) >= 0.2
+
+    def _needs_shortlist_fallback(self, hits: list[SearchHit], parent_hits) -> bool:
+        if not hits:
+            return True
+        if not parent_hits:
+            return True
+        top_parent = parent_hits[0]
+        return top_parent.aggregate_score < 0.7 or top_parent.is_addendum or top_parent.is_appendix
+
+    def _search_shortlisted_document_sections(
+        self,
+        question: str,
+        records,
+        *,
+        limit: int,
+    ) -> list[SearchHit]:
+        tokens = self._tokenize(question)
+        candidates: list[SearchHit] = []
+
+        for record in records:
+            structured_sections = []
+            basic_sections = []
+            try:
+                if hasattr(self.parser, 'parse_structured_sections'):
+                    structured_sections = self.parser.parse_structured_sections(Path(record.file_path))
+            except Exception:
+                structured_sections = []
+            try:
+                basic_sections = self.parser.parse(Path(record.file_path))
+            except Exception:
+                basic_sections = []
+
+            raw_sections = structured_sections or basic_sections
+            for index, section in enumerate(raw_sections):
+                text = getattr(section, 'text', '')
+                if not text:
+                    continue
+                location = getattr(section, 'location', f'Section {index + 1}')
+                path_key = getattr(section, 'path_key', location)
+                source_type = getattr(section, 'source_type', None)
+                is_addendum = bool(getattr(section, 'is_addendum', False))
+                is_appendix = bool(getattr(section, 'is_appendix', False))
+
+                score = self._score_shortlisted_section(question, record.title, path_key, text, source_type, is_addendum, is_appendix)
+                if score <= 0:
+                    continue
+
+                candidates.append(
+                    SearchHit(
+                        document_id=record.id,
+                        title=record.title,
+                        filename=record.filename,
+                        category=record.category,
+                        location=location,
+                        page_number=getattr(section, 'page_number', None),
+                        snippet=text[:240],
+                        score=score,
+                        chunk_index=index,
+                        child_id=getattr(section, 'child_id', None),
+                        parent_id=getattr(section, 'parent_id', None) or f"{record.id}::{path_key}",
+                        path_key=path_key,
+                        source_type=source_type,
+                        is_addendum=is_addendum,
+                        is_appendix=is_appendix,
+                    )
+                )
+
+        ranked = sorted(
+            candidates,
+            key=lambda hit: (
+                -hit.score,
+                1 if snippet_is_weak(hit.snippet) else 0,
+                hit.location,
+            ),
+        )
+        return ranked[:limit]
+
+    def _score_shortlisted_section(
+        self,
+        question: str,
+        title: str,
+        path_key: str,
+        text: str,
+        source_type,
+        is_addendum: bool,
+        is_appendix: bool,
+    ) -> float:
+        title_score = score_document_title_match(question, title)
+        question_tokens = self._tokenize(question)
+        body_tokens = self._tokenize(text)
+        path_tokens = self._tokenize(path_key)
+        body_overlap = len(question_tokens & body_tokens)
+        path_overlap = len(question_tokens & path_tokens)
+        score = title_score + (0.16 * body_overlap) + (0.11 * path_overlap)
+
+        if source_type is not None and getattr(source_type, 'value', source_type) == 'article':
+            score += 0.08
+        if body_overlap == 0 and path_overlap == 0:
+            score -= 0.35
+        if is_addendum or is_appendix or snippet_is_weak(text):
+            score -= 0.45
+        if len(text.strip()) <= 8:
+            score -= 0.25
+        return max(0.0, min(1.0, score))
+
+    def _tokenize(self, value: str) -> set[str]:
+        return set(tokenize_search_terms(value))
 
     def _finalize_response(
         self,
@@ -237,44 +466,37 @@ class ChatService:
     def _system_prompt(self, answer_mode: AnswerMode, is_enumeration_query: bool) -> str:
         mode_instruction = {
             AnswerMode.STANDARD: (
-                "실무 지원형으로 간결하고 정확하게 답하라. 핵심 결론을 먼저 제시하고, "
-                "바로 이어서 근거와 주의사항을 붙여라."
+                "Explain the core rule first and keep the answer grounded in the cited regulations and laws."
             ),
             AnswerMode.HR_ADMIN: (
-                "인사담당자처럼 답하라. 취업규칙, 복무, 승진, 평가, 휴가, 징계, 승인 절차와 "
-                "예외 조건을 구분해 설명하고, 실제 처리 순서를 함께 제시하라."
+                "Focus on HR procedures, approval paths, responsibilities, and required notices."
             ),
             AnswerMode.CONTRACT_REVIEW: (
-                "계약 검토 담당자처럼 답하라. 적용 조항, 책임 범위, 예외, 누락 위험, "
-                "분쟁 소지를 나눠 설명하고, 확인이 필요한 문구를 짚어라."
+                "Focus on contract change steps, required approvals, counterparty consent, and legal risk."
             ),
             AnswerMode.PROJECT_MANAGEMENT: (
-                "사업관리 담당자처럼 답하라. 사업 수행 절차, 집행 기준, 보고 흐름, "
-                "일정 및 산출물 관점에서 빠짐없이 구조화해 설명하라."
+                "Focus on practical execution steps, approvals, records, and operating requirements."
             ),
             AnswerMode.PROCUREMENT_BID: (
-                "구매/입찰 담당자처럼 답하라. 구매 방식, 비교견적 또는 입찰 필요 여부, "
-                "검수와 계약 체결 포인트, 증빙 문서를 중심으로 정리하라."
+                "Separate threshold amounts, procedures, exceptions, and supporting documents."
             ),
             AnswerMode.AUDIT_RESPONSE: (
-                "감사 대응 담당자처럼 답하라. 절차 누락, 규정 위반 가능성, 증빙 공백, "
-                "사후 보완 필요사항을 우선순위대로 점검하라."
+                "Focus on evidence retention, approval history, missing evidence, and remediation steps."
             ),
         }[answer_mode]
 
         enumeration_instruction = (
-            "질문이 목록, 기준표, 직급별 또는 유형별 정리를 요구하면 한 항목만 답하지 말고 "
-            "근거 문서 안에 있는 관련 항목을 가능한 범위까지 모두 모아 표나 목록 형태로 정리하라. "
-            "일부만 확인되면 누락 가능성을 명시하고, 확인된 항목과 미확인 항목을 구분하라."
+            "When the question asks for a list or table, organize the answer by item and tie each item back to the cited evidence."
             if is_enumeration_query
-            else "질문과 직접 연결되는 기준, 적용 범위, 예외를 먼저 제시하라."
+            else "Separate the answer into key criteria, procedure, and exceptions when possible."
         )
 
         return (
-            "당신은 회사 내부 규정과 법령을 근거로 답변하는 업무 상담 시스템이다. "
-            "반드시 제공된 근거 문서 범위 안에서만 답하고, 문서에 없는 내용은 추정하지 마라. "
-            "근거가 충돌하거나 불명확하면 그 사실을 먼저 명시하라. "
-            "답변은 먼저 결론, 다음에 근거 요약, 마지막에 주의사항 또는 추가 확인사항 순서로 정리하라. "
+            "You are a regulation and law assistant for Gyeonggi Technopark. "
+            "Answer only from the retrieved evidence, and clearly state when the evidence is weak or incomplete. "
+            "Do not add unsupported interpretations. Cite evidence numbers when they materially support the answer. "
+            "Respond in Korean unless the user explicitly asks for another language. "
+            "Preserve the user's key domain terms verbatim when they are supported by the evidence. "
             f"{mode_instruction} {enumeration_instruction}"
         )
 
@@ -284,6 +506,124 @@ class ChatService:
         if score >= 0.68:
             return "medium"
         return "low"
+
+    def _assess_answerability(
+        self,
+        question: str,
+        hits: list[SearchHit],
+        parent_hits=None,
+    ) -> AnswerabilityResult:
+        if not hits:
+            return AnswerabilityResult(
+                is_answerable=False,
+                confidence="low",
+                reason="no retrieved evidence",
+                selected_parent_ids=[],
+            )
+
+        evidence_units = self._collapse_evidence_units(hits)
+        ranked_hits = sorted(evidence_units, key=lambda hit: hit.score, reverse=True)
+        top_hits = ranked_hits[:3]
+        top_score = top_hits[0].score
+        average_score = sum(hit.score for hit in top_hits) / len(top_hits)
+        strong_hits = [hit for hit in top_hits if hit.score >= 0.68 and not snippet_is_weak(hit.snippet)]
+        rich_hits = [hit for hit in top_hits if self._metadata_richness(hit) >= 3]
+        weak_hits = [hit for hit in top_hits if snippet_is_weak(hit.snippet)]
+        aggregated_hits = parent_hits if parent_hits is not None else aggregate_parent_hits(hits, question)
+        selected_parent_ids = self._selected_parent_ids(aggregated_hits)
+        top_parent = aggregated_hits[0] if aggregated_hits else None
+
+        if top_parent is not None and top_parent.aggregate_score >= 0.62 and not top_parent.is_addendum and not top_parent.is_appendix:
+            confidence = "high" if top_parent.aggregate_score >= 0.82 and top_parent.child_hit_count >= 2 else "medium"
+            reason = (
+                f"parent_score={top_parent.aggregate_score:.2f}; "
+                f"child_hits={top_parent.child_hit_count}; "
+                f"selected={len(selected_parent_ids)}; confidence={confidence}"
+            )
+            return AnswerabilityResult(
+                is_answerable=True,
+                confidence=confidence,
+                reason=reason,
+                selected_parent_ids=selected_parent_ids,
+            )
+
+        if (
+            top_score < 0.55
+            or average_score < 0.5
+            or (len(top_hits) == 1 and not strong_hits)
+            or (weak_hits and not rich_hits and average_score < 0.7)
+        ):
+            return AnswerabilityResult(
+                is_answerable=False,
+                confidence="low",
+                reason="retrieved evidence is too weak to answer confidently",
+                selected_parent_ids=selected_parent_ids,
+            )
+
+        confidence = "high" if top_score >= 0.82 and average_score >= 0.72 and len(strong_hits) >= 2 and rich_hits else "medium"
+        reason = self._answerability_reason(top_hits, rich_hits, selected_parent_ids, confidence)
+        return AnswerabilityResult(
+            is_answerable=True,
+            confidence=confidence,
+            reason=reason,
+            selected_parent_ids=selected_parent_ids,
+        )
+
+    def _collapse_evidence_units(self, hits: list[SearchHit]) -> list[SearchHit]:
+        unique_hits: dict[str, SearchHit] = {}
+        for hit in hits:
+            key = hit.parent_id or f"{hit.document_id}:{hit.location}"
+            current = unique_hits.get(key)
+            if current is None or hit.score > current.score:
+                unique_hits[key] = hit
+        return list(unique_hits.values())
+
+    def _selected_parent_ids(self, parent_hits) -> list[str]:
+        parent_ids: list[str] = []
+        seen: set[str] = set()
+        for hit in parent_hits:
+            parent_id = getattr(hit, 'parent_id', None)
+            aggregate_score = getattr(hit, 'aggregate_score', 0.0)
+            if parent_id is None or aggregate_score < 0.5 or parent_id in seen:
+                continue
+            seen.add(parent_id)
+            parent_ids.append(parent_id)
+            if len(parent_ids) >= 3:
+                break
+        return parent_ids
+
+    def _metadata_richness(self, hit: SearchHit) -> int:
+        fields = [
+            hit.filename,
+            hit.location,
+            hit.path_key,
+            hit.child_id,
+            hit.parent_id,
+            hit.source_type.value if hit.source_type is not None and hasattr(hit.source_type, "value") else hit.source_type,
+        ]
+        richness = sum(1 for field in fields if field not in (None, ""))
+        if hit.page_number is not None:
+            richness += 1
+        if hit.is_addendum:
+            richness += 1
+        if hit.is_appendix:
+            richness += 1
+        return richness
+
+    def _answerability_reason(
+        self,
+        hits: list[SearchHit],
+        rich_hits: list[SearchHit],
+        selected_parent_ids: list[str],
+        confidence: str,
+    ) -> str:
+        top_score = hits[0].score if hits else 0.0
+        richness = max((self._metadata_richness(hit) for hit in hits), default=0)
+        selected_note = f"{len(selected_parent_ids)} parent groups" if selected_parent_ids else "no parent groups"
+        return (
+            f"top_score={top_score:.2f}; evidence_richness={richness}; "
+            f"rich_hits={len(rich_hits)}; selected={selected_note}; confidence={confidence}"
+        )
 
     def _supplemental_context(self, document_id: str, location: str, expand: bool) -> str:
         record = self.catalog.get_document(document_id)
@@ -341,3 +681,7 @@ def _extract_citation_indices(answer: str) -> list[int]:
         seen.add(index)
         indices.append(index)
     return indices
+
+
+
+

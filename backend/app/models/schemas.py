@@ -1,4 +1,4 @@
-from datetime import datetime
+﻿from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field, model_validator
@@ -203,3 +203,80 @@ class DocumentContentResponse(BaseModel):
 
 class LawImportRequest(BaseModel):
     law_name: str = Field(min_length=2, max_length=200)
+
+class ChunkSourceType(str, Enum):
+    ARTICLE = "article"
+    APPENDIX = "appendix"
+    ADDENDUM = "addendum"
+    TABLE = "table"
+    METADATA = "metadata"
+
+
+class StructuredSection(BaseModel):
+    source_type: ChunkSourceType
+    text: str
+    chapter_label: str | None = None
+    section_label: str | None = None
+    article_label: str | None = None
+    paragraph_label: str | None = None
+    item_label: str | None = None
+    effective_date: str | None = None
+    path_key: str
+    page_number: int | None = None
+    location: str
+    is_addendum: bool = False
+    is_appendix: bool = False
+
+
+class ParentChunkRecord(BaseModel):
+    parent_id: str
+    document_id: str
+    document_title: str
+    source_type: ChunkSourceType
+    path_key: str
+    article_label: str | None = None
+    text: str
+    representative_text: str
+    child_ids: list[str] = Field(default_factory=list)
+    page_number: int | None = None
+    location: str
+    is_addendum: bool = False
+    is_appendix: bool = False
+
+
+class ChildChunkRecord(BaseModel):
+    child_id: str
+    parent_id: str
+    document_id: str
+    document_title: str
+    source_type: ChunkSourceType
+    path_key: str
+    text: str
+    page_number: int | None = None
+    location: str
+    chunk_index: int
+    is_addendum: bool = False
+    is_appendix: bool = False
+
+
+class AggregatedParentHit(BaseModel):
+    parent_id: str
+    document_id: str
+    document_title: str
+    source_type: ChunkSourceType
+    path_key: str
+    location: str
+    representative_text: str
+    child_hit_count: int
+    best_child_score: float
+    lexical_score: float
+    aggregate_score: float
+    is_addendum: bool = False
+    is_appendix: bool = False
+
+
+class AnswerabilityResult(BaseModel):
+    is_answerable: bool
+    confidence: str
+    reason: str
+    selected_parent_ids: list[str] = Field(default_factory=list)

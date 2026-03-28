@@ -496,6 +496,7 @@ class ChatService:
             "Answer only from the retrieved evidence, and clearly state when the evidence is weak or incomplete. "
             "Do not add unsupported interpretations. Cite evidence numbers when they materially support the answer. "
             "Respond in Korean unless the user explicitly asks for another language. "
+            "Preserve the user's key domain terms verbatim when they are supported by the evidence. "
             f"{mode_instruction} {enumeration_instruction}"
         )
 

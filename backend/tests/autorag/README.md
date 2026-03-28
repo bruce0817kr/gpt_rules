@@ -14,6 +14,9 @@ What it does:
 - `representative_cases.json`
   - a small, stable query suite for integration checks and before/after comparisons
   - covers the questions that most often regress in this domain: travel expense rules, disciplinary procedures, vehicle management, contract review, facility-law lookup, procurement, leave, and audit evidence
+- `law_representative_cases.json`
+  - a law-only regression set for checking law.go.kr ingestion/rendering changes
+  - useful after changing `law_sync.py`, law markdown rendering, or law-only retrieval rules
 - representative split policy
   - `dev`: fast debugging set; can be inspected frequently during tuning
   - `validation`: selection gate; use this to decide whether a retrieval change is actually better

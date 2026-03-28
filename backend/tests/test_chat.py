@@ -459,3 +459,4 @@ def test_system_prompt_defaults_to_korean_output() -> None:
     prompt = service._system_prompt(AnswerMode.STANDARD, False)
 
     assert 'Respond in Korean' in prompt
+

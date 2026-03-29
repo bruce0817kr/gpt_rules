@@ -4,6 +4,7 @@ import argparse
 import sys
 import asyncio
 import json
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -16,6 +17,15 @@ from app.models.schemas import AnswerMode, ChatRequest, DocumentCategory
 from app.dependencies import get_chat_service
 from compare_representative_runs import load_cases
 from evaluate_representative_gate import compute_gate_metrics, evaluate_gate, format_decision
+
+
+def apply_openrouter_env_fallback() -> None:
+    if not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY"):
+        os.environ["OPENAI_API_KEY"] = os.environ["OPENROUTER_API_KEY"]
+    if not os.environ.get("OPENAI_BASE_URL") and os.environ.get("OPENROUTER_BASE_URL"):
+        os.environ["OPENAI_BASE_URL"] = os.environ["OPENROUTER_BASE_URL"]
+    if not os.environ.get("LLM_MODEL") and os.environ.get("OPENROUTER_MODEL"):
+        os.environ["LLM_MODEL"] = os.environ["OPENROUTER_MODEL"]
 
 
 def load_split_cases(path: Path, split: str) -> list[dict]:
@@ -76,6 +86,7 @@ def save_snapshot(output_dir: Path, retrieval_on_df: pd.DataFrame, retrieval_off
 
 
 def main() -> None:
+    apply_openrouter_env_fallback()
     parser = argparse.ArgumentParser(description='Run a representative candidate snapshot and evaluate the split gate against an existing baseline snapshot.')
     parser.add_argument('--cases-path', type=Path, default=Path(__file__).with_name('representative_cases.json'))
     parser.add_argument('--split', choices=['dev', 'validation', 'holdout'], default='validation')

@@ -4,6 +4,7 @@ import argparse
 import sys
 import asyncio
 import json
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -14,6 +15,15 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from app.dependencies import get_chat_service
 from app.models.schemas import AnswerMode, ChatRequest, DocumentCategory
+
+
+def apply_openrouter_env_fallback() -> None:
+    if not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY"):
+        os.environ["OPENAI_API_KEY"] = os.environ["OPENROUTER_API_KEY"]
+    if not os.environ.get("OPENAI_BASE_URL") and os.environ.get("OPENROUTER_BASE_URL"):
+        os.environ["OPENAI_BASE_URL"] = os.environ["OPENROUTER_BASE_URL"]
+    if not os.environ.get("LLM_MODEL") and os.environ.get("OPENROUTER_MODEL"):
+        os.environ["LLM_MODEL"] = os.environ["OPENROUTER_MODEL"]
 
 
 def load_cases(path: Path, split: str | None = None) -> list[dict]:
@@ -66,6 +76,7 @@ async def run_cases(cases: list[dict]) -> tuple[pd.DataFrame, pd.DataFrame, pd.D
 
 
 def main() -> None:
+    apply_openrouter_env_fallback()
     parser = argparse.ArgumentParser(description='Run representative cases against the live backend and save lightweight comparison artifacts.')
     parser.add_argument('--cases-path', type=Path, default=Path(__file__).with_name('representative_cases.json'))
     parser.add_argument('--output-dir', type=Path, required=True)

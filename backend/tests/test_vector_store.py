@@ -17,7 +17,7 @@ class FakeQdrantClient:
         self.upsert_calls: list[dict] = []
         self.query_points_calls: list[dict] = []
 
-    def upsert(self, *, collection_name, points, wait) -> None:
+    def upsert(self, *, collection_name, points, wait, **kwargs) -> None:
         self.upsert_calls.append(
             {
                 "collection_name": collection_name,

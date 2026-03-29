@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     law_oc: str = "dhl"
     qdrant_host: str = "localhost"
     qdrant_port: int = 6333
+    qdrant_timeout: int = 120
     collection_name: str = "foundation_docs"
     chunk_size: int = 800
     chunk_overlap: int = 200

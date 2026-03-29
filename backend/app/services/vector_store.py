@@ -36,9 +36,11 @@ class QdrantVectorStore:
     def __init__(self, settings: Settings, embedder: SentenceTransformerEmbedder) -> None:
         self.collection_name = settings.collection_name
         self.embedder = embedder
+        self.timeout = getattr(settings, "qdrant_timeout", 120)
         self.client = QdrantClient(
             host=settings.qdrant_host,
             port=settings.qdrant_port,
+            timeout=self.timeout,
             check_compatibility=False,
         )
 
@@ -83,7 +85,7 @@ class QdrantVectorStore:
             points.append(models.PointStruct(id=str(uuid4()), vector=vector, payload=payload))
         for index in range(0, len(points), self.UPSERT_BATCH_SIZE):
             batch = points[index:index + self.UPSERT_BATCH_SIZE]
-            self.client.upsert(collection_name=self.collection_name, points=batch, wait=True)
+            self.client.upsert(collection_name=self.collection_name, points=batch, wait=True, timeout=self.timeout)
         return len(points)
 
     def _build_payload(self, record: DocumentRecord, chunk: Chunk) -> dict[str, Any]:

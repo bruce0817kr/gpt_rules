@@ -31,6 +31,8 @@ class SearchHit:
 
 
 class QdrantVectorStore:
+    UPSERT_BATCH_SIZE = 64
+
     def __init__(self, settings: Settings, embedder: SentenceTransformerEmbedder) -> None:
         self.collection_name = settings.collection_name
         self.embedder = embedder
@@ -79,7 +81,9 @@ class QdrantVectorStore:
         for chunk, vector in zip(chunks, vectors, strict=True):
             payload = self._build_payload(record, chunk)
             points.append(models.PointStruct(id=str(uuid4()), vector=vector, payload=payload))
-        self.client.upsert(collection_name=self.collection_name, points=points, wait=True)
+        for index in range(0, len(points), self.UPSERT_BATCH_SIZE):
+            batch = points[index:index + self.UPSERT_BATCH_SIZE]
+            self.client.upsert(collection_name=self.collection_name, points=batch, wait=True)
         return len(points)
 
     def _build_payload(self, record: DocumentRecord, chunk: Chunk) -> dict[str, Any]:

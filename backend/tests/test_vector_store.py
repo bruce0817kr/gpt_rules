@@ -157,3 +157,45 @@ def test_search_uses_document_id_filter_when_shortlisted(monkeypatch) -> None:
     document_condition = query_filter.must[0]
     assert document_condition.key == 'document_id'
     assert document_condition.match.any == ['doc-1', 'doc-2']
+
+
+def test_upsert_document_batches_large_point_sets(monkeypatch) -> None:
+    monkeypatch.setattr("app.services.vector_store.QdrantClient", FakeQdrantClient)
+    monkeypatch.setattr(QdrantVectorStore, "ensure_collection", lambda self: None)
+    monkeypatch.setattr(QdrantVectorStore, "UPSERT_BATCH_SIZE", 2)
+
+    store = QdrantVectorStore(
+        settings=SimpleNamespace(collection_name="documents", qdrant_host="localhost", qdrant_port=6333),
+        embedder=FakeEmbedder(),
+    )
+    record = DocumentRecord(
+        id="doc-1",
+        title="Travel Rules",
+        filename="travel.md",
+        stored_filename="doc-1.md",
+        file_path="/tmp/doc-1.md",
+        category=DocumentCategory.RULE,
+        uploaded_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+    )
+    chunks = [
+        SimpleNamespace(
+            text=f"chunk {index}",
+            location=f"Section {index}",
+            page_number=1,
+            chunk_index=index,
+            child_id=f"child-{index}",
+            parent_id=f"parent-{index}",
+            path_key=f"path-{index}",
+            source_type="article",
+            is_addendum=False,
+            is_appendix=False,
+        )
+        for index in range(5)
+    ]
+
+    count = store.upsert_document(record, chunks)
+
+    assert count == 5
+    assert len(store.client.upsert_calls) == 3
+    assert [len(call["points"]) for call in store.client.upsert_calls] == [2, 2, 1]

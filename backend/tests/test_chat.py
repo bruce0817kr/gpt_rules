@@ -1,7 +1,7 @@
 ﻿import asyncio
 
 from app.config import Settings
-from app.models.schemas import AnswerMode, ChatRequest, Citation, DocumentCategory
+from app.models.schemas import AnswerMode, ChatRequest, ChunkSourceType, Citation, DocumentCategory
 from app.services.chat import ChatService, _extract_citation_indices, _prune_citations_to_answer
 from app.services.vector_store import SearchHit
 
@@ -365,6 +365,39 @@ def test_tokenize_handles_korean_particles_for_shortlisted_sections() -> None:
 
     assert '\ucde8\uc5c5\uaddc\uce59' in tokens
     assert '\uc808\ucc28' in tokens
+
+
+def test_assess_answerability_accepts_law_article_with_rich_metadata() -> None:
+    hit = SearchHit(
+        'doc-1',
+        '\uadfc\ub85c\uae30\uc900\ubc95',
+        'law.md',
+        DocumentCategory.LAW,
+        '\uc81c53\uc870',
+        1,
+        '\uc81c53\uc870(\uc5f0\uc7a5 \uadfc\ub85c\uc758 \uc81c\ud55c) \uc5f0\uc7a5 \uadfc\ub85c\uc640 \ud734\uac8c\uc2dc\uac04 \uae30\uc900\uc744 \uc815\ud55c\ub2e4.',
+        0.49,
+        0,
+        child_id='child-1',
+        parent_id='parent-1',
+        path_key='\uc81c53\uc870',
+        source_type=ChunkSourceType.ARTICLE,
+        is_addendum=False,
+        is_appendix=False,
+    )
+    service = ChatService(
+        Settings(openai_api_key=''),
+        FakeVectorStore([hit]),
+        FakeReranker([hit]),
+        BlockingCatalog(),
+        BlockingParser(),
+        RecordingFeedbackStore(),
+    )
+
+    result = service._assess_answerability('\uc5f0\uc7a5\uadfc\ub85c\uc640 \ud734\uac8c\uc2dc\uac04 \uae30\uc900\uc744 \ud655\uc778\ud558\ub824\uba74 \uc5b4\ub5a4 \ubc95\ub960 \uc870\ud56d\uc744 \ubd10\uc57c \ud558\ub098\uc694?', [hit])
+
+    assert result.is_answerable is True
+    assert result.confidence == 'medium'
 
 
 def test_answer_prefers_lexical_shortlist_when_title_match_is_strong() -> None:

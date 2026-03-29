@@ -6,7 +6,7 @@ from uuid import uuid4
 from openai import AsyncOpenAI
 
 from app.config import Settings
-from app.models.schemas import AnswerMode, AnswerabilityResult, ChatRequest, ChatResponse, Citation
+from app.models.schemas import AnswerMode, AnswerabilityResult, ChatRequest, ChatResponse, Citation, DocumentCategory
 from app.services.answer_templates import match_answer_template, render_answer_template
 from app.services.catalog import DocumentCatalog
 from app.services.document_parser import DocumentParser
@@ -532,6 +532,8 @@ class ChatService:
         aggregated_hits = parent_hits if parent_hits is not None else aggregate_parent_hits(hits, question)
         selected_parent_ids = self._selected_parent_ids(aggregated_hits)
         top_parent = aggregated_hits[0] if aggregated_hits else None
+        top_hit = top_hits[0]
+        top_source_value = getattr(top_hit.source_type, "value", top_hit.source_type)
 
         if top_parent is not None and top_parent.aggregate_score >= 0.62 and not top_parent.is_addendum and not top_parent.is_appendix:
             confidence = "high" if top_parent.aggregate_score >= 0.82 and top_parent.child_hit_count >= 2 else "medium"
@@ -544,6 +546,20 @@ class ChatService:
                 is_answerable=True,
                 confidence=confidence,
                 reason=reason,
+                selected_parent_ids=selected_parent_ids,
+            )
+
+        if (
+            top_hit.category == DocumentCategory.LAW
+            and top_source_value == "article"
+            and average_score >= 0.45
+            and rich_hits
+            and not weak_hits
+        ):
+            return AnswerabilityResult(
+                is_answerable=True,
+                confidence="medium",
+                reason="law article hit with sufficient metadata richness",
                 selected_parent_ids=selected_parent_ids,
             )
 
